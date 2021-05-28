@@ -2,8 +2,6 @@ pragma solidity ^0.6.10;
 
 import "../lib/Owned.sol";
 import "../lib/SafeDecimalMath.sol";
-
-// Internal references
 import "./state/TokenState.sol";
 
 contract ExternStateToken is Owned {

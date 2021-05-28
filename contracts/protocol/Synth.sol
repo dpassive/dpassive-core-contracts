@@ -1,7 +1,5 @@
 pragma solidity ^0.6.10;
 
-// Inheritance
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../lib/Owned.sol";
 import "../interfaces/ISynth.sol";
 import "../interfaces/ISystemStatus.sol";
@@ -11,7 +9,7 @@ import "../interfaces/IIssuer.sol";
 import "./ExternStateToken.sol";
 import "./mixin/MixinResolver.sol";
 
-contract Synth is Owned, IERC20, ExternStateToken, MixinResolver, ISynth {
+contract Synth is Owned, ExternStateToken, MixinResolver, ISynth {
     /* ========== STATE VARIABLES ========== */
 
     // Currency key which identifies this Synth to the Synthetix system
@@ -51,7 +49,7 @@ contract Synth is Owned, IERC20, ExternStateToken, MixinResolver, ISynth {
 
     /* ========== MUTATIVE FUNCTIONS ========== */
 
-    function transfer(address to, uint value) public override returns (bool) {
+    function transfer(address to, uint value) public returns (bool) {
         _ensureCanTransfer(msg.sender, value);
 
         // transfers to FEE_ADDRESS will be exchanged into sUSD and recorded as fee
@@ -88,7 +86,7 @@ contract Synth is Owned, IERC20, ExternStateToken, MixinResolver, ISynth {
         address from,
         address to,
         uint value
-    ) public override returns (bool) {
+    ) public returns (bool) {
         _ensureCanTransfer(from, value);
 
         return _internalTransferFrom(from, to, value);
@@ -238,7 +236,7 @@ contract Synth is Owned, IERC20, ExternStateToken, MixinResolver, ISynth {
         bool isExchanger = msg.sender == address(exchanger());
         bool isIssuer = msg.sender == address(issuer());
 
-        require(isFeePool || isExchanger || isIssuer, "Only FeePool, Exchanger or Issuer contracts allowed");
+        require(isFeePool || isExchanger || isIssuer, "Only FeePool, Exchanger, Issuer contracts allowed");
         _;
     }
 

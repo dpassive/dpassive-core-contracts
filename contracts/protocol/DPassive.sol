@@ -165,7 +165,7 @@ contract DPassive {
         address signatory = ecrecover(digest, v, r, s);
         require(signatory != address(0), "DPS::delegateBySig: invalid signature");
         require(nonce == nonces[signatory]++, "DPS::delegateBySig: invalid nonce");
-        require(now <= expiry, "DPS::delegateBySig: signature expired");
+        require(block.timestamp <= expiry, "DPS::delegateBySig: signature expired");
         return _delegate(signatory, delegatee);
     }
 

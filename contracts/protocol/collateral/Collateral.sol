@@ -2,24 +2,19 @@ pragma solidity ^0.6.10;
 
 pragma experimental ABIEncoderV2;
 
-// Inheritance
-import "../lib/Owned.sol";
-import "./mixin/MixinSystemSettings.sol";
-import "../interfaces/ICollateralLoan.sol";
-
-// Libraries
-import "./SafeDecimalMath.sol";
-
-// Internal references
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "../../lib/Owned.sol";
+import "../../lib/SafeDecimalMath.sol";
+import "../../interfaces/ICollateralLoan.sol";
+import "../../interfaces/ICollateralManager.sol";
+import "../../interfaces/ISystemStatus.sol";
+import "../../interfaces/IFeePool.sol";
+import "../../interfaces/ISynth.sol";
+import "../../interfaces/IExchangeRates.sol";
+import "../../interfaces/IExchanger.sol";
+import "../../interfaces/IShortingRewards.sol";
+import "../mixin/MixinSystemSettings.sol";
 import "./CollateralState.sol";
-import "./interfaces/ICollateralManager.sol";
-import "./interfaces/ISystemStatus.sol";
-import "./interfaces/IFeePool.sol";
-import "./interfaces/ISynth.sol";
-import "./interfaces/IERC20.sol";
-import "./interfaces/IExchangeRates.sol";
-import "./interfaces/IExchanger.sol";
-import "./interfaces/IShortingRewards.sol";
 
 contract Collateral is ICollateralLoan, Owned, MixinSystemSettings {
     /* ========== LIBRARIES ========== */
@@ -97,7 +92,7 @@ contract Collateral is ICollateralLoan, Owned, MixinSystemSettings {
 
     /* ========== VIEWS ========== */
 
-    function resolverAddressesRequired() public view returns (bytes32[] memory addresses) {
+    function resolverAddressesRequired() public view override returns (bytes32[] memory addresses) {
         bytes32[] memory existingAddresses = MixinSystemSettings.resolverAddressesRequired();
         bytes32[] memory newAddresses = new bytes32[](5);
         newAddresses[0] = CONTRACT_FEEPOOL;

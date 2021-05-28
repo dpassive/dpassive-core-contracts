@@ -45,17 +45,17 @@ contract AddressResolver is Owned, IAddressResolver {
         return true;
     }
 
-    function getAddress(bytes32 name) external view returns (address) {
+    function getAddress(bytes32 name) external view override returns (address) {
         return repository[name];
     }
 
-    function requireAndGetAddress(bytes32 name, string calldata reason) external view returns (address) {
+    function requireAndGetAddress(bytes32 name, string calldata reason) external view override returns (address) {
         address _foundAddress = repository[name];
         require(_foundAddress != address(0), reason);
         return _foundAddress;
     }
 
-    function getSynth(bytes32 key) external view returns (address) {
+    function getSynth(bytes32 key) external view override returns (address) {
         IIssuer issuer = IIssuer(repository["Issuer"]);
         require(address(issuer) != address(0), "Cannot find Issuer address");
         return address(issuer.synths(key));
