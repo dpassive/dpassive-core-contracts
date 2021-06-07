@@ -79,7 +79,7 @@ module.exports = ({ web3 } = {}) => {
 		// And same with strings.
 		if (typeof seconds === 'string') seconds = parseFloat(seconds);
 
-		let params = {
+		const params = {
 			method: 'evm_increaseTime',
 			params: [seconds],
 		};

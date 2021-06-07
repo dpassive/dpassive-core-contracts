@@ -1,5 +1,3 @@
-const path = require('path');
-
 const { subtask, task } = require('hardhat/config');
 const { TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD } = require('hardhat/builtin-tasks/task-names');
 const { yellow, red } = require('chalk');

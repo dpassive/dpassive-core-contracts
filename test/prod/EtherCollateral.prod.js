@@ -27,7 +27,7 @@ contract('EtherCollateral (prod tests)', accounts => {
 	let EtherCollateral, ReadProxyAddressResolver, Depot;
 	let SynthsETH, SynthsUSD;
 
-	before('prepare', async function() {
+	before('prepare', async () => {
 		network = config.targetNetwork;
 		const { getUsers, getPathToNetwork } = wrap({ network, fs, path });
 		deploymentPath = config.deploymentPath || getPathToNetwork(network);

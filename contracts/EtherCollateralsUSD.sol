@@ -18,6 +18,7 @@ import "./interfaces/IERC20.sol";
 import "./interfaces/IExchangeRates.sol";
 
 // ETH Collateral v0.3 (sUSD)
+// solhint-disable-next-line max-states-count
 contract EtherCollateralsUSD is Owned, Pausable, ReentrancyGuard, MixinResolver, IEtherCollateralsUSD {
     using SafeMath for uint256;
     using SafeDecimalMath for uint256;

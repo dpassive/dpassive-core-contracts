@@ -69,8 +69,8 @@ contract CollateralEth is Collateral, ICollateralEth, ReentrancyGuard {
     function claim(uint amount) external override nonReentrant {
         // If they try to withdraw more than their total balance, it will fail on the safe sub.
         pendingWithdrawals[msg.sender] = pendingWithdrawals[msg.sender].sub(amount);
-
-        (bool success, ) = msg.sender.call.value(amount)("");
+        // solhint-disable-next-line avoid-low-level-calls
+        (bool success, ) = msg.sender.call{value: amount}("");
         require(success, "Transfer failed");
     }
 }

@@ -32,7 +32,7 @@ contract('Binary Options (prod tests)', accounts => {
 	let BinaryOptionMarketManager;
 	let SynthsUSD;
 
-	before('prepare', async function() {
+	before('prepare', async () => {
 		network = config.targetNetwork;
 		const { getUsers, getPathToNetwork } = wrap({ network, fs, path });
 		deploymentPath = config.deploymentPath || getPathToNetwork(network);

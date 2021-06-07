@@ -1,4 +1,3 @@
-const axios = require('axios');
 const { getPrivateKey } = require('./users');
 
 const commands = {
@@ -33,5 +32,4 @@ async function deployInstance({ providerUrl, providerPort, ignoreCustomParameter
 module.exports = {
 	compileInstance,
 	deployInstance,
-	connectInstances,
 };

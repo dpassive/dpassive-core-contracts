@@ -86,7 +86,7 @@ contract('ExchangeRates (prod tests)', accounts => {
 
 	describe('when an exchange is made', () => {
 		let waitingPeriod;
-		before(async function() {
+		before(async () => {
 			await exchangeSynths({
 				network,
 				deploymentPath,
