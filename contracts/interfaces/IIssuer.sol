@@ -1,10 +1,10 @@
-pragma solidity >=0.6.10;
+pragma solidity ^0.6.10;
 
-import "./ISynth.sol";
+import "../interfaces/ISynth.sol";
 
 interface IIssuer {
     // Views
-    function anySynthOrSNXRateIsInvalid() external view returns (bool anyRateInvalid);
+    function anySynthOrDPSRateIsInvalid() external view returns (bool anyRateInvalid);
 
     function availableCurrencyKeys() external view returns (bytes32[] memory);
 
@@ -50,12 +50,12 @@ interface IIssuer {
 
     function totalIssuedSynths(bytes32 currencyKey, bool excludeEtherCollateral) external view returns (uint);
 
-    function transferableSynthetixAndAnyRateIsInvalid(address account, uint balance)
+    function transferableDPassiveAndAnyRateIsInvalid(address account, uint balance)
         external
         view
         returns (uint transferable, bool anyRateIsInvalid);
 
-    // Restricted: used internally to Synthetix
+    // Restricted: used internally to DPassive
     function issueSynths(address from, uint amount) external;
 
     function issueSynthsOnBehalf(

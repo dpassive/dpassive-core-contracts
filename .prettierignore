@@ -1,1 +1,3 @@
-contracts/
+build
+.coverage_*
+coverage

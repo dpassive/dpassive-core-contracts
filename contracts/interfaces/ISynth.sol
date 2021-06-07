@@ -15,7 +15,7 @@ interface ISynth {
         uint value
     ) external returns (bool);
 
-    // Restricted: used internally to Synthetix
+    // Restricted: used internally to DPassive
     function burn(address account, uint amount) external;
 
     function issue(address account, uint amount) external;

@@ -2,6 +2,8 @@ pragma solidity ^0.6.10;
 
 interface IFeePool {
     // Views
+
+    // solhint-disable-next-line func-name-mixedcase
     function FEE_ADDRESS() external view returns (address);
 
     function feesAvailable(address account) external view returns (uint, uint);
@@ -23,7 +25,7 @@ interface IFeePool {
 
     function closeCurrentFeePeriod() external;
 
-    // Restricted: used internally to Synthetix
+    // Restricted: used internally to DPassive
     function appendAccountIssuanceRecord(
         address account,
         uint lockedAmount,
