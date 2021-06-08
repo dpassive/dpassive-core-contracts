@@ -125,7 +125,7 @@ contract BinaryOptionMarket is Owned, MixinResolver, IBinaryOptionMarket {
         addresses[3] = CONTRACT_FEEPOOL;
     }
 
-    function options() external view override returns (BinaryOption long, BinaryOption short) {
+    function options() external view override returns (IBinaryOption long, IBinaryOption short) {
         return (_options.long, _options.short);
     }
 

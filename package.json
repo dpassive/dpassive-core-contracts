@@ -54,7 +54,9 @@
 		"publish/deployed/rinkeby/*",
 		"publish/deployed/ropsten/*",
 		"publish/deployed/mainnet/*",
-		"publish/deployed/goerli/*"
+		"publish/deployed/goerli/*",
+		"publish/deployed/bsc/*",
+		"publish/deployed/bsc_testnet/*"
 	],
 	"bin": {
 		"dps": "bin.js"
@@ -112,7 +114,7 @@
 		"semver": "7.3.2",
 		"solc": "0.6.10",
 		"solhint": "~3.3.4",
-		"solidifier": "^2.1.0",
+		"solidifier": "https://github.com/Synthetixio/solidifier",
 		"solidity-coverage": "^0.7.13",
 		"table": "^5.0.2",
 		"wait-port": "^0.2.2",

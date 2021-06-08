@@ -125,30 +125,46 @@ const loadAndCheckRequiredSources = ({ deploymentPath, network }) => {
 };
 
 const getEtherscanLinkPrefix = network => {
-	return `https://${network !== 'mainnet' ? network + '.' : ''}etherscan.io`;
+	let etherscanLinkPrefix;
+	if (network === 'mainnet') {
+		etherscanLinkPrefix = 'https://etherscan.io';
+	} else if (network === 'bsc') {
+		etherscanLinkPrefix = 'https://bscscan.com';
+	} else if (network === 'bsc_testnet') {
+		etherscanLinkPrefix = 'https://testnet.bscscan.com';
+	} else {
+		etherscanLinkPrefix = `https://${network}.etherscan.io`;
+	}
+	return etherscanLinkPrefix;
 };
 
 const loadConnections = ({ network, useFork }) => {
 	// Note: If using a fork, providerUrl will need to be 'localhost', even if the target network is not 'local'.
 	// This is because the fork command is assumed to be running at 'localhost:8545'.
 	let providerUrl;
+	let privateKey;
+	let etherscanUrl;
 	if (network === 'local' || useFork) {
 		providerUrl = 'http://127.0.0.1:8545';
 	} else {
 		if (network === 'mainnet' && process.env.PROVIDER_URL_MAINNET) {
 			providerUrl = process.env.PROVIDER_URL_MAINNET;
+			privateKey = process.env.DEPLOY_PRIVATE_KEY;
+			etherscanUrl = 'https://api.etherscan.io/api';
+		} else if (network === 'bsc') {
+			providerUrl = process.env.PROVIDER_URL_BSC;
+			privateKey = process.env.DEPLOY_PRIVATE_KEY;
+			etherscanUrl = 'https://api.bscscan.com/api';
+		} else if (network === 'bsc_testnet') {
+			providerUrl = process.env.PROVIDER_URL_BSC_TESTNET;
+			privateKey = process.env.TESTNET_DEPLOY_PRIVATE_KEY;
+			etherscanUrl = 'https://api-testnet.bscscan.com/api';
 		} else {
 			providerUrl = process.env.PROVIDER_URL.replace('network', network);
+			privateKey = process.env.TESTNET_DEPLOY_PRIVATE_KEY;
+			etherscanUrl = `https://api-${network}.etherscan.io/api`;
 		}
 	}
-
-	const privateKey =
-		network === 'mainnet' ? process.env.DEPLOY_PRIVATE_KEY : process.env.TESTNET_DEPLOY_PRIVATE_KEY;
-
-	const etherscanUrl =
-		network === 'mainnet'
-			? 'https://api.etherscan.io/api'
-			: `https://api-${network}.etherscan.io/api`;
 
 	const etherscanLinkPrefix = getEtherscanLinkPrefix(network);
 

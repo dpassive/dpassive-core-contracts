@@ -10,13 +10,23 @@ const data = {
 	ropsten: require('./publish/deployed/ropsten'),
 	mainnet: require('./publish/deployed/mainnet'),
 	goerli: require('./publish/deployed/goerli'),
+	bsc_testnet: require('./publish/deployed/bsc_testnet'),
 };
 
 const assets = require('./publish/assets.json');
 const nonUpgradeable = require('./publish/non-upgradeable.json');
 const releases = require('./publish/releases.json');
 
-const networks = ['local', 'kovan', 'rinkeby', 'ropsten', 'mainnet', 'goerli'];
+const networks = [
+	'local',
+	'kovan',
+	'rinkeby',
+	'ropsten',
+	'mainnet',
+	'goerli',
+	'bsc',
+	'bsc_testnet',
+];
 
 const chainIdMapping = Object.entries({
 	1: {
@@ -33,6 +43,12 @@ const chainIdMapping = Object.entries({
 	},
 	42: {
 		network: 'kovan',
+	},
+	56: {
+		network: 'bsc',
+	},
+	97: {
+		network: 'bsc_testnet',
 	},
 
 	// Hardhat fork of mainnet: https://hardhat.org/config/#hardhat-network
@@ -138,6 +154,8 @@ const defaults = {
 		rinkeby: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
 		ropsten: '0xc778417E063141139Fce010982780140Aa0cD5Ab',
 		goerli: '0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6',
+		bsc: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
+		bsc_testnet: '0x094616f0bdfb0b526bd735bf66eca0ad254ca81f',
 	},
 	INITIAL_ISSUANCE: w3utils.toWei(`${100e6}`),
 	CROSS_DOMAIN_DEPOSIT_GAS_LIMIT: `${3e6}`,
@@ -445,6 +463,8 @@ const getUsers = ({ network = 'mainnet', user } = {}) => {
 		rinkeby: Object.assign({}, base),
 		ropsten: Object.assign({}, base),
 		goerli: Object.assign({}, base),
+		bsc: Object.assign({}, base),
+		bsc_testnet: Object.assign({}, base),
 		local: Object.assign({}, base, {
 			// Deterministic account #0 when using `npx hardhat node`
 			owner: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
@@ -469,6 +489,7 @@ const getVersions = ({
 	let versions;
 
 	if (!deploymentPath && network !== 'local' && (!path || !fs)) {
+		console.log('deploymentPath: ', deploymentPath);
 		versions = data[getFolderNameForNetwork({ network })].versions;
 	} else {
 		const pathToVersions = deploymentPath

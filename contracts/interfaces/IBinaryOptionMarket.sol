@@ -1,7 +1,7 @@
 pragma solidity ^0.6.10;
 
 import "../interfaces/IBinaryOptionMarketManager.sol";
-import "../BinaryOption.sol";
+import "../interfaces/IBinaryOption.sol";
 
 interface IBinaryOptionMarket {
     /* ========== TYPES ========== */
@@ -11,7 +11,7 @@ interface IBinaryOptionMarket {
 
     /* ========== VIEWS / VARIABLES ========== */
 
-    function options() external view returns (BinaryOption long, BinaryOption short);
+    function options() external view returns (IBinaryOption long, IBinaryOption short);
 
     function prices() external view returns (uint long, uint short);
 
