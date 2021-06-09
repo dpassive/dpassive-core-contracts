@@ -147,6 +147,8 @@ const defaults = {
 		mainnet: '0xEB4C2781e4ebA804CE9a9803C67d0893436bB27D',
 		kovan: '0x9B2fE385cEDea62D839E4dE89B0A23EF4eacC717',
 		rinkeby: '0xEDC0C23864B041607D624E2d9a67916B6cf40F7a',
+		bsc: '0xfce146bf3146100cfe5db4129cf6c82b0ef4ad8c',
+		bsc_testnet: '0x9fb98c633814c8ff907b19ee3d41d182b9ebfa60',
 	},
 	WETH_ERC20_ADDRESSES: {
 		mainnet: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
@@ -489,7 +491,6 @@ const getVersions = ({
 	let versions;
 
 	if (!deploymentPath && network !== 'local' && (!path || !fs)) {
-		console.log('deploymentPath: ', deploymentPath);
 		versions = data[getFolderNameForNetwork({ network })].versions;
 	} else {
 		const pathToVersions = deploymentPath

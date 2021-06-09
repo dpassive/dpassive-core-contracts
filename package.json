@@ -1,6 +1,6 @@
 {
 	"name": "dpassive-core-contracts",
-	"version": "1.0.0",
+	"version": "0.1.0",
 	"license": "MIT",
 	"author": "dPassive Finance",
 	"description": "The smart contracts which make up the dPassive system",
