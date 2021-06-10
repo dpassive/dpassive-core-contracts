@@ -47,25 +47,25 @@ contract('Rewards Integration Tests', accounts => {
 	// };
 
 	// CURRENCIES
-	const [sUSD, sAUD, sEUR, sBTC, DPS, iBTC, sETH, ETH] = [
-		'sUSD',
-		'sAUD',
-		'sEUR',
-		'sBTC',
+	const [dUSD, dAUD, dEUR, dBTC, DPS, iBTC, dETH, ETH] = [
+		'dUSD',
+		'dAUD',
+		'dEUR',
+		'dBTC',
 		'DPS',
 		'iBTC',
-		'sETH',
+		'dETH',
 		'ETH',
 	].map(toBytes32);
 
-	const synthKeys = [sUSD, sAUD, sEUR, sBTC, iBTC, sETH, ETH];
+	const synthKeys = [dUSD, dAUD, dEUR, dBTC, iBTC, dETH, ETH];
 
 	// Updates rates with defaults so they're not stale.
 	const updateRatesWithDefaults = async () => {
 		const timestamp = await currentTime();
 
 		await exchangeRates.updateRates(
-			[sAUD, sEUR, DPS, sBTC, iBTC, sETH, ETH],
+			[dAUD, dEUR, DPS, dBTC, iBTC, dETH, ETH],
 			['0.5', '1.25', '0.1', '5000', '4000', '172', '172'].map(toUnit),
 			timestamp,
 			{
@@ -142,7 +142,7 @@ contract('Rewards Integration Tests', accounts => {
 		systemSettings,
 		rewardEscrow,
 		periodOneMintableSupplyMinusMinterReward,
-		sUSDContract,
+		dUSDContract,
 		MINTER_DPS_REWARD;
 
 	// run this once before all tests to prepare our environment, snapshots on beforeEach will take
@@ -159,14 +159,14 @@ contract('Rewards Integration Tests', accounts => {
 			RewardEscrowV2: rewardEscrow,
 			SupplySchedule: supplySchedule,
 			DPassive: dpassive,
-			SynthsUSD: sUSDContract,
+			SynthdUSD: dUSDContract,
 			SystemSettings: systemSettings,
 		} = await setupAllContracts({
 			accounts,
-			synths: ['sUSD', 'sAUD', 'sEUR', 'sBTC', 'iBTC', 'sETH'],
+			synths: ['dUSD', 'dAUD', 'dEUR', 'dBTC', 'iBTC', 'dETH'],
 			contracts: [
 				'AddressResolver',
-				'Exchanger', // necessary for burnSynths to check settlement of sUSD
+				'Exchanger', // necessary for burnSynths to check settlement of dUSD
 				'ExchangeRates',
 				'FeePool',
 				'FeePoolEternalStorage', // necessary to claimFees()
@@ -474,7 +474,7 @@ contract('Rewards Integration Tests', accounts => {
 			// await logFeePeriods();
 
 			// Account 1 leaves the system in week 2
-			const burnableTotal = await dpassive.debtBalanceOf(account1, sUSD);
+			const burnableTotal = await dpassive.debtBalanceOf(account1, dUSD);
 			await dpassive.burnSynths(burnableTotal, { from: account1 });
 			// await logFeesByPeriod(account1);
 
@@ -526,7 +526,7 @@ contract('Rewards Integration Tests', accounts => {
 			);
 
 			// Account 1 leaves the system
-			const burnableTotal = await dpassive.debtBalanceOf(account1, sUSD);
+			const burnableTotal = await dpassive.debtBalanceOf(account1, dUSD);
 			await dpassive.burnSynths(burnableTotal, { from: account1 });
 
 			// FastForward into the second mintable week
@@ -584,12 +584,12 @@ contract('Rewards Integration Tests', accounts => {
 
 	describe('Exchange Rate Shift tests', async () => {
 		it('should assign accounts (1,2,3) to have (40%,40%,20%) of the debt/rewards', async () => {
-			// Account 1&2 issue 10K USD and exchange in sBTC each, holding 50% of the total debt.
+			// Account 1&2 issue 10K USD and exchange in dBTC each, holding 50% of the total debt.
 			await dpassive.issueSynths(tenK, { from: account1 });
 			await dpassive.issueSynths(tenK, { from: account2 });
 
-			await dpassive.exchange(sUSD, tenK, sBTC, { from: account1 });
-			await dpassive.exchange(sUSD, tenK, sBTC, { from: account2 });
+			await dpassive.exchange(dUSD, tenK, dBTC, { from: account1 });
+			await dpassive.exchange(dUSD, tenK, dBTC, { from: account2 });
 
 			await fastForwardAndCloseFeePeriod();
 			// //////////////////////////////////////////////
@@ -626,15 +626,15 @@ contract('Rewards Integration Tests', accounts => {
 				1
 			);
 
-			// Increase sBTC price by 100%
+			// Increase dBTC price by 100%
 			const timestamp = await currentTime();
-			await exchangeRates.updateRates([sBTC], ['10000'].map(toUnit), timestamp, {
+			await exchangeRates.updateRates([dBTC], ['10000'].map(toUnit), timestamp, {
 				from: oracle,
 			});
 			await debtCache.takeDebtSnapshot();
 
-			// Account 3 (enters the system and) mints 10K sUSD (minus half of an exchange fee - to balance the fact
-			// that the other two holders have doubled their sBTC holdings) and should have 20% of the debt not 33.33%
+			// Account 3 (enters the system and) mints 10K dUSD (minus half of an exchange fee - to balance the fact
+			// that the other two holders have doubled their dBTC holdings) and should have 20% of the debt not 33.33%
 			const potentialFee = exchangeFeeIncurred(toUnit('10000'));
 			await dpassive.issueSynths(tenK.sub(half(potentialFee)), { from: account3 });
 
@@ -647,9 +647,9 @@ contract('Rewards Integration Tests', accounts => {
 			await dpassive.mint({ from: owner });
 
 			// Do some exchanging to generateFees
-			const { amountReceived } = await exchanger.getAmountsForExchange(tenK, sUSD, sBTC);
-			await dpassive.exchange(sBTC, amountReceived, sUSD, { from: account1 });
-			await dpassive.exchange(sBTC, amountReceived, sUSD, { from: account2 });
+			const { amountReceived } = await exchanger.getAmountsForExchange(tenK, dUSD, dBTC);
+			await dpassive.exchange(dBTC, amountReceived, dUSD, { from: account1 });
+			await dpassive.exchange(dBTC, amountReceived, dUSD, { from: account2 });
 
 			// Close so we can claim
 			await fastForwardAndCloseFeePeriod();
@@ -711,14 +711,14 @@ contract('Rewards Integration Tests', accounts => {
 			// Commenting out this logic for now (v2.14.x) - needs to be relooked at -JJ
 
 			// // now in p3 Acc1 burns all and leaves (-40%) and Acc2 has 67% and Acc3 33% rewards allocated as such
-			// // Account 1 exchanges all sBTC back to sUSD
-			// const acc1sBTCBalance = await sBTCContract.balanceOf(account1, { from: account1 });
-			// await dpassive.exchange(sBTC, acc1sBTCBalance, sUSD, { from: account1 });
-			// const amountAfterExchange = await feePool.amountReceivedFromExchange(acc1sBTCBalance);
+			// // Account 1 exchanges all dBTC back to dUSD
+			// const acc1dBTCBalance = await dBTCContract.balanceOf(account1, { from: account1 });
+			// await dpassive.exchange(dBTC, acc1dBTCBalance, dUSD, { from: account1 });
+			// const amountAfterExchange = await feePool.amountReceivedFromExchange(acc1dBTCBalance);
 			// const amountAfterExchangeInUSD = await exchangeRates.effectiveValue(
-			// 	sBTC,
+			// 	dBTC,
 			// 	amountAfterExchange,
-			// 	sUSD
+			// 	dUSD
 			// );
 
 			// await dpassive.burnSynths(amountAfterExchangeInUSD, { from: account1 });
@@ -803,7 +803,7 @@ contract('Rewards Integration Tests', accounts => {
 		});
 	});
 
-	describe('3 Accounts issue 10K sUSD each in week 1', async () => {
+	describe('3 Accounts issue 10K dUSD each in week 1', async () => {
 		beforeEach(async () => {
 			await dpassive.issueSynths(tenK, { from: account1 });
 			await dpassive.issueSynths(tenK, { from: account2 });
@@ -811,7 +811,7 @@ contract('Rewards Integration Tests', accounts => {
 		});
 
 		it('Acc1 issues and burns multiple times and should have accounts 1,2,3 rewards 50%,25%,25%', async () => {
-			// Acc 1 Issues 20K sUSD
+			// Acc 1 Issues 20K dUSD
 			await dpassive.issueSynths(tenK, { from: account1 });
 
 			// Close week 2
@@ -859,9 +859,9 @@ contract('Rewards Integration Tests', accounts => {
 
 			// Acc1 Burns all
 			await dpassive.burnSynths(twentyK, { from: account1 });
-			// Acc 1 Issues 10K sUSD
+			// Acc 1 Issues 10K dUSD
 			await dpassive.issueSynths(tenK, { from: account1 });
-			// Acc 1 Issues 10K sUSD again
+			// Acc 1 Issues 10K dUSD again
 			await dpassive.issueSynths(tenK, { from: account1 });
 
 			// Get the DPS mintableSupply for week 2
@@ -972,8 +972,8 @@ contract('Rewards Integration Tests', accounts => {
 			await dpassive.issueSynths(oneThousand, { from: account2 });
 			await dpassive.issueSynths(oneThousand, { from: account1 });
 
-			await dpassive.exchange(sUSD, oneThousand, sAUD, { from: account2 });
-			await dpassive.exchange(sUSD, oneThousand, sAUD, { from: account1 });
+			await dpassive.exchange(dUSD, oneThousand, dAUD, { from: account2 });
+			await dpassive.exchange(dUSD, oneThousand, dAUD, { from: account1 });
 
 			await fastForwardAndCloseFeePeriod();
 		});
@@ -981,23 +981,23 @@ contract('Rewards Integration Tests', accounts => {
 		it('then account gets remainder of fees/rewards available after wei rounding', async () => {
 			// Assert that we have correct values in the fee pool
 			const feesAvailableUSD = await feePool.feesAvailable(account2);
-			const oldsUSDBalance = await sUSDContract.balanceOf(account2);
+			const olddUSDBalance = await dUSDContract.balanceOf(account2);
 
 			// Now we should be able to claim them.
 			const claimFeesTx = await feePool.claimFees({ from: account2 });
 			assert.eventEqual(claimFeesTx, 'FeesClaimed', {
-				sUSDAmount: feesAvailableUSD[0],
+				dUSDAmount: feesAvailableUSD[0],
 				dpsRewards: feesAvailableUSD[1],
 			});
 
-			const newUSDBalance = await sUSDContract.balanceOf(account2);
+			const newUSDBalance = await dUSDContract.balanceOf(account2);
 			// We should have our fees
-			assert.bnEqual(newUSDBalance, oldsUSDBalance.add(feesAvailableUSD[0]));
+			assert.bnEqual(newUSDBalance, olddUSDBalance.add(feesAvailableUSD[0]));
 
 			const period = await feePool.recentFeePeriods(1);
 			period.index = 1;
 
-			// Simulate rounding on sUSD leaving fraction less for the last claimer.
+			// Simulate rounding on dUSD leaving fraction less for the last claimer.
 			// No need to simulate for DPS as the 1.44M DPS has a 1 wei rounding already
 			period.feesClaimed = period.feesClaimed.add(toUnit('0.000000000000000001'));
 			await feePool.importFeePeriod(
@@ -1019,7 +1019,7 @@ contract('Rewards Integration Tests', accounts => {
 			// however only   721,053.846153846153846153 Claimable after rounding to 18 decimals
 			const transaction = await feePool.claimFees({ from: account1 });
 			assert.eventEqual(transaction, 'FeesClaimed', {
-				sUSDAmount: feesAvailableUSDAcc1[0].sub(toUnit('0.000000000000000001')),
+				dUSDAmount: feesAvailableUSDAcc1[0].sub(toUnit('0.000000000000000001')),
 				dpsRewards: feesAvailableUSDAcc1[1].sub(toUnit('0.000000000000000001')),
 			});
 		});

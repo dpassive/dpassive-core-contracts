@@ -8,7 +8,7 @@ contract IssuerWithoutLiquidations is Issuer {
 
     function liquidateDelinquentAccount(
         address account,
-        uint susdAmount,
+        uint dUSDAmount,
         address liquidator
     ) external override onlyDPassive returns (uint totalRedeemed, uint amountToLiquidate) {}
 }

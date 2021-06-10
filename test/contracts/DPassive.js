@@ -24,7 +24,7 @@ const {
 } = require('../..');
 
 contract('DPassive', async accounts => {
-	const [sAUD, sEUR, sUSD, sETH] = ['sAUD', 'sEUR', 'sUSD', 'sETH'].map(toBytes32);
+	const [dAUD, dEUR, dUSD, dETH] = ['dAUD', 'dEUR', 'dUSD', 'dETH'].map(toBytes32);
 
 	const [, owner, account1, account2, account3] = accounts;
 
@@ -37,8 +37,8 @@ contract('DPassive', async accounts => {
 		oracle,
 		addressResolver,
 		systemStatus,
-		sUSDContract,
-		sETHContract;
+		dUSDContract,
+		dETHContract;
 
 	before(async () => {
 		({
@@ -50,11 +50,11 @@ contract('DPassive', async accounts => {
 			RewardEscrow: rewardEscrow,
 			RewardEscrowV2: rewardEscrowV2,
 			SupplySchedule: supplySchedule,
-			SynthsUSD: sUSDContract,
-			SynthsETH: sETHContract,
+			SynthdUSD: dUSDContract,
+			SynthdETH: dETHContract,
 		} = await setupAllContracts({
 			accounts,
-			synths: ['sUSD', 'sETH', 'sEUR', 'sAUD'],
+			synths: ['dUSD', 'dETH', 'dEUR', 'dAUD'],
 			contracts: [
 				'DPassive',
 				'DPassiveState',
@@ -119,8 +119,8 @@ contract('DPassive', async accounts => {
 		});
 
 		const amount1 = '10';
-		const currencyKey1 = sAUD;
-		const currencyKey2 = sEUR;
+		const currencyKey1 = dAUD;
+		const currencyKey2 = dEUR;
 		const trackingCode = toBytes32('1inch');
 		const msgSender = owner;
 
@@ -417,9 +417,9 @@ contract('DPassive', async accounts => {
 	describe('Using a contract to invoke exchangeWithTrackingForInitiator', () => {
 		describe('when a third party contract is setup to exchange synths', () => {
 			let contractExample;
-			let amountOfsUSD;
+			let amountOfdUSD;
 			beforeEach(async () => {
-				amountOfsUSD = toUnit('100');
+				amountOfdUSD = toUnit('100');
 
 				const MockThirdPartyExchangeContract = artifacts.require('MockThirdPartyExchangeContract');
 
@@ -429,26 +429,26 @@ contract('DPassive', async accounts => {
 				// ensure rates are set
 				await updateRatesWithDefaults({ exchangeRates, oracle, debtCache });
 
-				// issue sUSD from the owner
-				await dpassive.issueSynths(amountOfsUSD, { from: owner });
+				// issue dUSD from the owner
+				await dpassive.issueSynths(amountOfdUSD, { from: owner });
 
-				// transfer the sUSD to the contract
-				await sUSDContract.transfer(contractExample.address, toUnit('100'), { from: owner });
+				// transfer the dUSD to the contract
+				await dUSDContract.transfer(contractExample.address, toUnit('100'), { from: owner });
 			});
 
 			describe('when Barrie invokes the exchange function on the contract', () => {
 				let txn;
 				beforeEach(async () => {
-					// Barrie has no sETH to start
-					assert.equal(await sETHContract.balanceOf(account3), '0');
+					// Barrie has no dETH to start
+					assert.equal(await dETHContract.balanceOf(account3), '0');
 
-					txn = await contractExample.exchange(sUSD, amountOfsUSD, sETH, { from: account3 });
+					txn = await contractExample.exchange(dUSD, amountOfdUSD, dETH, { from: account3 });
 				});
 				it('then Barrie has the synths in her account', async () => {
-					assert.bnGt(await sETHContract.balanceOf(account3), toUnit('0.01'));
+					assert.bnGt(await dETHContract.balanceOf(account3), toUnit('0.01'));
 				});
 				it('and the contract has none', async () => {
-					assert.equal(await sETHContract.balanceOf(contractExample.address), '0');
+					assert.equal(await dETHContract.balanceOf(contractExample.address), '0');
 				});
 				it('and the event emitted indicates that Barrie was the destinationAddress', async () => {
 					const logs = artifacts.require('DPassive').decodeLogs(txn.receipt.rawLogs);
@@ -457,9 +457,9 @@ contract('DPassive', async accounts => {
 						'SynthExchange',
 						{
 							account: contractExample.address,
-							fromCurrencyKey: sUSD,
-							fromAmount: amountOfsUSD,
-							toCurrencyKey: sETH,
+							fromCurrencyKey: dUSD,
+							fromAmount: amountOfdUSD,
+							toCurrencyKey: dETH,
 							toAddress: account3,
 						}
 					);

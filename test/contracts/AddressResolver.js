@@ -187,26 +187,26 @@ contract('AddressResolver', accounts => {
 			});
 
 			it('when getSynth() is invoked', async () => {
-				const synth = await resolver.getSynth(toBytes32('sUSD'));
+				const synth = await resolver.getSynth(toBytes32('dUSD'));
 				assert.equal(synth, account4);
 			});
 		});
 		describe('when a DPassive is created with a few added synths', () => {
-			let sETHContract;
-			let sUSDContract;
+			let dETHContract;
+			let dUSDContract;
 			beforeEach(async () => {
-				({ SynthsETH: sETHContract, SynthsUSD: sUSDContract } = await setupAllContracts({
+				({ SynthdETH: dETHContract, SynthdUSD: dUSDContract } = await setupAllContracts({
 					accounts,
 					existing: {
 						AddressResolver: resolver,
 					},
-					synths: ['sUSD', 'sETH', 'sEUR', 'sAUD'],
+					synths: ['dUSD', 'dETH', 'dEUR', 'dAUD'],
 					contracts: ['DPassive'],
 				}));
 			});
 			it('when getSynth() is invoked with these synth keys, they are returned correctly', async () => {
-				assert.equal(await resolver.getSynth(toBytes32('sUSD')), sUSDContract.address);
-				assert.equal(await resolver.getSynth(toBytes32('sETH')), sETHContract.address);
+				assert.equal(await resolver.getSynth(toBytes32('dUSD')), dUSDContract.address);
+				assert.equal(await resolver.getSynth(toBytes32('dETH')), dETHContract.address);
 			});
 		});
 	});

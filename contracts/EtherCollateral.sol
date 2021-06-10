@@ -28,7 +28,7 @@ contract EtherCollateral is Owned, Pausable, ReentrancyGuard, MixinResolver, IEt
 
     uint256 internal constant SECONDS_IN_A_YEAR = 31536000; // Common Year
 
-    // Where fees are pooled in sUSD.
+    // Where fees are pooled in dUSD.
     address internal constant FEE_ADDRESS = 0xfeEFEEfeefEeFeefEEFEEfEeFeefEEFeeFEEFEeF;
 
     // ========== SETTER STATE VARIABLES ==========
@@ -43,10 +43,10 @@ contract EtherCollateral is Owned, Pausable, ReentrancyGuard, MixinResolver, IEt
     // Minting fee for issuing the synths. Default 50 bips.
     uint256 public issueFeeRate = (5 * SafeDecimalMath.unit()) / 1000;
 
-    // Maximum amount of sETH that can be issued by the EtherCollateral contract. Default 5000
+    // Maximum amount of dETH that can be issued by the EtherCollateral contract. Default 5000
     uint256 public issueLimit = SafeDecimalMath.unit() * 5000;
 
-    // Minimum amount of ETH to create loan preventing griefing and gas consumption. Min 1ETH = 0.8 sETH
+    // Minimum amount of ETH to create loan preventing griefing and gas consumption. Min 1ETH = 0.8 dETH
     uint256 public minLoanSize = SafeDecimalMath.unit() * 1;
 
     // Maximum number of loans an account can create
@@ -94,8 +94,8 @@ contract EtherCollateral is Owned, Pausable, ReentrancyGuard, MixinResolver, IEt
     /* ========== ADDRESS RESOLVER CONFIGURATION ========== */
 
     bytes32 private constant CONTRACT_SYSTEMSTATUS = "SystemStatus";
-    bytes32 private constant CONTRACT_SYNTHSETH = "SynthsETH";
-    bytes32 private constant CONTRACT_SYNTHSUSD = "SynthsUSD";
+    bytes32 private constant CONTRACT_SYNTHSETH = "SynthdETH";
+    bytes32 private constant CONTRACT_SYNTHDUSD = "SynthdUSD";
     bytes32 private constant CONTRACT_DEPOT = "Depot";
     bytes32 private constant CONTRACT_EXRATES = "ExchangeRates";
 
@@ -155,7 +155,7 @@ contract EtherCollateral is Owned, Pausable, ReentrancyGuard, MixinResolver, IEt
         addresses = new bytes32[](5);
         addresses[0] = CONTRACT_SYSTEMSTATUS;
         addresses[1] = CONTRACT_SYNTHSETH;
-        addresses[2] = CONTRACT_SYNTHSUSD;
+        addresses[2] = CONTRACT_SYNTHDUSD;
         addresses[3] = CONTRACT_DEPOT;
         addresses[4] = CONTRACT_EXRATES;
     }
@@ -285,7 +285,7 @@ contract EtherCollateral is Owned, Pausable, ReentrancyGuard, MixinResolver, IEt
 
     // ========== PUBLIC FUNCTIONS ==========
 
-    function openLoan() external payable override notPaused nonReentrant sETHRateNotInvalid returns (uint256 loanID) {
+    function openLoan() external payable override notPaused nonReentrant dETHRateNotInvalid returns (uint256 loanID) {
         systemStatus().requireIssuanceActive();
 
         // Require ETH sent to be greater than minLoanSize
@@ -300,7 +300,7 @@ contract EtherCollateral is Owned, Pausable, ReentrancyGuard, MixinResolver, IEt
         // Calculate issuance amount
         uint256 loanAmount = loanAmountFromCollateral(msg.value);
 
-        // Require sETH to mint does not exceed cap
+        // Require dETH to mint does not exceed cap
         require(totalIssuedSynths.add(loanAmount) < issueLimit, "Loan Amount exceeds the supply cap.");
 
         // Get a Loan ID
@@ -324,13 +324,13 @@ contract EtherCollateral is Owned, Pausable, ReentrancyGuard, MixinResolver, IEt
         totalIssuedSynths = totalIssuedSynths.add(loanAmount);
 
         // Issue the synth
-        synthsETH().issue(msg.sender, loanAmount);
+        synthdETH().issue(msg.sender, loanAmount);
 
         // Tell the Dapps a loan was created
         emit LoanCreated(msg.sender, loanID, loanAmount);
     }
 
-    function closeLoan(uint256 loanID) external override nonReentrant sETHRateNotInvalid {
+    function closeLoan(uint256 loanID) external override nonReentrant dETHRateNotInvalid {
         _closeLoan(msg.sender, loanID);
     }
 
@@ -339,7 +339,7 @@ contract EtherCollateral is Owned, Pausable, ReentrancyGuard, MixinResolver, IEt
         external
         override
         nonReentrant
-        sETHRateNotInvalid
+        dETHRateNotInvalid
     {
         require(loanLiquidationOpen, "Liquidation is not open");
         // Close the creators loan and send collateral to the closer.
@@ -359,7 +359,7 @@ contract EtherCollateral is Owned, Pausable, ReentrancyGuard, MixinResolver, IEt
         require(synthLoan.loanID > 0, "Loan does not exist");
         require(synthLoan.timeClosed == 0, "Loan already closed");
         require(
-            IERC20(address(synthsETH())).balanceOf(msg.sender) >= synthLoan.loanAmount,
+            IERC20(address(synthdETH())).balanceOf(msg.sender) >= synthLoan.loanAmount,
             "You do not have the required Synth balance to close this loan."
         );
 
@@ -375,17 +375,17 @@ contract EtherCollateral is Owned, Pausable, ReentrancyGuard, MixinResolver, IEt
         uint256 totalFeeETH = interestAmount.add(mintingFee);
 
         // Burn all Synths issued for the loan
-        synthsETH().burn(msg.sender, synthLoan.loanAmount);
+        synthdETH().burn(msg.sender, synthLoan.loanAmount);
 
-        // Fee Distribution. Purchase sUSD with ETH from Depot
+        // Fee Distribution. Purchase dUSD with ETH from Depot
         require(
-            IERC20(address(synthsUSD())).balanceOf(address(depot())) >= depot().synthsReceivedForEther(totalFeeETH),
-            "The sUSD Depot does not have enough sUSD to buy for fees"
+            IERC20(address(synthdUSD())).balanceOf(address(depot())) >= depot().synthsReceivedForEther(totalFeeETH),
+            "The dUSD Depot does not have enough dUSD to buy for fees"
         );
         depot().exchangeEtherForSynths{value: totalFeeETH}();
 
-        // Transfer the sUSD to distribute to DPS holders.
-        IERC20(address(synthsUSD())).transfer(FEE_ADDRESS, IERC20(address(synthsUSD())).balanceOf(address(this)));
+        // Transfer the dUSD to distribute to DPS holders.
+        IERC20(address(synthdUSD())).transfer(FEE_ADDRESS, IERC20(address(synthdUSD())).balanceOf(address(this)));
 
         // Send remainder ETH to caller
         payable(msg.sender).transfer(synthLoan.collateralAmount.sub(totalFeeETH));
@@ -443,12 +443,12 @@ contract EtherCollateral is Owned, Pausable, ReentrancyGuard, MixinResolver, IEt
         return ISystemStatus(requireAndGetAddress(CONTRACT_SYSTEMSTATUS));
     }
 
-    function synthsETH() internal view returns (ISynth) {
+    function synthdETH() internal view returns (ISynth) {
         return ISynth(requireAndGetAddress(CONTRACT_SYNTHSETH));
     }
 
-    function synthsUSD() internal view returns (ISynth) {
-        return ISynth(requireAndGetAddress(CONTRACT_SYNTHSUSD));
+    function synthdUSD() internal view returns (ISynth) {
+        return ISynth(requireAndGetAddress(CONTRACT_SYNTHDUSD));
     }
 
     function depot() internal view returns (IDepot) {
@@ -461,8 +461,8 @@ contract EtherCollateral is Owned, Pausable, ReentrancyGuard, MixinResolver, IEt
 
     /* ========== MODIFIERS ========== */
 
-    modifier sETHRateNotInvalid() {
-        require(!exchangeRates().rateIsInvalid("sETH"), "Blocked as sETH rate is invalid");
+    modifier dETHRateNotInvalid() {
+        require(!exchangeRates().rateIsInvalid("dETH"), "Blocked as dETH rate is invalid");
         _;
     }
 

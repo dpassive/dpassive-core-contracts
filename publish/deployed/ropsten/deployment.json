@@ -36,8 +36,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"ProxysAUD": {
-			"name": "ProxysAUD",
+		"ProxydAUD": {
+			"name": "ProxydAUD",
 			"address": "0x4BdDFda0E086983CD1fB400a62063aDDEBF2111B",
 			"source": "ProxyERC20",
 			"link": "https://ropsten.etherscan.io/address/0x4BdDFda0E086983CD1fB400a62063aDDEBF2111B",
@@ -45,8 +45,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"ProxysBTC": {
-			"name": "ProxysBTC",
+		"ProxydBTC": {
+			"name": "ProxydBTC",
 			"address": "0xC1701AbD559FC263829CA3917d03045F95b5224A",
 			"source": "ProxyERC20",
 			"link": "https://ropsten.etherscan.io/address/0xC1701AbD559FC263829CA3917d03045F95b5224A",
@@ -54,8 +54,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"ProxysCHF": {
-			"name": "ProxysCHF",
+		"ProxydCHF": {
+			"name": "ProxydCHF",
 			"address": "0x7e5c4C5f54847772690380d5ac50c59a4C374E2f",
 			"source": "ProxyERC20",
 			"link": "https://ropsten.etherscan.io/address/0x7e5c4C5f54847772690380d5ac50c59a4C374E2f",
@@ -63,8 +63,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"ProxysEUR": {
-			"name": "ProxysEUR",
+		"ProxydEUR": {
+			"name": "ProxydEUR",
 			"address": "0x2a27a3113368836b2BE598a4BB9a0d4D7A734305",
 			"source": "ProxyERC20",
 			"link": "https://ropsten.etherscan.io/address/0x2a27a3113368836b2BE598a4BB9a0d4D7A734305",
@@ -72,8 +72,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"ProxysGBP": {
-			"name": "ProxysGBP",
+		"ProxydGBP": {
+			"name": "ProxydGBP",
 			"address": "0x3DdF5dAd59F8F8e8f957709B044eE84e87B42e25",
 			"source": "ProxyERC20",
 			"link": "https://ropsten.etherscan.io/address/0x3DdF5dAd59F8F8e8f957709B044eE84e87B42e25",
@@ -81,8 +81,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"ProxysJPY": {
-			"name": "ProxysJPY",
+		"ProxydJPY": {
+			"name": "ProxydJPY",
 			"address": "0x406555dbF02e9E4df9AdeAeC9DA76ABeED8C1BC3",
 			"source": "ProxyERC20",
 			"link": "https://ropsten.etherscan.io/address/0x406555dbF02e9E4df9AdeAeC9DA76ABeED8C1BC3",
@@ -90,8 +90,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"ProxysUSD": {
-			"name": "ProxysUSD",
+		"ProxydUSD": {
+			"name": "ProxydUSD",
 			"address": "0xDDEfe42790f2dEC7b0C37D4399884eFceA5361b1",
 			"source": "ProxyERC20",
 			"link": "https://ropsten.etherscan.io/address/0xDDEfe42790f2dEC7b0C37D4399884eFceA5361b1",
@@ -99,8 +99,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"ProxysXAG": {
-			"name": "ProxysXAG",
+		"ProxydXAG": {
+			"name": "ProxydXAG",
 			"address": "0x6b2eF4a920a0AA00298bDABf1FDDb2F1790FaA68",
 			"source": "ProxyERC20",
 			"link": "https://ropsten.etherscan.io/address/0x6b2eF4a920a0AA00298bDABf1FDDb2F1790FaA68",
@@ -108,8 +108,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"ProxysXAU": {
-			"name": "ProxysXAU",
+		"ProxydXAU": {
+			"name": "ProxydXAU",
 			"address": "0x7aBc1EA6816424E474Ad6efCE5B9153C9B7952b0",
 			"source": "ProxyERC20",
 			"link": "https://ropsten.etherscan.io/address/0x7aBc1EA6816424E474Ad6efCE5B9153C9B7952b0",
@@ -162,8 +162,8 @@
 			"txn": "https://ropsten.etherscan.io/tx/0xb02cd160a1bf6d030ffbb19bee36f1b2869aa8bec503464559834565c331ccde",
 			"network": "ropsten"
 		},
-		"SynthsAUD": {
-			"name": "SynthsAUD",
+		"SynthdAUD": {
+			"name": "SynthdAUD",
 			"address": "0x297F800bb44CB2E2101aA2d2A6Ca6a18Dbd881C0",
 			"source": "Synth",
 			"link": "https://ropsten.etherscan.io/address/0x297F800bb44CB2E2101aA2d2A6Ca6a18Dbd881C0",
@@ -171,8 +171,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"SynthsBTC": {
-			"name": "SynthsBTC",
+		"SynthdBTC": {
+			"name": "SynthdBTC",
 			"address": "0x44f31a95Bda5dA86B1B8c809B239eE4d35dD094e",
 			"source": "Synth",
 			"link": "https://ropsten.etherscan.io/address/0x44f31a95Bda5dA86B1B8c809B239eE4d35dD094e",
@@ -180,8 +180,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"SynthsCHF": {
-			"name": "SynthsCHF",
+		"SynthdCHF": {
+			"name": "SynthdCHF",
 			"address": "0x9d846536C554cD9B67dad490d172b2eD17892e87",
 			"source": "Synth",
 			"link": "https://ropsten.etherscan.io/address/0x9d846536C554cD9B67dad490d172b2eD17892e87",
@@ -189,8 +189,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"SynthsEUR": {
-			"name": "SynthsEUR",
+		"SynthdEUR": {
+			"name": "SynthdEUR",
 			"address": "0x6fa55B1108ed4D66385AbCdD1F94A4dBd4C3B83E",
 			"source": "Synth",
 			"link": "https://ropsten.etherscan.io/address/0x6fa55B1108ed4D66385AbCdD1F94A4dBd4C3B83E",
@@ -198,8 +198,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"SynthsGBP": {
-			"name": "SynthsGBP",
+		"SynthdGBP": {
+			"name": "SynthdGBP",
 			"address": "0x4e44e3591b433e3bEc0916352492e85B91BD6d21",
 			"source": "Synth",
 			"link": "https://ropsten.etherscan.io/address/0x4e44e3591b433e3bEc0916352492e85B91BD6d21",
@@ -207,8 +207,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"SynthsJPY": {
-			"name": "SynthsJPY",
+		"SynthdJPY": {
+			"name": "SynthdJPY",
 			"address": "0x49899B563c3E7Fa3c8568527D4a2731706071380",
 			"source": "Synth",
 			"link": "https://ropsten.etherscan.io/address/0x49899B563c3E7Fa3c8568527D4a2731706071380",
@@ -216,8 +216,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"SynthsUSD": {
-			"name": "SynthsUSD",
+		"SynthdUSD": {
+			"name": "SynthdUSD",
 			"address": "0x5Eb054cfAc1e39e3C1b5C11A1b9C019e803fA033",
 			"source": "Synth",
 			"link": "https://ropsten.etherscan.io/address/0x5Eb054cfAc1e39e3C1b5C11A1b9C019e803fA033",
@@ -225,8 +225,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"SynthsXAG": {
-			"name": "SynthsXAG",
+		"SynthdXAG": {
+			"name": "SynthdXAG",
 			"address": "0x0174b958B1Ac1D30d6Eae9E8edCf725aa02a16C9",
 			"source": "Synth",
 			"link": "https://ropsten.etherscan.io/address/0x0174b958B1Ac1D30d6Eae9E8edCf725aa02a16C9",
@@ -234,8 +234,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"SynthsXAU": {
-			"name": "SynthsXAU",
+		"SynthdXAU": {
+			"name": "SynthdXAU",
 			"address": "0xeDd45d68204083939633224DF440Ce6792a5Cf7b",
 			"source": "Synth",
 			"link": "https://ropsten.etherscan.io/address/0xeDd45d68204083939633224DF440Ce6792a5Cf7b",
@@ -243,8 +243,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"TokenStatesAUD": {
-			"name": "TokenStatesAUD",
+		"TokenStatedAUD": {
+			"name": "TokenStatedAUD",
 			"address": "0xF43B4931749139AB1e7a85d50df5762481d80bEC",
 			"source": "TokenState",
 			"link": "https://ropsten.etherscan.io/address/0xF43B4931749139AB1e7a85d50df5762481d80bEC",
@@ -252,8 +252,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"TokenStatesBTC": {
-			"name": "TokenStatesBTC",
+		"TokenStatedBTC": {
+			"name": "TokenStatedBTC",
 			"address": "0x159B105D8f9F1341C7aAAafF19aFb569c17297F3",
 			"source": "TokenState",
 			"link": "https://ropsten.etherscan.io/address/0x159B105D8f9F1341C7aAAafF19aFb569c17297F3",
@@ -261,8 +261,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"TokenStatesCHF": {
-			"name": "TokenStatesCHF",
+		"TokenStatedCHF": {
+			"name": "TokenStatedCHF",
 			"address": "0xA3de830b5208851539De8e4FF158D635E8f36FCb",
 			"source": "TokenState",
 			"link": "https://ropsten.etherscan.io/address/0xA3de830b5208851539De8e4FF158D635E8f36FCb",
@@ -270,8 +270,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"TokenStatesEUR": {
-			"name": "TokenStatesEUR",
+		"TokenStatedEUR": {
+			"name": "TokenStatedEUR",
 			"address": "0xc4E4c442653fDC78A71401684fd6cF9d67B3B643",
 			"source": "TokenState",
 			"link": "https://ropsten.etherscan.io/address/0xc4E4c442653fDC78A71401684fd6cF9d67B3B643",
@@ -279,8 +279,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"TokenStatesGBP": {
-			"name": "TokenStatesGBP",
+		"TokenStatedGBP": {
+			"name": "TokenStatedGBP",
 			"address": "0x22C9624c784214D53d43BDB4Bf56B3D3Bf2e773C",
 			"source": "TokenState",
 			"link": "https://ropsten.etherscan.io/address/0x22C9624c784214D53d43BDB4Bf56B3D3Bf2e773C",
@@ -288,8 +288,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"TokenStatesJPY": {
-			"name": "TokenStatesJPY",
+		"TokenStatedJPY": {
+			"name": "TokenStatedJPY",
 			"address": "0xb08b62e1cdfd37eCCd69A9ACe67322CCF801b3A6",
 			"source": "TokenState",
 			"link": "https://ropsten.etherscan.io/address/0xb08b62e1cdfd37eCCd69A9ACe67322CCF801b3A6",
@@ -297,8 +297,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"TokenStatesUSD": {
-			"name": "TokenStatesUSD",
+		"TokenStatedUSD": {
+			"name": "TokenStatedUSD",
 			"address": "0x686cbD15BBC680F8261c7502c360Aa44A2593de6",
 			"source": "TokenState",
 			"link": "https://ropsten.etherscan.io/address/0x686cbD15BBC680F8261c7502c360Aa44A2593de6",
@@ -306,8 +306,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"TokenStatesXAG": {
-			"name": "TokenStatesXAG",
+		"TokenStatedXAG": {
+			"name": "TokenStatedXAG",
 			"address": "0x8D63Bf72E0BE02Ad99b329B8632EA2336b472CED",
 			"source": "TokenState",
 			"link": "https://ropsten.etherscan.io/address/0x8D63Bf72E0BE02Ad99b329B8632EA2336b472CED",
@@ -315,8 +315,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"TokenStatesXAU": {
-			"name": "TokenStatesXAU",
+		"TokenStatedXAU": {
+			"name": "TokenStatedXAU",
 			"address": "0xBF73978808516Bbcb96D3b479617CaF89484Bc59",
 			"source": "TokenState",
 			"link": "https://ropsten.etherscan.io/address/0xBF73978808516Bbcb96D3b479617CaF89484Bc59",
@@ -342,8 +342,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"TokenStatesETH": {
-			"name": "TokenStatesETH",
+		"TokenStatedETH": {
+			"name": "TokenStatedETH",
 			"address": "0x8e90f4D385677dFB3FFC6d09652eEd17D0872e17",
 			"source": "TokenState",
 			"link": "https://ropsten.etherscan.io/address/0x8e90f4D385677dFB3FFC6d09652eEd17D0872e17",
@@ -351,8 +351,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"ProxysETH": {
-			"name": "ProxysETH",
+		"ProxydETH": {
+			"name": "ProxydETH",
 			"address": "0x0Df1B6d92feBCA3B2793AfA3649868991CC4901D",
 			"source": "ProxyERC20",
 			"link": "https://ropsten.etherscan.io/address/0x0Df1B6d92feBCA3B2793AfA3649868991CC4901D",
@@ -360,8 +360,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"SynthsETH": {
-			"name": "SynthsETH",
+		"SynthdETH": {
+			"name": "SynthdETH",
 			"address": "0xECFb2AD9Cd05ACdA3496aEA95d74081Bbd878661",
 			"source": "MultiCollateralSynth",
 			"link": "https://ropsten.etherscan.io/address/0xECFb2AD9Cd05ACdA3496aEA95d74081Bbd878661",
@@ -369,8 +369,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"TokenStatesBNB": {
-			"name": "TokenStatesBNB",
+		"TokenStatedBNB": {
+			"name": "TokenStatedBNB",
 			"address": "0x7D9b359c97f26a0D7B5dfB9eb7b74581CD28B6a6",
 			"source": "TokenState",
 			"link": "https://ropsten.etherscan.io/address/0x7D9b359c97f26a0D7B5dfB9eb7b74581CD28B6a6",
@@ -378,8 +378,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"ProxysBNB": {
-			"name": "ProxysBNB",
+		"ProxydBNB": {
+			"name": "ProxydBNB",
 			"address": "0x5fF1b87fBfDE943568C533f2a5f78F8d9C00539b",
 			"source": "ProxyERC20",
 			"link": "https://ropsten.etherscan.io/address/0x5fF1b87fBfDE943568C533f2a5f78F8d9C00539b",
@@ -387,8 +387,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"SynthsBNB": {
-			"name": "SynthsBNB",
+		"SynthdBNB": {
+			"name": "SynthdBNB",
 			"address": "0xd2CE18163B851EfDA2A0b277411b365D2acc908A",
 			"source": "PurgeableSynth",
 			"link": "https://ropsten.etherscan.io/address/0xd2CE18163B851EfDA2A0b277411b365D2acc908A",
@@ -522,8 +522,8 @@
 			"txn": "https://ropsten.etherscan.io/tx/0x147b6bbe20dd77a8b0ce81b65a5ece6c584eee382486b1f7724f7a93b34a789a",
 			"network": "ropsten"
 		},
-		"TokenStatesTRX": {
-			"name": "TokenStatesTRX",
+		"TokenStatedTRX": {
+			"name": "TokenStatedTRX",
 			"address": "0x8c27bB4f177a9B03324882f2a219B6b7B1DE45D3",
 			"source": "TokenState",
 			"link": "https://ropsten.etherscan.io/address/0x8c27bB4f177a9B03324882f2a219B6b7B1DE45D3",
@@ -531,8 +531,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"ProxysTRX": {
-			"name": "ProxysTRX",
+		"ProxydTRX": {
+			"name": "ProxydTRX",
 			"address": "0xE403013d6ac402ef5A70A4dE524d5894d0188e25",
 			"source": "ProxyERC20",
 			"link": "https://ropsten.etherscan.io/address/0xE403013d6ac402ef5A70A4dE524d5894d0188e25",
@@ -540,8 +540,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"SynthsTRX": {
-			"name": "SynthsTRX",
+		"SynthdTRX": {
+			"name": "SynthdTRX",
 			"address": "0x2f474e5047C2214f2C7EcfE230010271450eE953",
 			"source": "Synth",
 			"link": "https://ropsten.etherscan.io/address/0x2f474e5047C2214f2C7EcfE230010271450eE953",
@@ -639,8 +639,8 @@
 			"txn": "https://ropsten.etherscan.io/tx/0x56d11466c3cd5d6ed5574106657819b91d78dd1b6ce21ebb67a9c7a07bf44a88",
 			"network": "ropsten"
 		},
-		"TokenStatesCEX": {
-			"name": "TokenStatesCEX",
+		"TokenStatedCEX": {
+			"name": "TokenStatedCEX",
 			"address": "0x4025e0BE8D58AD7feC4744224BAF5Ffc1069Cff7",
 			"source": "TokenState",
 			"link": "https://ropsten.etherscan.io/address/0x4025e0BE8D58AD7feC4744224BAF5Ffc1069Cff7",
@@ -648,8 +648,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"ProxysCEX": {
-			"name": "ProxysCEX",
+		"ProxydCEX": {
+			"name": "ProxydCEX",
 			"address": "0x676f87A2122cc0e81443828b0d55A8817656CBc1",
 			"source": "ProxyERC20",
 			"link": "https://ropsten.etherscan.io/address/0x676f87A2122cc0e81443828b0d55A8817656CBc1",
@@ -657,8 +657,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"SynthsCEX": {
-			"name": "SynthsCEX",
+		"SynthdCEX": {
+			"name": "SynthdCEX",
 			"address": "0x189Dc0B0B3CE656777B18d2d17b7F5b4B413BA59",
 			"source": "PurgeableSynth",
 			"link": "https://ropsten.etherscan.io/address/0x189Dc0B0B3CE656777B18d2d17b7F5b4B413BA59",
@@ -702,8 +702,8 @@
 			"txn": "https://ropsten.etherscan.io/tx/0xfa54009c974db6f756b8d82fd48abf624e65434ac30c8d815dba4d7daa1baa4b",
 			"network": "ropsten"
 		},
-		"ProxyERC20sUSD": {
-			"name": "ProxyERC20sUSD",
+		"ProxyERC20dUSD": {
+			"name": "ProxyERC20dUSD",
 			"address": "0x21718C0FbD10900565fa57C76e1862cd3F6a4d8E",
 			"source": "ProxyERC20",
 			"link": "https://ropsten.etherscan.io/address/0x21718C0FbD10900565fa57C76e1862cd3F6a4d8E",
@@ -792,8 +792,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"TokenStatesDEFI": {
-			"name": "TokenStatesDEFI",
+		"TokenStatedDEFI": {
+			"name": "TokenStatedDEFI",
 			"address": "0x3347575f35De7bD8900012AE68Fb3f9189C4D6b0",
 			"source": "TokenState",
 			"link": "https://ropsten.etherscan.io/address/0x3347575f35De7bD8900012AE68Fb3f9189C4D6b0",
@@ -801,8 +801,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"ProxysDEFI": {
-			"name": "ProxysDEFI",
+		"ProxydDEFI": {
+			"name": "ProxydDEFI",
 			"address": "0xfc107409aA984e300D5f10530Eef41221FC65B15",
 			"source": "ProxyERC20",
 			"link": "https://ropsten.etherscan.io/address/0xfc107409aA984e300D5f10530Eef41221FC65B15",
@@ -810,8 +810,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"SynthsDEFI": {
-			"name": "SynthsDEFI",
+		"SynthdDEFI": {
+			"name": "SynthdDEFI",
 			"address": "0x321cD2b3597c1a27ecE3c7BA1B0F0B492f86Ac39",
 			"source": "PurgeableSynth",
 			"link": "https://ropsten.etherscan.io/address/0x321cD2b3597c1a27ecE3c7BA1B0F0B492f86Ac39",
@@ -1170,8 +1170,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"TokenStatesFTSE": {
-			"name": "TokenStatesFTSE",
+		"TokenStatedFTSE": {
+			"name": "TokenStatedFTSE",
 			"address": "0xC3ACe9e3c54c80fC634ab3BC26988eb4fE2Ca183",
 			"source": "TokenState",
 			"link": "https://ropsten.etherscan.io/address/0xC3ACe9e3c54c80fC634ab3BC26988eb4fE2Ca183",
@@ -1179,8 +1179,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"ProxysFTSE": {
-			"name": "ProxysFTSE",
+		"ProxydFTSE": {
+			"name": "ProxydFTSE",
 			"address": "0x147E9Bbb3AB147C6e3237a2959Ac22aC436FCeC0",
 			"source": "ProxyERC20",
 			"link": "https://ropsten.etherscan.io/address/0x147E9Bbb3AB147C6e3237a2959Ac22aC436FCeC0",
@@ -1188,8 +1188,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"SynthsFTSE": {
-			"name": "SynthsFTSE",
+		"SynthdFTSE": {
+			"name": "SynthdFTSE",
 			"address": "0xD0C85fa41E5800cEefc00b1185A2076DC02817B2",
 			"source": "Synth",
 			"link": "https://ropsten.etherscan.io/address/0xD0C85fa41E5800cEefc00b1185A2076DC02817B2",
@@ -1197,8 +1197,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"TokenStatesNIKKEI": {
-			"name": "TokenStatesNIKKEI",
+		"TokenStatedNIKKEI": {
+			"name": "TokenStatedNIKKEI",
 			"address": "0xE06bF53daF878972031E92ecEF8F6DAAD9a1c627",
 			"source": "TokenState",
 			"link": "https://ropsten.etherscan.io/address/0xE06bF53daF878972031E92ecEF8F6DAAD9a1c627",
@@ -1206,8 +1206,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"ProxysNIKKEI": {
-			"name": "ProxysNIKKEI",
+		"ProxydNIKKEI": {
+			"name": "ProxydNIKKEI",
 			"address": "0xa757Ff9F478df93127316E00D9eaeEe6cBb51f85",
 			"source": "ProxyERC20",
 			"link": "https://ropsten.etherscan.io/address/0xa757Ff9F478df93127316E00D9eaeEe6cBb51f85",
@@ -1215,8 +1215,8 @@
 			"txn": "",
 			"network": "ropsten"
 		},
-		"SynthsNIKKEI": {
-			"name": "SynthsNIKKEI",
+		"SynthdNIKKEI": {
+			"name": "SynthdNIKKEI",
 			"address": "0xB8266b75262B5F6995fe3E0e894ab2e56EbB4428",
 			"source": "Synth",
 			"link": "https://ropsten.etherscan.io/address/0xB8266b75262B5F6995fe3E0e894ab2e56EbB4428",
@@ -3314,7 +3314,7 @@
 						{
 							"indexed": false,
 							"internalType": "uint256",
-							"name": "sUSDAmount",
+							"name": "dUSDAmount",
 							"type": "uint256"
 						},
 						{
@@ -4589,7 +4589,7 @@
 							"type": "address[]"
 						},
 						{
-							"name": "sUSDAmounts",
+							"name": "dUSDAmounts",
 							"type": "uint256[]"
 						}
 					],
@@ -6230,7 +6230,7 @@
 						},
 						{
 							"internalType": "uint256",
-							"name": "susdAmount",
+							"name": "dUSDAmount",
 							"type": "uint256"
 						}
 					],
@@ -6454,7 +6454,7 @@
 				{
 					"constant": true,
 					"inputs": [],
-					"name": "sUSD",
+					"name": "dUSD",
 					"outputs": [
 						{
 							"internalType": "bytes32",
@@ -16049,7 +16049,7 @@
 						},
 						{
 							"internalType": "uint256",
-							"name": "susdAmount",
+							"name": "dUSDAmount",
 							"type": "uint256"
 						},
 						{

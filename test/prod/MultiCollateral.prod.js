@@ -8,8 +8,8 @@ const Web3 = require('web3');
 const {
 	connectContracts,
 	ensureAccountHasEther,
-	ensureAccountHassUSD,
-	ensureAccountHassETH,
+	ensureAccountHasdUSD,
+	ensureAccountHasdETH,
 	skipWaitingPeriod,
 	simulateExchangeRates,
 	takeDebtSnapshot,
@@ -41,7 +41,7 @@ contract('MultiCollateral (prod tests)', accounts => {
 		CollateralShort,
 		DebtCache,
 		ReadProxyAddressResolver,
-		SynthsUSD;
+		SynthdUSD;
 
 	before('prepare', async function() {
 		network = config.targetNetwork;
@@ -68,7 +68,7 @@ contract('MultiCollateral (prod tests)', accounts => {
 			CollateralEth,
 			CollateralShort,
 			DebtCache,
-			SynthsUSD,
+			SynthdUSD,
 			ReadProxyAddressResolver,
 		} = await connectContracts({
 			network,
@@ -80,7 +80,7 @@ contract('MultiCollateral (prod tests)', accounts => {
 				{ contractName: 'CollateralShort' },
 				{ contractName: 'DebtCache' },
 				{ contractName: 'ReadProxyAddressResolver' },
-				{ contractName: 'SynthsUSD', abiName: 'Synth' },
+				{ contractName: 'SynthdUSD', abiName: 'Synth' },
 				{ contractName: 'Issuer' },
 			],
 		}));
@@ -93,14 +93,14 @@ contract('MultiCollateral (prod tests)', accounts => {
 			fromAccount: accounts[7],
 			network,
 		});
-		await ensureAccountHassUSD({
+		await ensureAccountHasdUSD({
 			amount: toUnit('1100'),
 			account: user1,
 			fromAccount: owner,
 			network,
 		});
 
-		await ensureAccountHassETH({
+		await ensureAccountHasdETH({
 			amount: toUnit('2'),
 			account: user1,
 			fromAccount: owner,
@@ -110,7 +110,7 @@ contract('MultiCollateral (prod tests)', accounts => {
 		if (network === 'mainnet') {
 			loansAccount = knownAccounts[network].find(a => a.name === 'loansAccount').address;
 
-			await ensureAccountHassUSD({
+			await ensureAccountHasdUSD({
 				amount: toUnit('1000'),
 				account: loansAccount,
 				fromAccount: owner,
@@ -134,7 +134,7 @@ contract('MultiCollateral (prod tests)', accounts => {
 			type: 'CollateralEth',
 			collateralCurrency: 'ETH',
 			amountToDeposit: toUnit('2'),
-			borrowCurrency: 'sUSD',
+			borrowCurrency: 'dUSD',
 			amountToBorrow: toUnit('0.5'),
 			amountToRepay: toUnit('0.25'),
 			oldAddress: oldEthAddress,
@@ -144,7 +144,7 @@ contract('MultiCollateral (prod tests)', accounts => {
 			type: 'CollateralErc20',
 			collateralCurrency: 'renBTC',
 			amountToDeposit: Web3.utils.toBN('1000000000'), // 10 renBTC (renBTC uses 8 decimals)
-			borrowCurrency: 'sUSD',
+			borrowCurrency: 'dUSD',
 			amountToBorrow: toUnit('0.5'),
 			amountToRepay: toUnit('0.25'),
 			oldAddress: oldRenAddress,
@@ -152,9 +152,9 @@ contract('MultiCollateral (prod tests)', accounts => {
 
 		itCorrectlyManagesLoansWith({
 			type: 'CollateralShort',
-			collateralCurrency: 'sUSD',
+			collateralCurrency: 'dUSD',
 			amountToDeposit: toUnit('1000'),
-			borrowCurrency: 'sETH',
+			borrowCurrency: 'dETH',
 			amountToBorrow: toUnit('0.01'),
 			amountToRepay: toUnit('0.005'),
 			oldAddress: oldShortAddress,
@@ -225,9 +225,9 @@ contract('MultiCollateral (prod tests)', accounts => {
 						issueFeeRate = await CollateralContract.issueFeeRate();
 						totalLoansBefore = await CollateralManagerState.totalLoans();
 						longBefore = await CollateralManager.long(borrowCurrencyBytes);
-						totalLongBefore = (await CollateralManager.totalLong()).susdValue;
+						totalLongBefore = (await CollateralManager.totalLong()).dUSDValue;
 						shortBefore = await CollateralManager.short(borrowCurrencyBytes);
-						totalShortBefore = (await CollateralManager.totalShort()).susdValue;
+						totalShortBefore = (await CollateralManager.totalShort()).dUSDValue;
 						systemDebtBefore = (await DebtCache.currentDebt()).debt;
 					});
 
@@ -269,7 +269,7 @@ contract('MultiCollateral (prod tests)', accounts => {
 								);
 							}
 						} else if (type === 'CollateralShort') {
-							await SynthsUSD.approve(CollateralContract.address, toUnit('10000'), { from: user1 });
+							await SynthdUSD.approve(CollateralContract.address, toUnit('10000'), { from: user1 });
 
 							tx = await CollateralContract.open(
 								amountToDeposit,
@@ -318,13 +318,13 @@ contract('MultiCollateral (prod tests)', accounts => {
 					it('updates the managers short/long values', async () => {
 						if (type === 'CollateralShort') {
 							const shortAfter = await CollateralManager.short(borrowCurrencyBytes);
-							const totalShortAfter = (await CollateralManager.totalShort()).susdValue;
+							const totalShortAfter = (await CollateralManager.totalShort()).dUSDValue;
 
 							assert.bnGt(shortAfter, shortBefore);
 							assert.bnGt(totalShortAfter, totalShortBefore);
 						} else {
 							const longAfter = await CollateralManager.long(borrowCurrencyBytes);
-							const totalLongAfter = (await CollateralManager.totalLong()).susdValue;
+							const totalLongAfter = (await CollateralManager.totalLong()).dUSDValue;
 
 							assert.bnEqual(longAfter, longBefore.add(amountToBorrow));
 							assert.bnEqual(totalLongAfter, totalLongBefore.add(amountToBorrow));

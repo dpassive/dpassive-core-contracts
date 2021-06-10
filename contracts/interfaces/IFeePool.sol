@@ -32,7 +32,7 @@ interface IFeePool {
         uint debtEntryIndex
     ) external;
 
-    function recordFeePaid(uint sUSDAmount) external;
+    function recordFeePaid(uint dUSDAmount) external;
 
     function setRewardsToDistribute(uint amount) external;
 }

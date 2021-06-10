@@ -151,7 +151,7 @@ contract DPassive is BaseDPassive {
         return true;
     }
 
-    function liquidateDelinquentAccount(address account, uint susdAmount)
+    function liquidateDelinquentAccount(address account, uint dUSDAmount)
         external
         override
         systemActive
@@ -159,7 +159,7 @@ contract DPassive is BaseDPassive {
         returns (bool)
     {
         (uint totalRedeemed, uint amountLiquidated) =
-            issuer().liquidateDelinquentAccount(account, susdAmount, messageSender);
+            issuer().liquidateDelinquentAccount(account, dUSDAmount, messageSender);
 
         emitAccountLiquidated(account, totalRedeemed, amountLiquidated, messageSender);
 

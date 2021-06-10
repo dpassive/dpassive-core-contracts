@@ -90,9 +90,9 @@ describe('publish scripts', () => {
 	let gasLimit;
 	let gasPrice;
 	let accounts;
-	let sUSD;
-	let sBTC;
-	let sETH;
+	let dUSD;
+	let dBTC;
+	let dETH;
 	let web3;
 	let fastForward;
 
@@ -154,7 +154,7 @@ describe('publish scripts', () => {
 		}
 
 		gasLimit = 8000000;
-		[sUSD, sBTC, sETH] = ['sUSD', 'sBTC', 'sETH'].map(toBytes32);
+		[dUSD, dBTC, dETH] = ['dUSD', 'dBTC', 'dETH'].map(toBytes32);
 		web3.eth.accounts.wallet.add(accounts.deployer.private);
 		gasPrice = web3.utils.toWei('5', 'gwei');
 	});
@@ -169,9 +169,9 @@ describe('publish scripts', () => {
 			let synths;
 			let DPassive;
 			let timestamp;
-			let sUSDContract;
-			let sBTCContract;
-			let sETHContract;
+			let dUSDContract;
+			let dBTCContract;
+			let dETHContract;
 			let FeePool;
 			let DebtCache;
 			let Exchanger;
@@ -252,7 +252,7 @@ describe('publish scripts', () => {
 
 				sources = getSource();
 				targets = getTarget();
-				synths = getSynths().filter(({ name }) => name !== 'sUSD');
+				synths = getSynths().filter(({ name }) => name !== 'dUSD');
 
 				DPassive = getContract({ target: 'ProxyERC20', source: 'DPassive' });
 				FeePool = getContract({ target: 'ProxyFeePool', source: 'FeePool' });
@@ -261,10 +261,10 @@ describe('publish scripts', () => {
 
 				Issuer = getContract({ target: 'Issuer' });
 
-				sUSDContract = getContract({ target: 'ProxyERC20sUSD', source: 'Synth' });
+				dUSDContract = getContract({ target: 'ProxyERC20dUSD', source: 'Synth' });
 
-				sBTCContract = getContract({ target: 'ProxysBTC', source: 'Synth' });
-				sETHContract = getContract({ target: 'ProxysETH', source: 'Synth' });
+				dBTCContract = getContract({ target: 'ProxydBTC', source: 'Synth' });
+				dETHContract = getContract({ target: 'ProxydETH', source: 'Synth' });
 				SystemSettings = getContract({ target: 'SystemSettings' });
 
 				Liquidations = getContract({ target: 'Liquidations' });
@@ -340,7 +340,7 @@ describe('publish scripts', () => {
 					let newLiquidationsRatio;
 					let newLiquidationsPenalty;
 					let newRateStalePeriod;
-					let newRateForsUSD;
+					let newRateFordUSD;
 					let newMinimumStakeTime;
 					let newDebtSnapshotStaleTime;
 
@@ -354,7 +354,7 @@ describe('publish scripts', () => {
 						newLiquidationsRatio = web3.utils.toWei('0.6'); // must be above newIssuanceRatio * 2
 						newLiquidationsPenalty = web3.utils.toWei('0.25');
 						newRateStalePeriod = '3400';
-						newRateForsUSD = web3.utils.toWei('0.1');
+						newRateFordUSD = web3.utils.toWei('0.1');
 						newMinimumStakeTime = '3999';
 						newDebtSnapshotStaleTime = '43200'; // Half a day
 
@@ -415,7 +415,7 @@ describe('publish scripts', () => {
 							gasPrice,
 						});
 						await SystemSettings.methods
-							.setExchangeFeeRateForSynths([toBytes32('sUSD')], [newRateForsUSD])
+							.setExchangeFeeRateForSynths([toBytes32('dUSD')], [newRateFordUSD])
 							.send({
 								from: accounts.deployer.public,
 								gas: gasLimit,
@@ -481,9 +481,9 @@ describe('publish scripts', () => {
 							);
 							assert.strictEqual(
 								await Exchanger.methods
-									.feeRateForExchange(toBytes32('(ignored)'), toBytes32('sUSD'))
+									.feeRateForExchange(toBytes32('(ignored)'), toBytes32('dUSD'))
 									.call(),
-								newRateForsUSD
+								newRateFordUSD
 							);
 						});
 					});
@@ -498,13 +498,13 @@ describe('publish scripts', () => {
 						JSON.parse(synthsJSON).map(({ name }) => name)
 					);
 				});
-				describe('when only sUSD and sETH is chosen as a synth', () => {
+				describe('when only dUSD and dETH is chosen as a synth', () => {
 					beforeEach(async () => {
 						fs.writeFileSync(
 							synthsJSONPath,
 							JSON.stringify([
-								{ name: 'sUSD', asset: 'USD' },
-								{ name: 'sETH', asset: 'ETH' },
+								{ name: 'dUSD', asset: 'USD' },
+								{ name: 'dETH', asset: 'ETH' },
 							])
 						);
 					});
@@ -528,9 +528,9 @@ describe('publish scripts', () => {
 							targets = getTarget();
 							Issuer = getContract({ target: 'Issuer' });
 						});
-						it('then only sUSD is added to the issuer', async () => {
+						it('then only dUSD is added to the issuer', async () => {
 							const keys = await Issuer.methods.availableCurrencyKeys().call();
-							assert.deepStrictEqual(keys.map(web3.utils.hexToUtf8), ['sUSD', 'sETH']);
+							assert.deepStrictEqual(keys.map(web3.utils.hexToUtf8), ['dUSD', 'dETH']);
 						});
 					});
 				});
@@ -538,9 +538,9 @@ describe('publish scripts', () => {
 			describe('deploy-staking-rewards', () => {
 				beforeEach(async () => {
 					const rewardsToDeploy = [
-						'sETHUniswapV1',
-						'sXAUUniswapV2',
-						'sUSDCurve',
+						'dETHUniswapV1',
+						'dXAUUniswapV2',
+						'dUSDCurve',
 						'iETH',
 						'iETH2',
 						'iETH3',
@@ -598,7 +598,7 @@ describe('publish scripts', () => {
 
 			describe('deploy-shorting-rewards', () => {
 				beforeEach(async () => {
-					const rewardsToDeploy = ['sBTC', 'sETH'];
+					const rewardsToDeploy = ['dBTC', 'dETH'];
 
 					await commands.deployShortingRewards({
 						network,
@@ -629,7 +629,7 @@ describe('publish scripts', () => {
 						}
 
 						// Test rewards distribution address should be the deployer, since we are
-						// funding by the sDAO for the trial.
+						// funding by the dDAO for the trial.
 						const rewardsDistributionAddress = await shortingRewardsContract.methods
 							.rewardsDistribution()
 							.call();
@@ -908,7 +908,7 @@ describe('publish scripts', () => {
 							});
 					});
 
-					describe('when user1 issues all possible sUSD', () => {
+					describe('when user1 issues all possible dUSD', () => {
 						beforeEach(async () => {
 							await DPassive.methods.issueMaxSynths().send({
 								from: accounts.first.public,
@@ -916,70 +916,70 @@ describe('publish scripts', () => {
 								gasPrice,
 							});
 						});
-						it('then the sUSD balanced must be 100k * 0.3 * 0.2 (default SystemSettings.issuanceRatio) = 6000', async () => {
+						it('then the dUSD balanced must be 100k * 0.3 * 0.2 (default SystemSettings.issuanceRatio) = 6000', async () => {
 							const balance = await callMethodWithRetry(
-								sUSDContract.methods.balanceOf(accounts.first.public)
+								dUSDContract.methods.balanceOf(accounts.first.public)
 							);
 							assert.strictEqual(web3.utils.fromWei(balance), '6000', 'Balance should match');
 						});
-						describe('when user1 exchange 1000 sUSD for sETH (the MultiCollateralSynth)', () => {
-							let sETHBalanceAfterExchange;
+						describe('when user1 exchange 1000 dUSD for dETH (the MultiCollateralSynth)', () => {
+							let dETHBalanceAfterExchange;
 							beforeEach(async () => {
-								await DPassive.methods.exchange(sUSD, web3.utils.toWei('1000'), sETH).send({
+								await DPassive.methods.exchange(dUSD, web3.utils.toWei('1000'), dETH).send({
 									from: accounts.first.public,
 									gas: gasLimit,
 									gasPrice,
 								});
-								sETHBalanceAfterExchange = await callMethodWithRetry(
-									sETHContract.methods.balanceOf(accounts.first.public)
+								dETHBalanceAfterExchange = await callMethodWithRetry(
+									dETHContract.methods.balanceOf(accounts.first.public)
 								);
 							});
-							it('then their sUSD balance is 5000', async () => {
+							it('then their dUSD balance is 5000', async () => {
 								const balance = await callMethodWithRetry(
-									sUSDContract.methods.balanceOf(accounts.first.public)
+									dUSDContract.methods.balanceOf(accounts.first.public)
 								);
 								assert.strictEqual(web3.utils.fromWei(balance), '5000', 'Balance should match');
 							});
-							it('and their sETH balance is 1000 - the fee', async () => {
+							it('and their dETH balance is 1000 - the fee', async () => {
 								const { amountReceived } = await callMethodWithRetry(
-									Exchanger.methods.getAmountsForExchange(web3.utils.toWei('1000'), sUSD, sETH)
+									Exchanger.methods.getAmountsForExchange(web3.utils.toWei('1000'), dUSD, dETH)
 								);
 								assert.strictEqual(
-									web3.utils.fromWei(sETHBalanceAfterExchange),
+									web3.utils.fromWei(dETHBalanceAfterExchange),
 									web3.utils.fromWei(amountReceived),
 									'Balance should match'
 								);
 							});
 						});
-						describe('when user1 exchange 1000 sUSD for sBTC', () => {
-							let sBTCBalanceAfterExchange;
+						describe('when user1 exchange 1000 dUSD for dBTC', () => {
+							let dBTCBalanceAfterExchange;
 							beforeEach(async () => {
-								await DPassive.methods.exchange(sUSD, web3.utils.toWei('1000'), sBTC).send({
+								await DPassive.methods.exchange(dUSD, web3.utils.toWei('1000'), dBTC).send({
 									from: accounts.first.public,
 									gas: gasLimit,
 									gasPrice,
 								});
-								sBTCBalanceAfterExchange = await callMethodWithRetry(
-									sBTCContract.methods.balanceOf(accounts.first.public)
+								dBTCBalanceAfterExchange = await callMethodWithRetry(
+									dBTCContract.methods.balanceOf(accounts.first.public)
 								);
 							});
-							it('then their sUSD balance is 5000', async () => {
+							it('then their dUSD balance is 5000', async () => {
 								const balance = await callMethodWithRetry(
-									sUSDContract.methods.balanceOf(accounts.first.public)
+									dUSDContract.methods.balanceOf(accounts.first.public)
 								);
 								assert.strictEqual(web3.utils.fromWei(balance), '5000', 'Balance should match');
 							});
-							it('and their sBTC balance is 1000 - the fee', async () => {
+							it('and their dBTC balance is 1000 - the fee', async () => {
 								const { amountReceived } = await callMethodWithRetry(
-									Exchanger.methods.getAmountsForExchange(web3.utils.toWei('1000'), sUSD, sBTC)
+									Exchanger.methods.getAmountsForExchange(web3.utils.toWei('1000'), dUSD, dBTC)
 								);
 								assert.strictEqual(
-									web3.utils.fromWei(sBTCBalanceAfterExchange),
+									web3.utils.fromWei(dBTCBalanceAfterExchange),
 									web3.utils.fromWei(amountReceived),
 									'Balance should match'
 								);
 							});
-							describe('when user1 burns 10 sUSD', () => {
+							describe('when user1 burns 10 dUSD', () => {
 								beforeEach(async () => {
 									// set minimumStakeTime to 0 seconds for burning
 									await SystemSettings.methods.setMinimumStakeTime(0).send({
@@ -994,21 +994,21 @@ describe('publish scripts', () => {
 										gasPrice,
 									});
 								});
-								it('then their sUSD balance is 4990', async () => {
+								it('then their dUSD balance is 4990', async () => {
 									const balance = await callMethodWithRetry(
-										sUSDContract.methods.balanceOf(accounts.first.public)
+										dUSDContract.methods.balanceOf(accounts.first.public)
 									);
 									assert.strictEqual(web3.utils.fromWei(balance), '4990', 'Balance should match');
 								});
 
-								describe('when deployer replaces sBTC with PurgeableSynth', () => {
+								describe('when deployer replaces dBTC with PurgeableSynth', () => {
 									beforeEach(async () => {
 										await commands.replaceSynths({
 											network,
 											yes: true,
 											privateKey: accounts.deployer.private,
 											subclass: 'PurgeableSynth',
-											synthsToReplace: ['sBTC'],
+											synthsToReplace: ['dBTC'],
 											methodCallGasLimit: gasLimit,
 										});
 									});
@@ -1021,19 +1021,19 @@ describe('publish scripts', () => {
 												yes: true,
 												privateKey: accounts.deployer.private,
 												addresses: [accounts.first.public],
-												synthsToPurge: ['sBTC'],
+												synthsToPurge: ['dBTC'],
 												gasLimit,
 											});
 										});
-										it('then their sUSD balance is 4990 + sBTCBalanceAfterExchange', async () => {
+										it('then their dUSD balance is 4990 + dBTCBalanceAfterExchange', async () => {
 											const balance = await callMethodWithRetry(
-												sUSDContract.methods.balanceOf(accounts.first.public)
+												dUSDContract.methods.balanceOf(accounts.first.public)
 											);
 											const { amountReceived } = await callMethodWithRetry(
 												Exchanger.methods.getAmountsForExchange(
-													sBTCBalanceAfterExchange,
-													sBTC,
-													sUSD
+													dBTCBalanceAfterExchange,
+													dBTC,
+													dUSD
 												)
 											);
 											assert.strictEqual(
@@ -1042,9 +1042,9 @@ describe('publish scripts', () => {
 												'Balance should match'
 											);
 										});
-										it('and their sBTC balance is 0', async () => {
+										it('and their dBTC balance is 0', async () => {
 											const balance = await callMethodWithRetry(
-												sBTCContract.methods.balanceOf(accounts.first.public)
+												dBTCContract.methods.balanceOf(accounts.first.public)
 											);
 											assert.strictEqual(web3.utils.fromWei(balance), '0', 'Balance should match');
 										});
@@ -1060,14 +1060,14 @@ describe('publish scripts', () => {
 									await setAggregatorAnswer({ asset: 'ETH', rate: 20 });
 								});
 								it('when exchange occurs into that synth, the synth is suspended', async () => {
-									await DPassive.methods.exchange(sUSD, web3.utils.toWei('1'), sETH).send({
+									await DPassive.methods.exchange(dUSD, web3.utils.toWei('1'), dETH).send({
 										from: accounts.first.public,
 										gas: gasLimit,
 										gasPrice,
 									});
 
 									const { suspended, reason } = await SystemStatus.methods
-										.synthSuspension(sETH)
+										.synthSuspension(dETH)
 										.call();
 									assert.strictEqual(suspended, true);
 									assert.strictEqual(reason.toString(), '65');
@@ -1086,7 +1086,7 @@ describe('publish scripts', () => {
 								});
 
 								await DPassive.methods
-									.exchange(toBytes32('sUSD'), web3.utils.toWei('100'), toBytes32('iCEX'))
+									.exchange(toBytes32('dUSD'), web3.utils.toWei('100'), toBytes32('iCEX'))
 									.send({
 										from: accounts.first.public,
 										gas: gasLimit,
@@ -1325,7 +1325,7 @@ describe('publish scripts', () => {
 												});
 											});
 
-											// Note: this is destructive as it removes the sBTC contracts and thus future calls to deploy will fail
+											// Note: this is destructive as it removes the dBTC contracts and thus future calls to deploy will fail
 											// Either have this at the end of the entire test script or manage configuration of deploys by passing in
 											// files to update rather than a file.
 											describe('when deployer invokes remove of iABC', () => {
@@ -1406,18 +1406,18 @@ describe('publish scripts', () => {
 
 							ExchangeRates = getContract({ target: 'ExchangeRates' });
 						});
-						it('then the aggregator must be set for the sEUR price', async () => {
-							const sEURAggregator = await callMethodWithRetry(
-								ExchangeRates.methods.aggregators(toBytes32('sEUR'))
+						it('then the aggregator must be set for the dEUR price', async () => {
+							const dEURAggregator = await callMethodWithRetry(
+								ExchangeRates.methods.aggregators(toBytes32('dEUR'))
 							);
-							assert.strictEqual(sEURAggregator, mockAggregator.options.address);
+							assert.strictEqual(dEURAggregator, mockAggregator.options.address);
 						});
 
-						describe('when ExchangeRates has rates for all synths except the aggregated synth sEUR', () => {
+						describe('when ExchangeRates has rates for all synths except the aggregated synth dEUR', () => {
 							beforeEach(async () => {
 								// update rates
 								const synthsToUpdate = synths
-									.filter(({ name }) => name !== 'sEUR')
+									.filter(({ name }) => name !== 'dEUR')
 									.concat({ asset: 'DPS', rate: 1 });
 
 								for (const { asset } of synthsToUpdate) {
@@ -1425,7 +1425,7 @@ describe('publish scripts', () => {
 								}
 							});
 							describe('when DPassive.anySynthOrDPSRateIsInvalid() is invoked', () => {
-								it('then it returns true as sEUR still is', async () => {
+								it('then it returns true as dEUR still is', async () => {
 									const response = await DPassive.methods.anySynthOrDPSRateIsInvalid().call();
 									assert.strictEqual(response, true, 'anySynthOrDPSRateIsInvalid must be true');
 								});
@@ -1447,7 +1447,7 @@ describe('publish scripts', () => {
 								describe('then the price from exchange rates for that currency key uses the aggregator', () => {
 									it('correctly returns the rate', async () => {
 										const response = await callMethodWithRetry(
-											ExchangeRates.methods.rateForCurrency(toBytes32('sEUR'))
+											ExchangeRates.methods.rateForCurrency(toBytes32('dEUR'))
 										);
 										assert.strictEqual(web3.utils.fromWei(response), rate);
 									});
@@ -1522,8 +1522,8 @@ describe('publish scripts', () => {
 									'DPassive',
 									'DPassiveEscrow',
 									'DPassiveState',
-									'SynthsETH',
-									'SynthsUSD',
+									'SynthdETH',
+									'SynthdUSD',
 									'SystemStatus',
 								].map(contractName =>
 									callMethodWithRetry(

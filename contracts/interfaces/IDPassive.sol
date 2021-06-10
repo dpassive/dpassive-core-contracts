@@ -115,7 +115,7 @@ interface IDPassive {
         );
 
     // Liquidations
-    function liquidateDelinquentAccount(address account, uint susdAmount) external returns (bool);
+    function liquidateDelinquentAccount(address account, uint dUSDAmount) external returns (bool);
 
     // Restricted Functions
 

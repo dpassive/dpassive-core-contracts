@@ -22,9 +22,9 @@ let CollateralManagerState;
 contract('CollateralManager', async accounts => {
 	const [deployerAccount, owner, oracle, , account1] = accounts;
 
-	const sETH = toBytes32('sETH');
-	const sUSD = toBytes32('sUSD');
-	const sBTC = toBytes32('sBTC');
+	const dETH = toBytes32('dETH');
+	const dUSD = toBytes32('dUSD');
+	const dBTC = toBytes32('dBTC');
 
 	const INTERACTION_DELAY = 300;
 
@@ -43,9 +43,9 @@ contract('CollateralManager', async accounts => {
 		issuer,
 		exchangeRates,
 		feePool,
-		sUSDSynth,
-		sETHSynth,
-		sBTCSynth,
+		dUSDSynth,
+		dETHSynth,
+		dBTCSynth,
 		synths,
 		maxDebt,
 		short,
@@ -108,13 +108,13 @@ contract('CollateralManager', async accounts => {
 	const updateRatesWithDefaults = async () => {
 		const timestamp = await currentTime();
 
-		await exchangeRates.updateRates([sETH], ['100'].map(toUnit), timestamp, {
+		await exchangeRates.updateRates([dETH], ['100'].map(toUnit), timestamp, {
 			from: oracle,
 		});
 
-		const sBTC = toBytes32('sBTC');
+		const dBTC = toBytes32('dBTC');
 
-		await exchangeRates.updateRates([sBTC], ['10000'].map(toUnit), timestamp, {
+		await exchangeRates.updateRates([dBTC], ['10000'].map(toUnit), timestamp, {
 			from: oracle,
 		});
 	};
@@ -125,12 +125,12 @@ contract('CollateralManager', async accounts => {
 	};
 
 	const setupManager = async () => {
-		synths = ['sUSD', 'sBTC', 'sETH', 'iBTC', 'iETH'];
+		synths = ['dUSD', 'dBTC', 'dETH', 'iBTC', 'iETH'];
 		({
 			ExchangeRates: exchangeRates,
-			SynthsUSD: sUSDSynth,
-			SynthsETH: sETHSynth,
-			SynthsBTC: sBTCSynth,
+			SynthdUSD: dUSDSynth,
+			SynthdETH: dETHSynth,
+			SynthdBTC: dBTCSynth,
 			FeePool: feePool,
 			AddressResolver: addressResolver,
 			Issuer: issuer,
@@ -176,7 +176,7 @@ contract('CollateralManager', async accounts => {
 			owner: owner,
 			manager: manager.address,
 			resolver: addressResolver.address,
-			collatKey: sETH,
+			collatKey: dETH,
 			minColat: toUnit(1.5),
 			minSize: toUnit(1),
 		});
@@ -222,7 +222,7 @@ contract('CollateralManager', async accounts => {
 			owner: owner,
 			manager: manager.address,
 			resolver: addressResolver.address,
-			collatKey: sBTC,
+			collatKey: dBTC,
 			minColat: toUnit(1.5),
 			minSize: toUnit(0.1),
 			underCon: renBTC.address,
@@ -238,7 +238,7 @@ contract('CollateralManager', async accounts => {
 			owner: owner,
 			manager: manager.address,
 			resolver: addressResolver.address,
-			collatKey: sUSD,
+			collatKey: dUSD,
 			minColat: toUnit(1.5),
 			minSize: toUnit(0.1),
 		});
@@ -269,24 +269,24 @@ contract('CollateralManager', async accounts => {
 		await manager.addCollaterals([ceth.address, cerc20.address, short.address], { from: owner });
 
 		await ceth.addSynths(
-			['SynthsUSD', 'SynthsETH'].map(toBytes32),
-			['sUSD', 'sETH'].map(toBytes32),
+			['SynthdUSD', 'SynthdETH'].map(toBytes32),
+			['dUSD', 'dETH'].map(toBytes32),
 			{ from: owner }
 		);
 		await cerc20.addSynths(
-			['SynthsUSD', 'SynthsBTC'].map(toBytes32),
-			['sUSD', 'sBTC'].map(toBytes32),
+			['SynthdUSD', 'SynthdBTC'].map(toBytes32),
+			['dUSD', 'dBTC'].map(toBytes32),
 			{ from: owner }
 		);
 		await short.addSynths(
-			['SynthsBTC', 'SynthsETH'].map(toBytes32),
-			['sBTC', 'sETH'].map(toBytes32),
+			['SynthdBTC', 'SynthdETH'].map(toBytes32),
+			['dBTC', 'dETH'].map(toBytes32),
 			{ from: owner }
 		);
 
 		await manager.addSynths(
-			[toBytes32('SynthsUSD'), toBytes32('SynthsBTC'), toBytes32('SynthsETH')],
-			[toBytes32('sUSD'), toBytes32('sBTC'), toBytes32('sETH')],
+			[toBytes32('SynthdUSD'), toBytes32('SynthdBTC'), toBytes32('SynthdETH')],
+			[toBytes32('dUSD'), toBytes32('dBTC'), toBytes32('dETH')],
 			{
 				from: owner,
 			}
@@ -294,10 +294,10 @@ contract('CollateralManager', async accounts => {
 
 		await manager.addShortableSynths(
 			[
-				[toBytes32('SynthsBTC'), toBytes32('SynthiBTC')],
-				[toBytes32('SynthsETH'), toBytes32('SynthiETH')],
+				[toBytes32('SynthdBTC'), toBytes32('SynthiBTC')],
+				[toBytes32('SynthdETH'), toBytes32('SynthiETH')],
 			],
-			['sBTC', 'sETH'].map(toBytes32),
+			['dBTC', 'dETH'].map(toBytes32),
 			{
 				from: owner,
 			}
@@ -306,13 +306,13 @@ contract('CollateralManager', async accounts => {
 		// check synths are set and currencyKeys set
 		assert.isTrue(
 			await manager.areSynthsAndCurrenciesSet(
-				['SynthsUSD', 'SynthsBTC', 'SynthsETH'].map(toBytes32),
-				['sUSD', 'sBTC', 'sETH'].map(toBytes32)
+				['SynthdUSD', 'SynthdBTC', 'SynthdETH'].map(toBytes32),
+				['dUSD', 'dBTC', 'dETH'].map(toBytes32)
 			)
 		);
 
 		await renBTC.approve(cerc20.address, toUnit(100), { from: account1 });
-		await sUSDSynth.approve(short.address, toUnit(100000), { from: account1 });
+		await dUSDSynth.approve(short.address, toUnit(100000), { from: account1 });
 	};
 
 	before(async () => {
@@ -328,9 +328,9 @@ contract('CollateralManager', async accounts => {
 	beforeEach(async () => {
 		await updateRatesWithDefaults();
 
-		await issue(sUSDSynth, toUnit(1000), owner);
-		await issue(sETHSynth, toUnit(10), owner);
-		await issue(sBTCSynth, toUnit(0.1), owner);
+		await issue(dUSDSynth, toUnit(1000), owner);
+		await issue(dETHSynth, toUnit(10), owner);
+		await issue(dBTCSynth, toUnit(0.1), owner);
 		await debtCache.takeDebtSnapshot();
 	});
 
@@ -368,7 +368,7 @@ contract('CollateralManager', async accounts => {
 	});
 
 	it('should access its dependencies via the address resolver', async () => {
-		assert.equal(await addressResolver.getAddress(toBytes32('SynthsUSD')), sUSDSynth.address);
+		assert.equal(await addressResolver.getAddress(toBytes32('SynthdUSD')), dUSDSynth.address);
 		assert.equal(await addressResolver.getAddress(toBytes32('FeePool')), feePool.address);
 		assert.equal(
 			await addressResolver.getAddress(toBytes32('ExchangeRates')),
@@ -386,23 +386,23 @@ contract('CollateralManager', async accounts => {
 	describe('default values for totalLong and totalShort', async () => {
 		it('totalLong should be 0', async () => {
 			const long = await manager.totalLong();
-			assert.bnEqual(long.susdValue, toUnit('0'));
+			assert.bnEqual(long.dUSDValue, toUnit('0'));
 		});
 		it('totalShort should be 0', async () => {
 			const short = await manager.totalShort();
-			assert.bnEqual(short.susdValue, toUnit('0'));
+			assert.bnEqual(short.dUSDValue, toUnit('0'));
 		});
 	});
 
 	describe('should only allow opening positions up to the debt limiit', async () => {
 		beforeEach(async () => {
-			await issue(sUSDSynth, toUnit(15000000), account1);
-			await sUSDSynth.approve(short.address, toUnit(15000000), { from: account1 });
+			await issue(dUSDSynth, toUnit(15000000), account1);
+			await dUSDSynth.approve(short.address, toUnit(15000000), { from: account1 });
 		});
 
 		it('should not allow opening a position that would surpass the debt limit', async () => {
 			await assert.revert(
-				short.open(toUnit(15000000), toUnit(6000000), sETH, { from: account1 }),
+				short.open(toUnit(15000000), toUnit(6000000), dETH, { from: account1 }),
 				'Debt limit or invalid rate'
 			);
 		});
@@ -410,41 +410,41 @@ contract('CollateralManager', async accounts => {
 
 	describe('tracking synth balances across collaterals', async () => {
 		beforeEach(async () => {
-			tx = await ceth.open(toUnit(100), sUSD, { value: toUnit(2), from: account1 });
-			await ceth.open(toUnit(1), sETH, { value: toUnit(2), from: account1 });
-			await cerc20.open(oneRenBTC, toUnit(100), sUSD, { from: account1 });
-			await cerc20.open(oneRenBTC, toUnit(0.01), sBTC, { from: account1 });
-			await short.open(toUnit(200), toUnit(1), sETH, { from: account1 });
+			tx = await ceth.open(toUnit(100), dUSD, { value: toUnit(2), from: account1 });
+			await ceth.open(toUnit(1), dETH, { value: toUnit(2), from: account1 });
+			await cerc20.open(oneRenBTC, toUnit(100), dUSD, { from: account1 });
+			await cerc20.open(oneRenBTC, toUnit(0.01), dBTC, { from: account1 });
+			await short.open(toUnit(200), toUnit(1), dETH, { from: account1 });
 
 			id = getid(tx);
 		});
 
-		it('should correctly get the total sUSD balance', async () => {
-			assert.bnEqual(await manager.long(sUSD), toUnit(200));
+		it('should correctly get the total dUSD balance', async () => {
+			assert.bnEqual(await manager.long(dUSD), toUnit(200));
 		});
 
-		it('should correctly get the total sETH balance', async () => {
-			assert.bnEqual(await manager.long(sETH), toUnit(1));
+		it('should correctly get the total dETH balance', async () => {
+			assert.bnEqual(await manager.long(dETH), toUnit(1));
 		});
 
-		it('should correctly get the total sBTC balance', async () => {
-			assert.bnEqual(await manager.long(sBTC), toUnit(0.01));
+		it('should correctly get the total dBTC balance', async () => {
+			assert.bnEqual(await manager.long(dBTC), toUnit(0.01));
 		});
 
 		it('should correctly get the total short ETTH balance', async () => {
-			assert.bnEqual(await manager.short(sETH), toUnit(1));
+			assert.bnEqual(await manager.short(dETH), toUnit(1));
 		});
 
-		it('should get the total long balance in sUSD correctly', async () => {
+		it('should get the total long balance in dUSD correctly', async () => {
 			const total = await manager.totalLong();
-			const debt = total.susdValue;
+			const debt = total.dUSDValue;
 
 			assert.bnEqual(debt, toUnit(400));
 		});
 
-		it('should get the total short balance in sUSD correctly', async () => {
+		it('should get the total short balance in dUSD correctly', async () => {
 			const total = await manager.totalShort();
-			const debt = total.susdValue;
+			const debt = total.dUSDValue;
 
 			assert.bnEqual(debt, toUnit(100));
 		});
@@ -453,11 +453,11 @@ contract('CollateralManager', async accounts => {
 			await fastForward(await exchangeRates.rateStalePeriod());
 
 			const long = await manager.totalLong();
-			const debt = long.susdValue;
+			const debt = long.dUSDValue;
 			const invalid = long.anyRateIsInvalid;
 
 			const short = await manager.totalShort();
-			const shortDebt = short.susdValue;
+			const shortDebt = short.dUSDValue;
 			const shortInvalid = short.anyRateIsInvalid;
 
 			assert.bnEqual(debt, toUnit(400));
@@ -466,21 +466,21 @@ contract('CollateralManager', async accounts => {
 			assert.isTrue(shortInvalid);
 		});
 
-		it('should reduce the sUSD balance when a loan is closed', async () => {
-			issue(sUSDSynth, toUnit(10), account1);
+		it('should reduce the dUSD balance when a loan is closed', async () => {
+			issue(dUSDSynth, toUnit(10), account1);
 			await fastForwardAndUpdateRates(INTERACTION_DELAY);
 			await ceth.close(id, { from: account1 });
 
-			assert.bnEqual(await manager.long(sUSD), toUnit(100));
+			assert.bnEqual(await manager.long(dUSD), toUnit(100));
 		});
 
-		it('should reduce the total balance in sUSD when a loan is closed', async () => {
-			issue(sUSDSynth, toUnit(10), account1);
+		it('should reduce the total balance in dUSD when a loan is closed', async () => {
+			issue(dUSDSynth, toUnit(10), account1);
 			await fastForwardAndUpdateRates(INTERACTION_DELAY);
 			await ceth.close(id, { from: account1 });
 
 			const total = await manager.totalLong();
-			const debt = total.susdValue;
+			const debt = total.dUSDValue;
 
 			assert.bnEqual(debt, toUnit(300));
 		});
@@ -492,7 +492,7 @@ contract('CollateralManager', async accounts => {
 		beforeEach(async () => {
 			systemDebtBefore = (await debtCache.currentDebt()).debt;
 
-			tx = await ceth.open(toUnit(100), sUSD, { value: toUnit(2), from: account1 });
+			tx = await ceth.open(toUnit(100), dUSD, { value: toUnit(2), from: account1 });
 
 			id = getid(tx);
 		});
@@ -587,7 +587,7 @@ contract('CollateralManager', async accounts => {
 		describe('revert conditions', async () => {
 			it('should revert if the caller is not the owner', async () => {
 				await assert.revert(
-					manager.removeCollaterals([sBTCSynth.address], { from: account1 }),
+					manager.removeCollaterals([dBTCSynth.address], { from: account1 }),
 					'Only the contract owner may perform this action'
 				);
 			});
@@ -595,11 +595,11 @@ contract('CollateralManager', async accounts => {
 
 		describe('when a collateral is removed', async () => {
 			beforeEach(async () => {
-				await manager.removeCollaterals([sBTCSynth.address], { from: owner });
+				await manager.removeCollaterals([dBTCSynth.address], { from: owner });
 			});
 
 			it('should not have the collateral', async () => {
-				assert.isFalse(await manager.hasCollateral(sBTCSynth.address));
+				assert.isFalse(await manager.hasCollateral(dBTCSynth.address));
 			});
 		});
 	});
@@ -608,7 +608,7 @@ contract('CollateralManager', async accounts => {
 		describe('revert conditions', async () => {
 			it('should revert if the caller is not the owner', async () => {
 				await assert.revert(
-					manager.removeSynths([toBytes32('SynthsBTC')], [toBytes32('sBTC')], { from: account1 }),
+					manager.removeSynths([toBytes32('SynthdBTC')], [toBytes32('dBTC')], { from: account1 }),
 					'Only the contract owner may perform this action'
 				);
 			});
@@ -616,7 +616,7 @@ contract('CollateralManager', async accounts => {
 
 		describe('it should remove a synth', async () => {
 			beforeEach(async () => {
-				await manager.removeSynths([toBytes32('SynthsBTC')], [toBytes32('sBTC')], { from: owner });
+				await manager.removeSynths([toBytes32('SynthdBTC')], [toBytes32('dBTC')], { from: owner });
 			});
 		});
 	});
@@ -625,7 +625,7 @@ contract('CollateralManager', async accounts => {
 		describe('revert conditions', async () => {
 			it('should revert if the caller is not the owner', async () => {
 				await assert.revert(
-					manager.removeShortableSynths([toBytes32('SynthsBTC')], { from: account1 }),
+					manager.removeShortableSynths([toBytes32('SynthdBTC')], { from: account1 }),
 					'Only the contract owner may perform this action'
 				);
 			});
@@ -633,12 +633,12 @@ contract('CollateralManager', async accounts => {
 
 		describe('when a shortable synth is removed', async () => {
 			beforeEach(async () => {
-				await manager.removeShortableSynths([toBytes32('SynthsBTC')], { from: owner });
+				await manager.removeShortableSynths([toBytes32('SynthdBTC')], { from: owner });
 			});
 
 			it('should zero out the inverse mapping', async () => {
 				assert.equal(
-					await manager.synthToInverseSynth(toBytes32('SynthsBTC')),
+					await manager.synthToInverseSynth(toBytes32('SynthdBTC')),
 					'0x0000000000000000000000000000000000000000000000000000000000000000'
 				);
 			});

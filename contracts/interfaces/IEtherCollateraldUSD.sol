@@ -1,6 +1,6 @@
 pragma solidity ^0.6.10;
 
-interface IEtherCollateralsUSD {
+interface IEtherCollateraldUSD {
     // Views
     function totalIssuedSynths() external view returns (uint256);
 

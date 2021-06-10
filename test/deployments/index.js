@@ -64,11 +64,11 @@ describe('deployments', () => {
 
 									// these mappings are the getters for the legacy rewards contracts
 									const methodMappings = {
-										StakingRewardssETHUniswapV1: {
+										StakingRewardsdETHUniswapV1: {
 											stakingTokenMethod: 'uni',
 											rewardsTokenMethod: 'dps',
 										},
-										StakingRewardssUSDCurve: {
+										StakingRewardsdUSDCurve: {
 											stakingTokenMethod: 'uni',
 											rewardsTokenMethod: 'dps',
 										},
@@ -167,8 +167,8 @@ describe('deployments', () => {
 										assert.strictEqual(lowerLimit, toWei(inverted.lowerLimit.toString()));
 									});
 								} else {
-									it('ensure non inverted synths have s prefix', () => {
-										assert.strictEqual(name[0], 's');
+									it('ensure non inverted synths have d prefix', () => {
+										assert.strictEqual(name[0], 'd');
 									});
 								}
 								if (feed) {
@@ -236,8 +236,8 @@ describe('deployments', () => {
 									'DPassive',
 									'DPassiveEscrow',
 									'DPassiveState',
-									'SynthsUSD',
-									'SynthsETH',
+									'SynthdUSD',
+									'SynthdETH',
 									'SystemSettings',
 									'SystemStatus',
 								].forEach(name => {

@@ -12,8 +12,8 @@ async function ensureBalance({ ctx, symbol, user, balance }) {
 async function _getTokens({ ctx, symbol, user, amount }) {
 	if (symbol === 'DPS') {
 		await _getDPS({ ctx, user, amount });
-	} else if (symbol === 'sUSD') {
-		await _getsUSD({ ctx, user, amount });
+	} else if (symbol === 'dUSD') {
+		await _getdUSD({ ctx, user, amount });
 	} else {
 		// TODO: will need to get DPS and then exchange
 	}
@@ -26,7 +26,7 @@ async function _getDPS({ ctx, user, amount }) {
 	await tx.wait();
 }
 
-async function _getsUSD({ ctx, user, amount }) {
+async function _getdUSD({ ctx, user, amount }) {
 	const DPassive = ctx.contracts.DPassive.connect(ctx.owner);
 
 	let tx;

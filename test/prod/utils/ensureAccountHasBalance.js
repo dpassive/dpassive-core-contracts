@@ -70,18 +70,18 @@ async function ensureAccountHasDPS({ network, deploymentPath, amount, account })
 	});
 }
 
-async function ensureAccountHassUSD({ network, deploymentPath, amount, account }) {
-	const sUSD = await connectContract({
+async function ensureAccountHasdUSD({ network, deploymentPath, amount, account }) {
+	const dUSD = await connectContract({
 		network,
 		deploymentPath,
-		contractName: 'SynthsUSD',
+		contractName: 'SynthdUSD',
 		abiName: 'Synth',
 	});
-	if ((await sUSD.balanceOf(account)).gte(amount)) {
+	if ((await dUSD.balanceOf(account)).gte(amount)) {
 		return;
 	}
 
-	console.log(gray(`    > Ensuring ${account} has sUSD...`));
+	console.log(gray(`    > Ensuring ${account} has dUSD...`));
 
 	const fromAccount =
 		network === 'mainnet'
@@ -92,7 +92,7 @@ async function ensureAccountHassUSD({ network, deploymentPath, amount, account }
 					user: 'owner',
 			  });
 
-	const balance = toBN(await sUSD.transferableSynths(fromAccount));
+	const balance = toBN(await dUSD.transferableSynths(fromAccount));
 	const dpsToTransfer = amount.mul(toBN(30));
 	if (balance.lt(amount)) {
 		await ensureAccountHasDPS({
@@ -113,25 +113,25 @@ async function ensureAccountHassUSD({ network, deploymentPath, amount, account }
 			from: account,
 		});
 	} else {
-		await sUSD.transferAndSettle(account, amount, { from: fromAccount });
+		await dUSD.transferAndSettle(account, amount, { from: fromAccount });
 	}
 }
 
-async function ensureAccountHassETH({ network, deploymentPath, amount, account }) {
-	const sETH = await connectContract({
+async function ensureAccountHasdETH({ network, deploymentPath, amount, account }) {
+	const dETH = await connectContract({
 		network,
 		deploymentPath,
-		contractName: 'SynthsETH',
+		contractName: 'SynthdETH',
 		abiName: 'Synth',
 	});
-	if ((await sETH.balanceOf(account)).gte(amount)) {
+	if ((await dETH.balanceOf(account)).gte(amount)) {
 		return;
 	}
 
-	console.log(gray(`    > Ensuring ${account} has sETH...`));
+	console.log(gray(`    > Ensuring ${account} has dETH...`));
 
-	const sUSDAmount = amount.mul(toBN('50'));
-	await ensureAccountHassUSD({ network, deploymentPath, amount: sUSDAmount, account });
+	const dUSDAmount = amount.mul(toBN('50'));
+	await ensureAccountHasdUSD({ network, deploymentPath, amount: dUSDAmount, account });
 
 	const DPassive = await connectContract({
 		network,
@@ -140,14 +140,14 @@ async function ensureAccountHassETH({ network, deploymentPath, amount, account }
 		abiName: 'DPassive',
 	});
 
-	await DPassive.exchange(toBytes32('sUSD'), sUSDAmount, toBytes32('sETH'), {
+	await DPassive.exchange(toBytes32('dUSD'), dUSDAmount, toBytes32('dETH'), {
 		from: account,
 	});
 }
 
 module.exports = {
 	ensureAccountHasEther,
-	ensureAccountHassUSD,
-	ensureAccountHassETH,
+	ensureAccountHasdUSD,
+	ensureAccountHasdETH,
 	ensureAccountHasDPS,
 };

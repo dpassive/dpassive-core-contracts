@@ -9,7 +9,7 @@ const {
 	connectContracts,
 	connectContract,
 	ensureAccountHasEther,
-	ensureAccountHassUSD,
+	ensureAccountHasdUSD,
 	ensureAccountHasDPS,
 	skipWaitingPeriod,
 	skipStakeTime,
@@ -34,7 +34,7 @@ contract('DPassive (prod tests)', accounts => {
 	let network, deploymentPath;
 
 	let DPassive, DPassiveState, ReadProxyAddressResolver;
-	let SynthsUSD, SynthsETH;
+	let SynthdUSD, SynthdETH;
 
 	before('prepare', async () => {
 		network = config.targetNetwork;
@@ -53,8 +53,8 @@ contract('DPassive (prod tests)', accounts => {
 		({
 			DPassive,
 			DPassiveState,
-			SynthsUSD,
-			SynthsETH,
+			SynthdUSD,
+			SynthdETH,
 			ReadProxyAddressResolver,
 		} = await connectContracts({
 			network,
@@ -62,8 +62,8 @@ contract('DPassive (prod tests)', accounts => {
 			requests: [
 				{ contractName: 'DPassive' },
 				{ contractName: 'DPassiveState' },
-				{ contractName: 'ProxyERC20sUSD', abiName: 'Synth', alias: 'SynthsUSD' },
-				{ contractName: 'ProxysETH', abiName: 'Synth', alias: 'SynthsETH' },
+				{ contractName: 'ProxyERC20dUSD', abiName: 'Synth', alias: 'SynthdUSD' },
+				{ contractName: 'ProxydETH', abiName: 'Synth', alias: 'SynthdETH' },
 				{ contractName: 'ReadProxyAddressResolver' },
 				{ contractName: 'ProxyERC20', abiName: 'DPassive' },
 			],
@@ -77,7 +77,7 @@ contract('DPassive (prod tests)', accounts => {
 			network,
 			deploymentPath,
 		});
-		await ensureAccountHassUSD({
+		await ensureAccountHasdUSD({
 			amount: toUnit('100'),
 			account: user1,
 			network,
@@ -106,7 +106,7 @@ contract('DPassive (prod tests)', accounts => {
 			});
 
 			it('reports matching totalIssuedSynths and debtLedger', async () => {
-				const totalIssuedSynths = await DPassive.totalIssuedSynths(toBytes32('sUSD'));
+				const totalIssuedSynths = await DPassive.totalIssuedSynths(toBytes32('dUSD'));
 				const debtLedgerLength = await DPassiveState.debtLedgerLength();
 
 				assert.isFalse(debtLedgerLength > 0 && totalIssuedSynths === 0);
@@ -148,8 +148,8 @@ contract('DPassive (prod tests)', accounts => {
 				});
 			});
 
-			it('can issue sUSD', async () => {
-				const user1BalanceBefore = await SynthsUSD.balanceOf(user1);
+			it('can issue dUSD', async () => {
+				const user1BalanceBefore = await SynthdUSD.balanceOf(user1);
 
 				const amount = toUnit('10');
 				const txn = await DPassive.issueSynths(amount, {
@@ -158,15 +158,15 @@ contract('DPassive (prod tests)', accounts => {
 				const receipt = await web3.eth.getTransactionReceipt(txn.tx);
 				console.log('Gas on issue', gasFromReceipt({ receipt }));
 
-				const user1BalanceAfter = await SynthsUSD.balanceOf(user1);
+				const user1BalanceAfter = await SynthdUSD.balanceOf(user1);
 
 				assert.bnEqual(user1BalanceAfter, user1BalanceBefore.add(amount));
 			});
 
-			it('can burn sUSD', async () => {
+			it('can burn dUSD', async () => {
 				await skipStakeTime({ network, deploymentPath });
 
-				const user1BalanceBefore = await SynthsUSD.balanceOf(user1);
+				const user1BalanceBefore = await SynthdUSD.balanceOf(user1);
 
 				const txn = await DPassive.burnSynths(user1BalanceBefore, {
 					from: user1,
@@ -175,7 +175,7 @@ contract('DPassive (prod tests)', accounts => {
 				const receipt = await web3.eth.getTransactionReceipt(txn.tx);
 				console.log('Gas on burn', gasFromReceipt({ receipt }));
 
-				const user1BalanceAfter = await SynthsUSD.balanceOf(user1);
+				const user1BalanceAfter = await SynthdUSD.balanceOf(user1);
 
 				assert.bnLt(user1BalanceAfter, user1BalanceBefore);
 			});
@@ -185,46 +185,46 @@ contract('DPassive (prod tests)', accounts => {
 			before('skip if there is no exchanging implementation', async () => {});
 			addSnapshotBeforeRestoreAfter();
 
-			it('can exchange sUSD to sETH', async () => {
+			it('can exchange dUSD to dETH', async () => {
 				await skipWaitingPeriod({ network, deploymentPath });
 
-				const user1BalanceBeforesUSD = await SynthsUSD.balanceOf(user1);
-				const user1BalanceBeforesETH = await SynthsETH.balanceOf(user1);
+				const user1BalanceBeforedUSD = await SynthdUSD.balanceOf(user1);
+				const user1BalanceBeforedETH = await SynthdETH.balanceOf(user1);
 
 				const amount = toUnit('10');
-				const txn = await DPassive.exchange(toBytes32('sUSD'), amount, toBytes32('sETH'), {
+				const txn = await DPassive.exchange(toBytes32('dUSD'), amount, toBytes32('dETH'), {
 					from: user1,
 				});
 
 				const receipt = await web3.eth.getTransactionReceipt(txn.tx);
 				console.log('Gas on exchange', gasFromReceipt({ receipt }));
 
-				const user1BalanceAftersUSD = await SynthsUSD.balanceOf(user1);
-				const user1BalanceAftersETH = await SynthsETH.balanceOf(user1);
+				const user1BalanceAfterdUSD = await SynthdUSD.balanceOf(user1);
+				const user1BalanceAfterdETH = await SynthdETH.balanceOf(user1);
 
-				assert.bnLt(user1BalanceAftersUSD, user1BalanceBeforesUSD);
-				assert.bnGt(user1BalanceAftersETH, user1BalanceBeforesETH);
+				assert.bnLt(user1BalanceAfterdUSD, user1BalanceBeforedUSD);
+				assert.bnGt(user1BalanceAfterdETH, user1BalanceBeforedETH);
 			});
 
-			it('can exchange sETH to sUSD', async () => {
+			it('can exchange dETH to dUSD', async () => {
 				await skipWaitingPeriod({ network, deploymentPath });
 
-				const user1BalanceBeforesUSD = await SynthsUSD.balanceOf(user1);
-				const user1BalanceBeforesETH = await SynthsETH.balanceOf(user1);
+				const user1BalanceBeforedUSD = await SynthdUSD.balanceOf(user1);
+				const user1BalanceBeforedETH = await SynthdETH.balanceOf(user1);
 
 				const amount = toUnit('1');
-				const txn = await DPassive.exchange(toBytes32('sETH'), amount, toBytes32('sUSD'), {
+				const txn = await DPassive.exchange(toBytes32('dETH'), amount, toBytes32('dUSD'), {
 					from: user1,
 				});
 
 				const receipt = await web3.eth.getTransactionReceipt(txn.tx);
 				console.log('Gas on exchange', gasFromReceipt({ receipt }));
 
-				const user1BalanceAftersUSD = await SynthsUSD.balanceOf(user1);
-				const user1BalanceAftersETH = await SynthsETH.balanceOf(user1);
+				const user1BalanceAfterdUSD = await SynthdUSD.balanceOf(user1);
+				const user1BalanceAfterdETH = await SynthdETH.balanceOf(user1);
 
-				assert.bnLt(user1BalanceAftersETH, user1BalanceBeforesETH);
-				assert.bnGt(user1BalanceAftersUSD, user1BalanceBeforesUSD);
+				assert.bnLt(user1BalanceAfterdETH, user1BalanceBeforedETH);
+				assert.bnGt(user1BalanceAfterdUSD, user1BalanceBeforedUSD);
 			});
 		});
 	});
@@ -255,23 +255,23 @@ contract('DPassive (prod tests)', accounts => {
 			});
 
 			// // clear out any pending settlements
-			await Exchanger.settle(user1, toBytes32('sETH'), { from: user1 });
-			await Exchanger.settle(user1, toBytes32('sBTC'), { from: user1 });
+			await Exchanger.settle(user1, toBytes32('dETH'), { from: user1 });
+			await Exchanger.settle(user1, toBytes32('dBTC'), { from: user1 });
 		});
 
-		describe('when user exchanges sUSD into sETH using a Virtualynths', () => {
+		describe('when user exchanges dUSD into dETH using a Virtualynths', () => {
 			const amount = toUnit('100');
 			let txn;
 			let receipt;
-			let userBalanceOfsETHBefore;
+			let userBalanceOfdETHBefore;
 
 			before(async () => {
-				userBalanceOfsETHBefore = await SynthsETH.balanceOf(user1);
+				userBalanceOfdETHBefore = await SynthdETH.balanceOf(user1);
 
 				txn = await DPassive.exchangeWithVirtual(
-					toBytes32('sUSD'),
+					toBytes32('dUSD'),
 					amount,
-					toBytes32('sETH'),
+					toBytes32('dETH'),
 					toBytes32(),
 					{
 						from: user1,
@@ -287,13 +287,13 @@ contract('DPassive (prod tests)', accounts => {
 
 				vSynth = await artifacts.require('VirtualSynth').at(decoded.vSynth);
 
-				assert.equal(trimUtf8EscapeChars(await vSynth.name()), 'Virtual Synth sETH');
-				assert.equal(trimUtf8EscapeChars(await vSynth.symbol()), 'vsETH');
+				assert.equal(trimUtf8EscapeChars(await vSynth.name()), 'Virtual Synth dETH');
+				assert.equal(trimUtf8EscapeChars(await vSynth.symbol()), 'vdETH');
 
 				assert.ok((await vSynth.totalSupply()).toString() > 0);
 				assert.ok((await vSynth.balanceOf(user1)).toString() > 0);
 
-				assert.ok(await SynthsETH.balanceOf(vSynth.address), '0');
+				assert.ok(await SynthdETH.balanceOf(vSynth.address), '0');
 
 				assert.ok((await vSynth.secsLeftInWaitingPeriod()) > 0);
 				assert.notOk(await vSynth.readyToSettle());
@@ -301,19 +301,19 @@ contract('DPassive (prod tests)', accounts => {
 			});
 
 			it('and the vSynth has a single settlement entry', async () => {
-				const { numEntries } = await Exchanger.settlementOwing(vSynth.address, toBytes32('sETH'));
+				const { numEntries } = await Exchanger.settlementOwing(vSynth.address, toBytes32('dETH'));
 
 				assert.equal(numEntries.toString(), '1');
 			});
 
 			it('and the user has no settlement entries', async () => {
-				const { numEntries } = await Exchanger.settlementOwing(user1, toBytes32('sETH'));
+				const { numEntries } = await Exchanger.settlementOwing(user1, toBytes32('dETH'));
 
 				assert.equal(numEntries.toString(), '0');
 			});
 
-			it('and the user has no more sETH after the exchanage', async () => {
-				assert.bnEqual(await SynthsETH.balanceOf(user1), userBalanceOfsETHBefore);
+			it('and the user has no more dETH after the exchanage', async () => {
+				assert.bnEqual(await SynthdETH.balanceOf(user1), userBalanceOfdETHBefore);
 			});
 
 			describe('when the waiting period expires', () => {
@@ -331,18 +331,18 @@ contract('DPassive (prod tests)', accounts => {
 
 						console.log('Gas on vSynth settlement', gasFromReceipt({ receipt }));
 					});
-					it('user has more sETH balance', async () => {
-						assert.bnGt(await SynthsETH.balanceOf(user1), userBalanceOfsETHBefore);
+					it('user has more dETH balance', async () => {
+						assert.bnGt(await SynthdETH.balanceOf(user1), userBalanceOfdETHBefore);
 					});
 					it('and the user has no settlement entries', async () => {
-						const { numEntries } = await Exchanger.settlementOwing(user1, toBytes32('sETH'));
+						const { numEntries } = await Exchanger.settlementOwing(user1, toBytes32('dETH'));
 
 						assert.equal(numEntries.toString(), '0');
 					});
 					it('and the vSynth has no settlement entries', async () => {
 						const { numEntries } = await Exchanger.settlementOwing(
 							vSynth.address,
-							toBytes32('sETH')
+							toBytes32('dETH')
 						);
 
 						assert.equal(numEntries.toString(), '0');
@@ -401,11 +401,11 @@ contract('DPassive (prod tests)', accounts => {
 
 				const decoded = vSynthCreationEvent(txn);
 
-				const SynthsBTC = await connectContract({
+				const SynthdBTC = await connectContract({
 					network,
-					contractName: 'ProxysBTC',
+					contractName: 'ProxydBTC',
 					abiName: 'Synth',
-					alias: 'SynthsBTC',
+					alias: 'SynthdBTC',
 				});
 
 				vSynth = await artifacts.require('VirtualSynth').at(decoded.vSynth);
@@ -436,7 +436,7 @@ contract('DPassive (prod tests)', accounts => {
 				);
 
 				console.log(
-					grey('\t⏩ sBTC.balanceOf(vSynth)', fromUnit(await SynthsBTC.balanceOf(decoded.vSynth)))
+					grey('\t⏩ dBTC.balanceOf(vSynth)', fromUnit(await SynthdBTC.balanceOf(decoded.vSynth)))
 				);
 
 				console.log(
@@ -457,10 +457,10 @@ contract('DPassive (prod tests)', accounts => {
 				);
 
 				console.log(
-					grey('\t⏩ sBTC.balanceOf(vSynth)', fromUnit(await SynthsBTC.balanceOf(decoded.vSynth)))
+					grey('\t⏩ dBTC.balanceOf(vSynth)', fromUnit(await SynthdBTC.balanceOf(decoded.vSynth)))
 				);
 				console.log(
-					grey('\t⏩ sBTC.balanceOf(vToken)', fromUnit(await SynthsBTC.balanceOf(vTokenAddress)))
+					grey('\t⏩ dBTC.balanceOf(vToken)', fromUnit(await SynthdBTC.balanceOf(vTokenAddress)))
 				);
 
 				console.log(

@@ -24,7 +24,7 @@ import "./interfaces/IDPassiveState.sol";
 import "./interfaces/IRewardEscrowV2.sol";
 import "./interfaces/IDelegateApprovals.sol";
 import "./interfaces/IRewardsDistribution.sol";
-import "./interfaces/IEtherCollateralsUSD.sol";
+import "./interfaces/IEtherCollateraldUSD.sol";
 import "./interfaces/ICollateralManager.sol";
 import "./interfaces/IEtherWrapper.sol";
 
@@ -32,11 +32,11 @@ contract FeePool is Owned, Proxyable, LimitedSetup, MixinSystemSettings, IFeePoo
     using SafeMath for uint;
     using SafeDecimalMath for uint;
 
-    // Where fees are pooled in sUSD.
+    // Where fees are pooled in dUSD.
     address public constant override FEE_ADDRESS = 0xfeEFEEfeefEeFeefEEFEEfEeFeefEEFeeFEEFEeF;
 
-    // sUSD currencyKey. Fees stored and paid in sUSD
-    bytes32 private sUSD = "sUSD";
+    // dUSD currencyKey. Fees stored and paid in dUSD
+    bytes32 private dUSD = "dUSD";
 
     // This struct represents the issuance activity that's happened in a fee period.
     struct FeePeriod {
@@ -70,7 +70,7 @@ contract FeePool is Owned, Proxyable, LimitedSetup, MixinSystemSettings, IFeePoo
     bytes32 private constant CONTRACT_DPASSIVESTATE = "DPassiveState";
     bytes32 private constant CONTRACT_REWARDESCROW_V2 = "RewardEscrowV2";
     bytes32 private constant CONTRACT_DELEGATEAPPROVALS = "DelegateApprovals";
-    bytes32 private constant CONTRACT_ETH_COLLATERAL_SUSD = "EtherCollateralsUSD";
+    bytes32 private constant CONTRACT_ETH_COLLATERAL_DUSD = "EtherCollateraldUSD";
     bytes32 private constant CONTRACT_COLLATERALMANAGER = "CollateralManager";
     bytes32 private constant CONTRACT_REWARDSDISTRIBUTION = "RewardsDistribution";
     bytes32 private constant CONTRACT_ETHER_WRAPPER = "EtherWrapper";
@@ -102,7 +102,7 @@ contract FeePool is Owned, Proxyable, LimitedSetup, MixinSystemSettings, IFeePoo
         newAddresses[6] = CONTRACT_DPASSIVESTATE;
         newAddresses[7] = CONTRACT_REWARDESCROW_V2;
         newAddresses[8] = CONTRACT_DELEGATEAPPROVALS;
-        newAddresses[9] = CONTRACT_ETH_COLLATERAL_SUSD;
+        newAddresses[9] = CONTRACT_ETH_COLLATERAL_DUSD;
         newAddresses[10] = CONTRACT_REWARDSDISTRIBUTION;
         newAddresses[11] = CONTRACT_COLLATERALMANAGER;
         newAddresses[12] = CONTRACT_ETHER_WRAPPER;
@@ -129,8 +129,8 @@ contract FeePool is Owned, Proxyable, LimitedSetup, MixinSystemSettings, IFeePoo
         return IExchanger(requireAndGetAddress(CONTRACT_EXCHANGER));
     }
 
-    function etherCollateralsUSD() internal view returns (IEtherCollateralsUSD) {
-        return IEtherCollateralsUSD(requireAndGetAddress(CONTRACT_ETH_COLLATERAL_SUSD));
+    function etherCollateraldUSD() internal view returns (IEtherCollateraldUSD) {
+        return IEtherCollateraldUSD(requireAndGetAddress(CONTRACT_ETH_COLLATERAL_DUSD));
     }
 
     function collateralManager() internal view returns (ICollateralManager) {
@@ -229,10 +229,10 @@ contract FeePool is Owned, Proxyable, LimitedSetup, MixinSystemSettings, IFeePoo
 
     /**
      * @notice The Exchanger contract informs us when fees are paid.
-     * @param amount susd amount in fees being paid.
+     * @param amount dUSD amount in fees being paid.
      */
     function recordFeePaid(uint amount) external override onlyInternalContracts {
-        // Keep track off fees in sUSD in the open fee pool period.
+        // Keep track off fees in dUSD in the open fee pool period.
         _recentFeePeriodsStorage(0).feesToDistribute = _recentFeePeriodsStorage(0).feesToDistribute.add(amount);
     }
 
@@ -381,11 +381,11 @@ contract FeePool is Owned, Proxyable, LimitedSetup, MixinSystemSettings, IFeePoo
 
     /**
      * @notice Record the fee payment in our recentFeePeriods.
-     * @param sUSDAmount The amount of fees priced in sUSD.
+     * @param dUSDAmount The amount of fees priced in dUSD.
      */
-    function _recordFeePayment(uint sUSDAmount) internal returns (uint) {
+    function _recordFeePayment(uint dUSDAmount) internal returns (uint) {
         // Don't assign to the parameter
-        uint remainingToAllocate = sUSDAmount;
+        uint remainingToAllocate = dUSDAmount;
 
         uint feesPaid;
         // Start at the oldest period and record the amount, moving to newer periods
@@ -459,21 +459,21 @@ contract FeePool is Owned, Proxyable, LimitedSetup, MixinSystemSettings, IFeePoo
     /**
      * @notice Send the fees to claiming address.
      * @param account The address to send the fees to.
-     * @param sUSDAmount The amount of fees priced in sUSD.
+     * @param dUSDAmount The amount of fees priced in dUSD.
      */
-    function _payFees(address account, uint sUSDAmount) internal notFeeAddress(account) {
-        // Grab the sUSD Synth
-        ISynth sUSDSynth = issuer().synths(sUSD);
+    function _payFees(address account, uint dUSDAmount) internal notFeeAddress(account) {
+        // Grab the dUSD Synth
+        ISynth dUSDSynth = issuer().synths(dUSD);
 
         // NOTE: we do not control the FEE_ADDRESS so it is not possible to do an
         // ERC20.approve() transaction to allow this feePool to call ERC20.transferFrom
         // to the accounts address
 
         // Burn the source amount
-        sUSDSynth.burn(FEE_ADDRESS, sUSDAmount);
+        dUSDSynth.burn(FEE_ADDRESS, dUSDAmount);
 
         // Mint their new synths
-        sUSDSynth.issue(account, sUSDAmount);
+        dUSDSynth.issue(account, dUSDAmount);
     }
 
     /**
@@ -491,7 +491,7 @@ contract FeePool is Owned, Proxyable, LimitedSetup, MixinSystemSettings, IFeePoo
     }
 
     /**
-     * @notice The total fees available in the system to be withdrawnn in sUSD
+     * @notice The total fees available in the system to be withdrawnn in dUSD
      */
     function totalFeesAvailable() external view override returns (uint) {
         uint totalFees = 0;
@@ -521,7 +521,7 @@ contract FeePool is Owned, Proxyable, LimitedSetup, MixinSystemSettings, IFeePoo
     }
 
     /**
-     * @notice The fees available to be withdrawn by a specific account, priced in sUSD
+     * @notice The fees available to be withdrawn by a specific account, priced in dUSD
      * @dev Returns two amounts, one for fees and one for DPS rewards
      */
     function feesAvailable(address account) public view override returns (uint, uint) {
@@ -537,7 +537,7 @@ contract FeePool is Owned, Proxyable, LimitedSetup, MixinSystemSettings, IFeePoo
             totalRewards = totalRewards.add(userFees[i][1]);
         }
 
-        // And convert totalFees to sUSD
+        // And convert totalFees to dUSD
         // Return totalRewards as is in DPS amount
         return (totalFees, totalRewards);
     }
@@ -570,7 +570,7 @@ contract FeePool is Owned, Proxyable, LimitedSetup, MixinSystemSettings, IFeePoo
     }
 
     /**
-     * @notice Calculates fees by period for an account, priced in sUSD
+     * @notice Calculates fees by period for an account, priced in dUSD
      * @param account The address you want to query the fees for
      */
     function feesByPeriod(address account) public view returns (uint[2][FEE_PERIOD_LENGTH] memory results) {
@@ -727,12 +727,12 @@ contract FeePool is Owned, Proxyable, LimitedSetup, MixinSystemSettings, IFeePoo
     modifier onlyInternalContracts {
         bool isExchanger = msg.sender == address(exchanger());
         bool isSynth = issuer().synthsByAddress(msg.sender) != bytes32(0);
-        bool isEtherCollateralsUSD = msg.sender == address(etherCollateralsUSD());
+        bool isEtherCollateraldUSD = msg.sender == address(etherCollateraldUSD());
         bool isCollateral = collateralManager().hasCollateral(msg.sender);
         bool isEtherWrapper = msg.sender == address(etherWrapper());
 
         require(
-            isExchanger || isSynth || isEtherCollateralsUSD || isCollateral || isEtherWrapper,
+            isExchanger || isSynth || isEtherCollateraldUSD || isCollateral || isEtherWrapper,
             "Only Internal Contracts"
         );
         _;
@@ -789,14 +789,14 @@ contract FeePool is Owned, Proxyable, LimitedSetup, MixinSystemSettings, IFeePoo
         proxy._emit(abi.encode(feePeriodId), 1, FEEPERIODCLOSED_SIG, 0, 0, 0);
     }
 
-    event FeesClaimed(address account, uint sUSDAmount, uint dpsRewards);
+    event FeesClaimed(address account, uint dUSDAmount, uint dpsRewards);
     bytes32 private constant FEESCLAIMED_SIG = keccak256("FeesClaimed(address,uint256,uint256)");
 
     function emitFeesClaimed(
         address account,
-        uint sUSDAmount,
+        uint dUSDAmount,
         uint dpsRewards
     ) internal {
-        proxy._emit(abi.encode(account, sUSDAmount, dpsRewards), 1, FEESCLAIMED_SIG, 0, 0, 0);
+        proxy._emit(abi.encode(account, dUSDAmount, dpsRewards), 1, FEESCLAIMED_SIG, 0, 0, 0);
     }
 }

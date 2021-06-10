@@ -129,7 +129,7 @@ const deploy = async ({
 			});
 
 			// Check that no non-deployable is marked for deployment.
-			// Note: if nonDeployable = 'TokenState', this will match 'TokenStatesUSD'
+			// Note: if nonDeployable = 'TokenState', this will match 'TokenStatedUSD'
 			nonUpgradeable.map(nonUpgradeableContract => {
 				contractsToDeploy.map(contractName => {
 					if (contractName.match(new RegExp(`^${nonUpgradeableContract}`, 'g'))) {
@@ -962,9 +962,9 @@ const deploy = async ({
 		});
 
 		// Legacy proxy will be around until May 30, 2020
-		// Until this time, on mainnet we will still deploy ProxyERC20sUSD and ensure that
-		// SynthsUSD.proxy is ProxyERC20sUSD, SynthsUSD.integrationProxy is ProxysUSD
-		const synthProxyIsLegacy = currencyKey === 'sUSD' && network === 'mainnet';
+		// Until this time, on mainnet we will still deploy ProxyERC20dUSD and ensure that
+		// SynthdUSD.proxy is ProxyERC20dUSD, SynthdUSD.integrationProxy is ProxydUSD
+		const synthProxyIsLegacy = currencyKey === 'dUSD' && network === 'mainnet';
 
 		const proxyForSynth = await deployer.deployContract({
 			name: `Proxy${currencyKey}`,
@@ -973,9 +973,9 @@ const deploy = async ({
 			force: addNewSynths,
 		});
 
-		// additionally deploy an ERC20 proxy for the synth if it's legacy (sUSD)
+		// additionally deploy an ERC20 proxy for the synth if it's legacy (dUSD)
 		let proxyERC20ForSynth;
-		if (currencyKey === 'sUSD') {
+		if (currencyKey === 'dUSD') {
 			proxyERC20ForSynth = await deployer.deployContract({
 				name: `ProxyERC20${currencyKey}`,
 				source: `ProxyERC20`,
@@ -1060,7 +1060,7 @@ const deploy = async ({
 				writeArg: addressOf(synth),
 			});
 
-			// Migration Phrase 2: if there's a ProxyERC20sUSD then the Synth's proxy must use it
+			// Migration Phrase 2: if there's a ProxyERC20dUSD then the Synth's proxy must use it
 			await runStep({
 				contract: `Synth${currencyKey}`,
 				target: synth,
@@ -1111,7 +1111,7 @@ const deploy = async ({
 
 	await deployer.deployContract({
 		name: 'Depot',
-		deps: ['ProxyDPassive', 'SynthsUSD', 'FeePool'],
+		deps: ['ProxyDPassive', 'SynthdUSD', 'FeePool'],
 		args: [account, account, addressOf(readProxyForResolver)],
 	});
 
@@ -1123,7 +1123,7 @@ const deploy = async ({
 		args: [account, addressOf(readProxyForResolver)],
 	});
 	await deployer.deployContract({
-		name: 'EtherCollateralsUSD',
+		name: 'EtherCollateraldUSD',
 		deps: ['AddressResolver'],
 		args: [account, addressOf(readProxyForResolver)],
 	});
@@ -1171,7 +1171,7 @@ const deploy = async ({
 	const maxOraclePriceAge = 120 * 60; // Price updates are accepted from up to two hours before maturity to allow for delayed chainlink heartbeats.
 	const expiryDuration = 26 * 7 * day; // Six months to exercise options before the market is destructible.
 	const maxTimeToMaturity = 730 * day; // Markets may not be deployed more than two years in the future.
-	const creatorCapitalRequirement = w3utils.toWei('1000'); // 1000 sUSD is required to create a new market.
+	const creatorCapitalRequirement = w3utils.toWei('1000'); // 1000 dUSD is required to create a new market.
 	const creatorSkewLimit = w3utils.toWei('0.05'); // Market creators must leave 5% or more of their position on either side.
 	const poolFee = w3utils.toWei('0.008'); // 0.8% of the market's value goes to the pool in the end.
 	const creatorFee = w3utils.toWei('0.002'); // 0.2% of the market's value goes to the creator.
@@ -1276,7 +1276,7 @@ const deploy = async ({
 			account,
 			addressOf(collateralManager),
 			addressOf(readProxyForResolver),
-			toBytes32('sETH'),
+			toBytes32('dETH'),
 			(await getDeployParameter('COLLATERAL_ETH'))['MIN_CRATIO'],
 			(await getDeployParameter('COLLATERAL_ETH'))['MIN_COLLATERAL'],
 		],
@@ -1322,7 +1322,7 @@ const deploy = async ({
 			account,
 			addressOf(collateralManager),
 			addressOf(readProxyForResolver),
-			toBytes32('sBTC'),
+			toBytes32('dBTC'),
 			(await getDeployParameter('COLLATERAL_RENBTC'))['MIN_CRATIO'],
 			(await getDeployParameter('COLLATERAL_RENBTC'))['MIN_COLLATERAL'],
 			RENBTC_ADDRESS,
@@ -1354,7 +1354,7 @@ const deploy = async ({
 			account,
 			addressOf(collateralManager),
 			addressOf(readProxyForResolver),
-			toBytes32('sUSD'),
+			toBytes32('dUSD'),
 			(await getDeployParameter('COLLATERAL_SHORT'))['MIN_CRATIO'],
 			(await getDeployParameter('COLLATERAL_SHORT'))['MIN_COLLATERAL'],
 		],
@@ -1681,7 +1681,7 @@ const deploy = async ({
 	}
 
 	// Now perform a sync of legacy contracts that have not been replaced in Shaula (v2.35.x)
-	// EtherCollateral, EtherCollateralsUSD
+	// EtherCollateral, EtherCollateraldUSD
 	console.log(gray('Checking all legacy contracts with setResolverAndSyncCache() are rebuilt...'));
 	const contractsWithLegacyResolverCaching = filterTargetsWith({
 		prop: 'setResolverAndSyncCache',
@@ -1908,20 +1908,14 @@ const deploy = async ({
 
 		// override individual currencyKey / synths exchange rates
 		const synthExchangeRateOverride = {
-			sETH: w3utils.toWei('0.0025'),
+			dETH: w3utils.toWei('0.0025'),
 			iETH: w3utils.toWei('0.004'),
-			sBTC: w3utils.toWei('0.003'),
+			dBTC: w3utils.toWei('0.003'),
 			iBTC: w3utils.toWei('0.003'),
 			iBNB: w3utils.toWei('0.021'),
-			sXTZ: w3utils.toWei('0.0085'),
 			iXTZ: w3utils.toWei('0.0085'),
-			sEOS: w3utils.toWei('0.0085'),
 			iEOS: w3utils.toWei('0.009'),
-			sETC: w3utils.toWei('0.0085'),
-			sLINK: w3utils.toWei('0.0085'),
-			sDASH: w3utils.toWei('0.009'),
 			iDASH: w3utils.toWei('0.009'),
-			sXRP: w3utils.toWei('0.009'),
 		};
 
 		const synthsRatesToUpdate = synths
@@ -2177,7 +2171,7 @@ const deploy = async ({
 		writeArg: addressOf(collateralManager),
 	});
 
-	const collateralEthSynths = (await getDeployParameter('COLLATERAL_ETH'))['SYNTHS']; // COLLATERAL_ETH synths - ['sUSD', 'sETH']
+	const collateralEthSynths = (await getDeployParameter('COLLATERAL_ETH'))['SYNTHS']; // COLLATERAL_ETH synths - ['dUSD', 'dETH']
 	await runStep({
 		contract: 'CollateralEth',
 		gasLimit: 1e6,
@@ -2204,7 +2198,7 @@ const deploy = async ({
 		writeArg: addressOf(collateralManager),
 	});
 
-	const collateralErc20Synths = (await getDeployParameter('COLLATERAL_RENBTC'))['SYNTHS']; // COLLATERAL_RENBTC synths - ['sUSD', 'sBTC']
+	const collateralErc20Synths = (await getDeployParameter('COLLATERAL_RENBTC'))['SYNTHS']; // COLLATERAL_RENBTC synths - ['dUSD', 'dBTC']
 	await runStep({
 		contract: 'CollateralErc20',
 		gasLimit: 1e6,
@@ -2231,7 +2225,7 @@ const deploy = async ({
 		writeArg: addressOf(collateralManager),
 	});
 
-	const collateralShortSynths = (await getDeployParameter('COLLATERAL_SHORT'))['SYNTHS']; // COLLATERAL_SHORT synths - ['sBTC', 'sETH']
+	const collateralShortSynths = (await getDeployParameter('COLLATERAL_SHORT'))['SYNTHS']; // COLLATERAL_SHORT synths - ['dBTC', 'dETH']
 	await runStep({
 		contract: 'CollateralShort',
 		gasLimit: 1e6,

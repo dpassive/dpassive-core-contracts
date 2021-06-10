@@ -166,29 +166,29 @@ const defaults = {
 	CROSS_DOMAIN_WITHDRAWAL_GAS_LIMIT: `${3e6}`,
 
 	COLLATERAL_MANAGER: {
-		SYNTHS: ['sUSD', 'sBTC', 'sETH'],
+		SYNTHS: ['dUSD', 'dBTC', 'dETH'],
 		SHORTS: [
-			{ long: 'sBTC', short: 'iBTC' },
-			{ long: 'sETH', short: 'iETH' },
+			{ long: 'dBTC', short: 'iBTC' },
+			{ long: 'dETH', short: 'iETH' },
 		],
-		MAX_DEBT: w3utils.toWei('75000000'), // 75 million sUSD
+		MAX_DEBT: w3utils.toWei('75000000'), // 75 million dUSD
 		BASE_BORROW_RATE: Math.round((0.005 * 1e18) / 31556926).toString(), // 31556926 is CollateralManager seconds per year
 		BASE_SHORT_RATE: Math.round((0.005 * 1e18) / 31556926).toString(),
 	},
 	COLLATERAL_ETH: {
-		SYNTHS: ['sUSD', 'sETH'],
+		SYNTHS: ['dUSD', 'dETH'],
 		MIN_CRATIO: w3utils.toWei('1.3'),
 		MIN_COLLATERAL: w3utils.toWei('2'),
 		ISSUE_FEE_RATE: w3utils.toWei('0.001'),
 	},
 	COLLATERAL_RENBTC: {
-		SYNTHS: ['sUSD', 'sBTC'],
+		SYNTHS: ['dUSD', 'dBTC'],
 		MIN_CRATIO: w3utils.toWei('1.3'),
 		MIN_COLLATERAL: w3utils.toWei('0.05'),
 		ISSUE_FEE_RATE: w3utils.toWei('0.001'),
 	},
 	COLLATERAL_SHORT: {
-		SYNTHS: ['sBTC', 'sETH'],
+		SYNTHS: ['dBTC', 'dETH'],
 		MIN_CRATIO: w3utils.toWei('1.2'),
 		MIN_COLLATERAL: w3utils.toWei('1000'),
 		ISSUE_FEE_RATE: w3utils.toWei('0.005'),
@@ -322,7 +322,7 @@ const getFeeds = ({ network, path, fs, deploymentPath } = {}) => {
 	return Object.entries(feeds).reduce((memo, [asset, entry]) => {
 		memo[asset] = Object.assign(
 			// standalone feeds are those without a synth using them
-			// Note: ETH still used as a rate for Depot, can remove the below once the Depot uses sETH rate or is
+			// Note: ETH still used as a rate for Depot, can remove the below once the Depot uses dETH rate or is
 			// removed from the system
 			{ standalone: !synths.find(synth => synth.asset === asset) || asset === 'ETH' },
 			assets[asset],
@@ -557,7 +557,7 @@ const getTokens = ({ network = 'mainnet', path, fs } = {}) => {
 				symbol: synth.name,
 				asset: synth.asset,
 				name: synth.description,
-				address: (targets[`Proxy${synth.name === 'sUSD' ? 'ERC20sUSD' : synth.name}`] || {})
+				address: (targets[`Proxy${synth.name === 'dUSD' ? 'ERC20dUSD' : synth.name}`] || {})
 					.address,
 				index: synth.index,
 				inverted: synth.inverted,

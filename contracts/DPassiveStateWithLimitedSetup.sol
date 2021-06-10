@@ -34,11 +34,11 @@ contract DPassiveStateWithLimitedSetup is DPassiveState, LimitedSetup {
     //  * @notice Import issuer data
     //  * @dev Only callable by the contract owner, and only for 1 week after deployment.
     //  */
-    function importIssuerData(address[] calldata accounts, uint[] calldata sUSDAmounts) external onlyOwner onlyDuringSetup {
-        require(accounts.length == sUSDAmounts.length, "Length mismatch");
+    function importIssuerData(address[] calldata accounts, uint[] calldata dUSDAmounts) external onlyOwner onlyDuringSetup {
+        require(accounts.length == dUSDAmounts.length, "Length mismatch");
 
         for (uint8 i = 0; i < accounts.length; i++) {
-            _addToDebtRegister(accounts[i], sUSDAmounts[i]);
+            _addToDebtRegister(accounts[i], dUSDAmounts[i]);
         }
     }
 

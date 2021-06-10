@@ -3,8 +3,8 @@ const { connectContract, connectContracts } = require('./connectContract');
 const {
 	ensureAccountHasEther,
 	ensureAccountHasDPS,
-	ensureAccountHassUSD,
-	ensureAccountHassETH,
+	ensureAccountHasdUSD,
+	ensureAccountHasdETH,
 } = require('./ensureAccountHasBalance');
 const { exchangeSynths } = require('./exchangeSynths');
 const { readSetting, writeSetting } = require('./systemSettings');
@@ -20,9 +20,9 @@ module.exports = {
 	connectContract,
 	connectContracts,
 	ensureAccountHasEther,
-	ensureAccountHassUSD,
+	ensureAccountHasdUSD,
 	ensureAccountHasDPS,
-	ensureAccountHassETH,
+	ensureAccountHasdETH,
 	exchangeSynths,
 	readSetting,
 	writeSetting,

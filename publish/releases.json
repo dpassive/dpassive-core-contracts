@@ -28,8 +28,8 @@
 			"ExchangeRates",
 			"Issuer",
 			"FeePool",
-			"EtherCollateralsUSD",
-			"SynthsUSD"
+			"EtherCollateraldUSD",
+			"SynthdUSD"
 		],
 		"sips": [85, 86]
 	},
@@ -194,8 +194,8 @@
 			"FeePool",
 			"Issuer",
 			"NativeEtherWrapper",
-			"SynthsETH",
-			"SynthsUSD",
+			"SynthdETH",
+			"SynthdUSD",
 			"SystemSettings"
 		],
 		"sips": [112, 136]

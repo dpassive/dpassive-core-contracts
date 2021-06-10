@@ -7,7 +7,7 @@ const { toUnit } = require('../utils')();
 const {
 	connectContracts,
 	ensureAccountHasEther,
-	ensureAccountHassUSD,
+	ensureAccountHasdUSD,
 	exchangeSynths,
 	skipWaitingPeriod,
 	simulateExchangeRates,
@@ -61,7 +61,7 @@ contract('TradingRewards (prod tests)', accounts => {
 			network,
 			deploymentPath,
 		});
-		await ensureAccountHassUSD({
+		await ensureAccountHasdUSD({
 			amount: toUnit('100'),
 			account: user,
 			fromAccount: owner,
@@ -107,8 +107,8 @@ contract('TradingRewards (prod tests)', accounts => {
 				({ exchangeLogs } = await exchangeSynths({
 					network,
 					account: user,
-					fromCurrency: 'sUSD',
-					toCurrency: 'sETH',
+					fromCurrency: 'dUSD',
+					toCurrency: 'dETH',
 					amount: toUnit('1'),
 				}));
 			});
@@ -148,8 +148,8 @@ contract('TradingRewards (prod tests)', accounts => {
 					network,
 					withTradingRewards: true,
 					account: user,
-					fromCurrency: 'sUSD',
-					toCurrency: 'sETH',
+					fromCurrency: 'dUSD',
+					toCurrency: 'dETH',
 					amount: toUnit('1'),
 				}));
 			});

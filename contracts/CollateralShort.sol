@@ -25,19 +25,19 @@ contract CollateralShort is Collateral {
         bytes32 currency
     ) external {
         require(
-            collateral <= IERC20(address(_synthsUSD())).allowance(msg.sender, address(this)),
+            collateral <= IERC20(address(_synthdUSD())).allowance(msg.sender, address(this)),
             "Allowance not high enough"
         );
 
         openInternal(collateral, amount, currency, true);
 
-        IERC20(address(_synthsUSD())).transferFrom(msg.sender, address(this), collateral);
+        IERC20(address(_synthdUSD())).transferFrom(msg.sender, address(this), collateral);
     }
 
     function close(uint id) external {
         uint collateral = closeInternal(msg.sender, id);
 
-        IERC20(address(_synthsUSD())).transfer(msg.sender, collateral);
+        IERC20(address(_synthdUSD())).transfer(msg.sender, collateral);
     }
 
     function deposit(
@@ -45,9 +45,9 @@ contract CollateralShort is Collateral {
         uint id,
         uint amount
     ) external {
-        require(amount <= IERC20(address(_synthsUSD())).allowance(msg.sender, address(this)), "Allowance not high enough");
+        require(amount <= IERC20(address(_synthdUSD())).allowance(msg.sender, address(this)), "Allowance not high enough");
 
-        IERC20(address(_synthsUSD())).transferFrom(msg.sender, address(this), amount);
+        IERC20(address(_synthdUSD())).transferFrom(msg.sender, address(this), amount);
 
         depositInternal(borrower, id, amount);
     }
@@ -55,7 +55,7 @@ contract CollateralShort is Collateral {
     function withdraw(uint id, uint amount) external {
         uint withdrawnAmount = withdrawInternal(id, amount);
 
-        IERC20(address(_synthsUSD())).transfer(msg.sender, withdrawnAmount);
+        IERC20(address(_synthdUSD())).transfer(msg.sender, withdrawnAmount);
     }
 
     function repay(
@@ -77,7 +77,7 @@ contract CollateralShort is Collateral {
     ) external {
         uint collateralLiquidated = liquidateInternal(borrower, id, amount);
 
-        IERC20(address(_synthsUSD())).transfer(msg.sender, collateralLiquidated);
+        IERC20(address(_synthdUSD())).transfer(msg.sender, collateralLiquidated);
     }
 
     function getReward(bytes32 currency, address account) external {

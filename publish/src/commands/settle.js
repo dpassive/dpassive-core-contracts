@@ -241,7 +241,7 @@ const settle = async ({
 								.effectiveValue(
 									toCurrencyKey,
 									reclaimAmount > rebateAmount ? reclaimAmount.toString() : rebateAmount.toString(),
-									toBytes32('sUSD')
+									toBytes32('dUSD')
 								)
 								.call(blockNumber)
 					  )

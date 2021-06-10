@@ -3,7 +3,7 @@ const { toBytes32 } = require('../../..');
 
 async function simulateExchangeRates({ ctx }) {
 	const currencyKeys = (await ctx.contracts.Issuer.availableCurrencyKeys())
-		.filter(key => key !== toBytes32('sUSD'))
+		.filter(key => key !== toBytes32('dUSD'))
 		.concat(['DPS', 'ETH'].map(toBytes32));
 
 	const { timestamp } = await ctx.provider.getBlock();

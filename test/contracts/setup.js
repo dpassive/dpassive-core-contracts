@@ -194,16 +194,16 @@ const setupContract = async ({
 		EtherCollateral: [owner, tryGetAddressOf('AddressResolver')],
 		EtherWrapper: [owner, tryGetAddressOf('AddressResolver'), tryGetAddressOf('WETH')],
 		NativeEtherWrapper: [owner, tryGetAddressOf('AddressResolver')],
-		EtherCollateralsUSD: [owner, tryGetAddressOf('AddressResolver')],
+		EtherCollateraldUSD: [owner, tryGetAddressOf('AddressResolver')],
 		FeePoolState: [owner, tryGetAddressOf('FeePool')],
 		FeePool: [tryGetAddressOf('ProxyFeePool'), owner, tryGetAddressOf('AddressResolver')],
 		Synth: [
 			tryGetAddressOf('ProxyERC20Synth'),
 			tryGetAddressOf('TokenStateSynth'),
-			tryGetProperty({ property: 'name', otherwise: 'Synthetic sUSD' }),
-			tryGetProperty({ property: 'symbol', otherwise: 'sUSD' }),
+			tryGetProperty({ property: 'name', otherwise: 'Synthetic dUSD' }),
+			tryGetProperty({ property: 'symbol', otherwise: 'dUSD' }),
 			owner,
-			tryGetProperty({ property: 'currencyKey', otherwise: toBytes32('sUSD') }),
+			tryGetProperty({ property: 'currencyKey', otherwise: toBytes32('dUSD') }),
 			tryGetProperty({ property: 'totalSupply', otherwise: '0' }),
 			tryGetAddressOf('AddressResolver'),
 		],
@@ -443,7 +443,7 @@ const setupContract = async ({
 		async GenericMock() {
 			if (mock === 'RewardEscrow' || mock === 'DPassiveEscrow') {
 				await mockGenericContractFnc({ instance, mock, fncName: 'balanceOf', returns: ['0'] });
-			} else if (mock === 'EtherCollateral' || mock === 'EtherCollateralsUSD') {
+			} else if (mock === 'EtherCollateral' || mock === 'EtherCollateraldUSD') {
 				await mockGenericContractFnc({
 					instance,
 					mock,
@@ -591,10 +591,10 @@ const setupAllContracts = async ({
 		{
 			contract: 'NativeEtherWrapper',
 			mocks: [],
-			deps: ['AddressResolver', 'EtherWrapper', 'WETH', 'SynthsETH'],
+			deps: ['AddressResolver', 'EtherWrapper', 'WETH', 'SynthdETH'],
 		},
 		{
-			contract: 'EtherCollateralsUSD',
+			contract: 'EtherCollateraldUSD',
 			mocks: ['Issuer', 'ExchangeRates', 'FeePool'],
 			deps: ['AddressResolver', 'SystemStatus'],
 		},
@@ -607,7 +607,7 @@ const setupAllContracts = async ({
 			contract: 'Issuer',
 			mocks: [
 				'EtherCollateral',
-				'EtherCollateralsUSD',
+				'EtherCollateraldUSD',
 				'CollateralManager',
 				'DPassive',
 				'DPassiveState',
@@ -695,7 +695,7 @@ const setupAllContracts = async ({
 				'FeePoolEternalStorage',
 				'RewardsDistribution',
 				'FlexibleStorage',
-				'EtherCollateralsUSD',
+				'EtherCollateraldUSD',
 				'CollateralManager',
 				'EtherWrapper',
 			],

@@ -1,10 +1,10 @@
 [
 	{
-		"name": "sETH",
+		"name": "dETH",
 		"rewardsToken": "DPassive"
 	},
 	{
-		"name": "sBTC",
+		"name": "dBTC",
 		"rewardsToken": "DPassive"
 	}
 ]

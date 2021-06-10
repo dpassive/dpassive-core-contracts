@@ -4,6 +4,7 @@ require('dotenv').config();
 const path = require('path');
 
 require('./hardhat');
+require('@nomiclabs/hardhat-ethers');
 require('@nomiclabs/hardhat-truffle5');
 require('solidity-coverage');
 require('hardhat-gas-reporter');
@@ -20,10 +21,14 @@ module.exports = {
 	solidity: {
 		compilers: [
 			{
-				version: '0.4.25',
-			},
-			{
 				version: '0.6.10',
+				settings: {
+					outputSelection: {
+						'*': {
+							'*': ['storageLayout'],
+						},
+					},
+				},
 			},
 		],
 	},

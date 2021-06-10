@@ -10,7 +10,7 @@ const { toUnit, currentTime, fastForward } = require('../utils')();
 const {
 	connectContracts,
 	ensureAccountHasEther,
-	ensureAccountHassUSD,
+	ensureAccountHasdUSD,
 	skipWaitingPeriod,
 	simulateExchangeRates,
 	avoidStaleRates,
@@ -30,7 +30,7 @@ contract('Binary Options (prod tests)', accounts => {
 	let network, deploymentPath;
 
 	let BinaryOptionMarketManager;
-	let SynthsUSD;
+	let SynthdUSD;
 
 	before('prepare', async () => {
 		network = config.targetNetwork;
@@ -46,10 +46,10 @@ contract('Binary Options (prod tests)', accounts => {
 			await simulateExchangeRates({ network, deploymentPath });
 		}
 
-		({ SynthsUSD, BinaryOptionMarketManager } = await connectContracts({
+		({ SynthdUSD, BinaryOptionMarketManager } = await connectContracts({
 			network,
 			requests: [
-				{ contractName: 'SynthsUSD', abiName: 'Synth' },
+				{ contractName: 'SynthdUSD', abiName: 'Synth' },
 				{ contractName: 'BinaryOptionMarketManager' },
 			],
 		}));
@@ -67,7 +67,7 @@ contract('Binary Options (prod tests)', accounts => {
 			network,
 			deploymentPath,
 		});
-		await ensureAccountHassUSD({
+		await ensureAccountHasdUSD({
 			amount: toUnit('1100'),
 			account: user1,
 			fromAccount: owner,
@@ -79,7 +79,7 @@ contract('Binary Options (prod tests)', accounts => {
 	describe('Creating a market', () => {
 		let result;
 		const expiryDuration = toBN(26 * 7 * 24 * 60 * 60);
-		const sAUDKey = toBytes32('sAUD');
+		const dAUDKey = toBytes32('dAUD');
 		let now;
 		let maturity;
 		let bidding;
@@ -89,14 +89,14 @@ contract('Binary Options (prod tests)', accounts => {
 			now = await currentTime();
 			const amount = toUnit('1000');
 
-			await SynthsUSD.approve(BinaryOptionMarketManager.address, amount, {
+			await SynthdUSD.approve(BinaryOptionMarketManager.address, amount, {
 				from: user1,
 			});
 
 			maturity = now + 200;
 			bidding = now + 100;
 			result = await BinaryOptionMarketManager.createMarket(
-				sAUDKey,
+				dAUDKey,
 				toUnit(1),
 				true,
 				[bidding, maturity],
@@ -117,7 +117,7 @@ contract('Binary Options (prod tests)', accounts => {
 		it('produces expected event', async () => {
 			assert.eventEqual(getEventByName({ tx: result, name: 'MarketCreated' }), 'MarketCreated', {
 				creator: user1,
-				oracleKey: sAUDKey,
+				oracleKey: dAUDKey,
 				strikePrice: toUnit(1),
 				biddingEndDate: toBN(bidding),
 				maturityDate: toBN(maturity),
@@ -128,7 +128,7 @@ contract('Binary Options (prod tests)', accounts => {
 		it('pricesAfterBidOrRefund correctly computes the result of bids.', async () => {
 			const longBid = toUnit(100);
 
-			await SynthsUSD.approve(binaryOptionMarket.address, longBid, {
+			await SynthdUSD.approve(binaryOptionMarket.address, longBid, {
 				from: user1,
 			});
 

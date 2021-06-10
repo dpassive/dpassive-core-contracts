@@ -364,7 +364,7 @@ contract('FeePoolState', async accounts => {
 	// 	const timestamp = await currentTime();
 
 	// 	await exchangeRates.updateRates(
-	// 		[sAUD, sEUR, DPS],
+	// 		[dAUD, dEUR, DPS],
 	// 		['0.5', '1.25', '0.1'].map(toUnit),
 	// 		timestamp,
 	// 		{ from: oracle }
@@ -374,16 +374,16 @@ contract('FeePoolState', async accounts => {
 	// 	await dpassive.transfer(account1, toUnit('10000'), { from: owner });
 
 	// 	// Determine maximum amount that can be issued.
-	// 	const maxIssuable = await dpassive.maxIssuableSynths(account1, sUSD);
+	// 	const maxIssuable = await dpassive.maxIssuableSynths(account1, dUSD);
 
 	// 	// Issue
 	// 	await dpassive.issueSynths(maxIssuable, { from: account1 });
 
-	// 	// There should be 200 sUSD of value in the system
-	// 	assert.bnEqual(await dpassive.totalIssuedSynths(sUSD), toUnit('200'));
+	// 	// There should be 200 dUSD of value in the system
+	// 	assert.bnEqual(await dpassive.totalIssuedSynths(dUSD), toUnit('200'));
 
 	// 	// And account1 should own all of it.
-	// 	assert.bnEqual(await dpassive.debtBalanceOf(account1, sUSD), toUnit('200'));
+	// 	assert.bnEqual(await dpassive.debtBalanceOf(account1, dUSD), toUnit('200'));
 
 	// 	// And feePool.accountIssuanceLedger[account1] should record debt minted
 	// 	const issuanceDataFromState = await dpassiveState.issuanceData(account1);
@@ -401,7 +401,7 @@ contract('FeePoolState', async accounts => {
 	// 	const timestamp = await currentTime();
 
 	// 	await exchangeRates.updateRates(
-	// 		[sAUD, sEUR, DPS],
+	// 		[dAUD, dEUR, DPS],
 	// 		['0.5', '1.25', '0.1'].map(toUnit),
 	// 		timestamp,
 	// 		{ from: oracle }
@@ -413,11 +413,11 @@ contract('FeePoolState', async accounts => {
 	// 	// Issue
 	// 	await dpassive.issueSynths(toUnit('200'), { from: account1 });
 
-	// 	// There should be 200 sUSD of value in the system
-	// 	assert.bnEqual(await dpassive.totalIssuedSynths(sUSD), toUnit('200'));
+	// 	// There should be 200 dUSD of value in the system
+	// 	assert.bnEqual(await dpassive.totalIssuedSynths(dUSD), toUnit('200'));
 
 	// 	// And account1 should own all of it.
-	// 	assert.bnEqual(await dpassive.debtBalanceOf(account1, sUSD), toUnit('200'));
+	// 	assert.bnEqual(await dpassive.debtBalanceOf(account1, dUSD), toUnit('200'));
 
 	// 	// And feePool.accountIssuanceLedger[account1] should record debt minted
 	// 	let issuanceDataFromState, feePoolLedger;
@@ -433,7 +433,7 @@ contract('FeePoolState', async accounts => {
 	// 	await dpassive.issueSynths(toUnit('200'), { from: account1 });
 
 	// 	// And account1 should own all of it.
-	// 	assert.bnEqual(await dpassive.debtBalanceOf(account1, sUSD), toUnit('400'));
+	// 	assert.bnEqual(await dpassive.debtBalanceOf(account1, dUSD), toUnit('400'));
 
 	// 	issuanceDataFromState = await dpassiveState.issuanceData(account1);
 	// 	feePoolLedger = await feePool.accountIssuanceLedger(account1, 0);

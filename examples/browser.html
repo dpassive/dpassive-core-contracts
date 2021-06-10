@@ -29,14 +29,14 @@
         dpassive.toBytes32("DPS") ===
           "0x534e580000000000000000000000000000000000000000000000000000000000"
       );
-      const sETHContract = new ethers.Contract(
-        targets.SynthsETH.address,
-        sources[targets.SynthsETH.source].abi,
+      const dETHContract = new ethers.Contract(
+        targets.SynthdETH.address,
+        sources[targets.SynthdETH.source].abi,
         ethers.getDefaultProvider(network)
       );
-      sETHContract.totalSupply().then(unformattedTotalSupply => {
+      dETHContract.totalSupply().then(unformattedTotalSupply => {
         console.log(
-          "sETH supply",
+          "dETH supply",
           ethers.utils.formatEther(unformattedTotalSupply)
         );
       });

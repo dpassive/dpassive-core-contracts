@@ -1,10 +1,10 @@
 [
 	{
-		"name": "sUSD",
+		"name": "dUSD",
 		"asset": "USD"
 	},
 	{
-		"name": "sETH",
+		"name": "dETH",
 		"asset": "ETH",
 		"subclass": "MultiCollateralSynth"
 	}

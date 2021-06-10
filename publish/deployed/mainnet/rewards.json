@@ -1,21 +1,21 @@
 [
 	{
-		"name": "sETHUniswapV1",
+		"name": "dETHUniswapV1",
 		"stakingToken": "0xe9cf7887b93150d4f2da7dfc6d502b216438f244",
 		"rewardsToken": "ProxyERC20"
 	},
 	{
-		"name": "sXAUUniswapV2",
+		"name": "dXAUUniswapV2",
 		"stakingToken": "0x34a0216C5057bC18e5d34D4405284564eFd759b2",
 		"rewardsToken": "ProxyERC20"
 	},
 	{
-		"name": "sUSDCurve",
+		"name": "dUSDCurve",
 		"stakingToken": "0xc25a3a3b969415c80451098fa907ec722572917f",
 		"rewardsToken": "ProxyERC20"
 	},
 	{
-		"name": "sBTCCurve",
+		"name": "dBTCCurve",
 		"stakingToken": "0x075b1bb99792c9E1041bA13afEf80C91a1e70fB3",
 		"rewardsToken": "0x330416C863f2acCE7aF9C9314B422d24c672534a"
 	},
@@ -30,7 +30,7 @@
 		"rewardsToken": "ProxyERC20"
 	},
 	{
-		"name": "sEURCurve",
+		"name": "dEURCurve",
 		"stakingToken": "0x194eBd173F6cDacE046C53eACcE9B953F28411d1",
 		"rewardsToken": "ProxyERC20"
 	},

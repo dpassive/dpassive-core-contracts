@@ -14,7 +14,7 @@ import "./interfaces/IEtherWrapper.sol";
 
 contract NativeEtherWrapper is Owned, MixinResolver {
     bytes32 private constant CONTRACT_ETHER_WRAPPER = "EtherWrapper";
-    bytes32 private constant CONTRACT_SYNTHSETH = "SynthsETH";
+    bytes32 private constant CONTRACT_SYNTHSETH = "SynthdETH";
 
     constructor(address _owner, address _resolver) public Owned(_owner) MixinResolver(_resolver) {}
 
@@ -36,7 +36,7 @@ contract NativeEtherWrapper is Owned, MixinResolver {
         return etherWrapper().weth();
     }
 
-    function synthsETH() internal view returns (IERC20) {
+    function synthdETH() internal view returns (IERC20) {
         return IERC20(requireAndGetAddress(CONTRACT_SYNTHSETH));
     }
 
@@ -55,8 +55,8 @@ contract NativeEtherWrapper is Owned, MixinResolver {
         // Now call mint.
         etherWrapper().mint(amount);
 
-        // Transfer the sETH to msg.sender.
-        synthsETH().transfer(msg.sender, synthsETH().balanceOf(address(this)));
+        // Transfer the dETH to msg.sender.
+        synthdETH().transfer(msg.sender, synthdETH().balanceOf(address(this)));
 
         emit Minted(msg.sender, amount);
     }
@@ -65,11 +65,11 @@ contract NativeEtherWrapper is Owned, MixinResolver {
         require(amount > 0, "amount must be greater than 0");
         IWETH weth = weth();
 
-        // Transfer sETH from the msg.sender.
-        synthsETH().transferFrom(msg.sender, address(this), amount);
+        // Transfer dETH from the msg.sender.
+        synthdETH().transferFrom(msg.sender, address(this), amount);
 
         // Approve for the EtherWrapper.
-        synthsETH().approve(address(etherWrapper()), amount);
+        synthdETH().approve(address(etherWrapper()), amount);
 
         // Now call burn.
         etherWrapper().burn(amount);

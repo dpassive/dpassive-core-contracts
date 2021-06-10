@@ -22,7 +22,7 @@ contract BaseDPassive is ExternStateToken, MixinResolver, IDPassive {
     string public constant TOKEN_NAME = "dPassive Native Token";
     string public constant TOKEN_SYMBOL = "DPS";
     uint8 public constant DECIMALS = 18;
-    bytes32 public constant sUSD = "sUSD";
+    bytes32 public constant dUSD = "dUSD";
 
     // ========== ADDRESS RESOLVER CONFIGURATION ==========
     bytes32 private constant CONTRACT_DPASSIVESTATE = "DPassiveState";
@@ -86,7 +86,7 @@ contract BaseDPassive is ExternStateToken, MixinResolver, IDPassive {
     }
 
     // TODO: refactor the name of this function. It also incorporates the exclusion of
-    // issued sETH by the EtherWrapper.
+    // issued dETH by the EtherWrapper.
     function totalIssuedSynthsExcludeEtherCollateral(bytes32 currencyKey) external view override returns (uint) {
         return issuer().totalIssuedSynths(currencyKey, true);
     }

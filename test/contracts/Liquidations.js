@@ -23,15 +23,15 @@ const MockExchanger = artifacts.require('MockExchanger');
 const FlexibleStorage = artifacts.require('FlexibleStorage');
 
 contract('Liquidations', accounts => {
-	const [sUSD, DPS] = ['sUSD', 'DPS'].map(toBytes32);
+	const [dUSD, DPS] = ['dUSD', 'DPS'].map(toBytes32);
 	const [deployerAccount, owner, oracle, account1, alice, bob, carol, david] = accounts;
 	const week = 3600 * 24 * 7;
-	const sUSD100 = toUnit('100');
+	const dUSD100 = toUnit('100');
 
 	let addressResolver,
 		exchangeRates,
 		liquidations,
-		sUSDContract,
+		dUSDContract,
 		dpassive,
 		dpassiveState,
 		systemSettings,
@@ -48,7 +48,7 @@ contract('Liquidations', accounts => {
 			AddressResolver: addressResolver,
 			ExchangeRates: exchangeRates,
 			Liquidations: liquidations,
-			SynthsUSD: sUSDContract,
+			SynthdUSD: dUSDContract,
 			DPassive: dpassive,
 			DPassiveState: dpassiveState,
 			SystemSettings: systemSettings,
@@ -58,7 +58,7 @@ contract('Liquidations', accounts => {
 			Issuer: issuer,
 		} = await setupAllContracts({
 			accounts,
-			synths: ['sUSD'],
+			synths: ['dUSD'],
 			contracts: [
 				'AddressResolver',
 				'ExchangeRates',
@@ -271,21 +271,21 @@ contract('Liquidations', accounts => {
 						penalty = toUnit('0.1');
 						await systemSettings.setLiquidationPenalty(penalty, { from: owner });
 					});
-					it('calculates sUSD to fix ratio from 200%, with $600 DPS collateral and $300 debt', async () => {
+					it('calculates dUSD to fix ratio from 200%, with $600 DPS collateral and $300 debt', async () => {
 						const expectedAmount = toUnit('260.869565217391304347');
 
 						// amount of debt to redeem to fix
-						const susdToLiquidate = await liquidations.calculateAmountToFixCollateral(
+						const dUSDToLiquidate = await liquidations.calculateAmountToFixCollateral(
 							debtBefore,
 							collateralBefore
 						);
 
-						assert.bnEqual(susdToLiquidate, expectedAmount);
+						assert.bnEqual(dUSDToLiquidate, expectedAmount);
 
 						// check expected amount fixes c-ratio to 800%
-						const debtAfter = debtBefore.sub(susdToLiquidate);
+						const debtAfter = debtBefore.sub(dUSDToLiquidate);
 						const collateralAfterMinusPenalty = collateralBefore.sub(
-							multiplyDecimal(susdToLiquidate, toUnit('1').add(penalty))
+							multiplyDecimal(dUSDToLiquidate, toUnit('1').add(penalty))
 						);
 
 						// c-ratio = debt / collateral
@@ -293,22 +293,22 @@ contract('Liquidations', accounts => {
 
 						assert.bnEqual(collateralRatio, ratio);
 					});
-					it('calculates sUSD to fix ratio from 300%, with $600 DPS collateral and $200 debt', async () => {
+					it('calculates dUSD to fix ratio from 300%, with $600 DPS collateral and $200 debt', async () => {
 						debtBefore = toUnit('200');
 						const expectedAmount = toUnit('144.927536231884057971');
 
 						// amount of debt to redeem to fix
-						const susdToLiquidate = await liquidations.calculateAmountToFixCollateral(
+						const dUSDToLiquidate = await liquidations.calculateAmountToFixCollateral(
 							debtBefore,
 							collateralBefore
 						);
 
-						assert.bnEqual(susdToLiquidate, expectedAmount);
+						assert.bnEqual(dUSDToLiquidate, expectedAmount);
 
 						// check expected amount fixes c-ratio to 800%
-						const debtAfter = debtBefore.sub(susdToLiquidate);
+						const debtAfter = debtBefore.sub(dUSDToLiquidate);
 						const collateralAfterMinusPenalty = collateralBefore.sub(
-							multiplyDecimal(susdToLiquidate, toUnit('1').add(penalty))
+							multiplyDecimal(dUSDToLiquidate, toUnit('1').add(penalty))
 						);
 
 						// c-ratio = debt / collateral
@@ -332,12 +332,12 @@ contract('Liquidations', accounts => {
 
 				it('when a liquidator has SettlementOwing from hasWaitingPeriodOrSettlementOwing then revert', async () => {
 					// Setup Bob with a settlement oweing
-					await exchanger.setReclaim(sUSD100);
+					await exchanger.setReclaim(dUSD100);
 					await exchanger.setNumEntries(1);
 
 					await assert.revert(
-						dpassive.liquidateDelinquentAccount(alice, sUSD100, { from: bob }),
-						'sUSD needs to be settled'
+						dpassive.liquidateDelinquentAccount(alice, dUSD100, { from: bob }),
+						'dUSD needs to be settled'
 					);
 				});
 				it('when a liquidator has hasWaitingPeriod from hasWaitingPeriodOrSettlementOwing then revert', async () => {
@@ -345,13 +345,13 @@ contract('Liquidations', accounts => {
 					await exchanger.setMaxSecsLeft(180);
 					await exchanger.setNumEntries(1);
 					await assert.revert(
-						dpassive.liquidateDelinquentAccount(alice, sUSD100, { from: bob }),
-						'sUSD needs to be settled'
+						dpassive.liquidateDelinquentAccount(alice, dUSD100, { from: bob }),
+						'dUSD needs to be settled'
 					);
 				});
 				it('when an account is not isOpenForLiquidation then revert', async () => {
 					await assert.revert(
-						dpassive.liquidateDelinquentAccount(alice, sUSD100, { from: bob }),
+						dpassive.liquidateDelinquentAccount(alice, dUSD100, { from: bob }),
 						'Account not open for liquidation'
 					);
 				});
@@ -361,7 +361,7 @@ contract('Liquidations', accounts => {
 					// wen DPS 6 dolla
 					await updateDPSPrice('6');
 
-					// Alice issues sUSD $600
+					// Alice issues dUSD $600
 					await dpassive.transfer(alice, toUnit('800'), { from: owner });
 					await dpassive.issueMaxSynths({ from: alice });
 
@@ -530,15 +530,15 @@ contract('Liquidations', accounts => {
 							beforeEach(async () => {
 								await updateDPSPrice('10');
 
-								// Get Bob some sUSD
-								await sUSDContract.issue(bob, sUSD100, {
+								// Get Bob some dUSD
+								await dUSDContract.issue(bob, dUSD100, {
 									from: owner,
 								});
 								await debtCache.takeDebtSnapshot();
 
 								// Bob Liquidates Alice
 								await assert.revert(
-									dpassive.liquidateDelinquentAccount(alice, sUSD100, {
+									dpassive.liquidateDelinquentAccount(alice, dUSD100, {
 										from: bob,
 									}),
 									'Account not open for liquidation'
@@ -552,8 +552,8 @@ contract('Liquidations', accounts => {
 								const isOpenForLiquidation = await liquidations.isOpenForLiquidation(alice);
 								assert.bnEqual(isOpenForLiquidation, false);
 							});
-							it('then Bob still has 100sUSD', async () => {
-								assert.bnEqual(await sUSDContract.balanceOf(bob), sUSD100);
+							it('then Bob still has 100dUSD', async () => {
+								assert.bnEqual(await dUSDContract.balanceOf(bob), dUSD100);
 							});
 							it('then Bob still has 0 DPS', async () => {
 								assert.bnEqual(await dpassive.balanceOf(bob), 0);
@@ -589,13 +589,13 @@ contract('Liquidations', accounts => {
 							let amountToBurn;
 							beforeEach(async () => {
 								await updateDPSPrice('1');
-								aliceDebtBalance = await dpassive.debtBalanceOf(alice, sUSD);
+								aliceDebtBalance = await dpassive.debtBalanceOf(alice, dUSD);
 								amountToBurn = toUnit('10');
 								await dpassive.burnSynths(amountToBurn, { from: alice });
 							});
 							it('then alice debt balance is less amountToBurn', async () => {
 								assert.bnEqual(
-									await dpassive.debtBalanceOf(alice, sUSD),
+									await dpassive.debtBalanceOf(alice, dUSD),
 									aliceDebtBalance.sub(amountToBurn)
 								);
 							});
@@ -613,7 +613,7 @@ contract('Liquidations', accounts => {
 							let amountToBurn;
 							beforeEach(async () => {
 								await updateDPSPrice('1');
-								aliceDebtBalance = await dpassive.debtBalanceOf(alice, sUSD);
+								aliceDebtBalance = await dpassive.debtBalanceOf(alice, dUSD);
 
 								const maxIssuableSynths = await dpassive.maxIssuableSynths(alice);
 								amountToBurn = aliceDebtBalance.sub(maxIssuableSynths).abs();
@@ -622,7 +622,7 @@ contract('Liquidations', accounts => {
 							});
 							it('then alice debt balance is less amountToBurn', async () => {
 								assert.bnEqual(
-									await dpassive.debtBalanceOf(alice, sUSD),
+									await dpassive.debtBalanceOf(alice, dUSD),
 									aliceDebtBalance.sub(amountToBurn)
 								);
 							});
@@ -641,12 +641,12 @@ contract('Liquidations', accounts => {
 							beforeEach(async () => {
 								await updateDPSPrice('1');
 
-								aliceDebtBalance = await dpassive.debtBalanceOf(alice, sUSD);
+								aliceDebtBalance = await dpassive.debtBalanceOf(alice, dUSD);
 
 								burnTransaction = await dpassive.burnSynths(aliceDebtBalance, { from: alice });
 							});
 							it('then alice has no more debt', async () => {
-								assert.bnEqual(toUnit(0), await dpassive.debtBalanceOf(alice, sUSD));
+								assert.bnEqual(toUnit(0), await dpassive.debtBalanceOf(alice, dUSD));
 							});
 							xit('then AccountRemovedFromLiquidation event is emitted', async () => {
 								assert.eventEqual(burnTransaction, 'AccountRemovedFromLiquidation', {
@@ -670,31 +670,31 @@ contract('Liquidations', accounts => {
 								const isOpenForLiquidation = await liquidations.isOpenForLiquidation(alice);
 								assert.equal(isOpenForLiquidation, true);
 							});
-							it('when carol calls liquidateDelinquentAccount but has 0 sUSD then revert', async () => {
-								assert.bnEqual(await sUSDContract.balanceOf(carol), 0);
+							it('when carol calls liquidateDelinquentAccount but has 0 dUSD then revert', async () => {
+								assert.bnEqual(await dUSDContract.balanceOf(carol), 0);
 
 								await assert.revert(
-									dpassive.liquidateDelinquentAccount(alice, sUSD100, { from: carol }),
-									'Not enough sUSD'
+									dpassive.liquidateDelinquentAccount(alice, dUSD100, { from: carol }),
+									'Not enough dUSD'
 								);
 							});
-							describe('when Bobs liquidates alice for 100 sUSD but only has 99 sUSD then revert', async () => {
-								const sUSD99 = toUnit('99');
+							describe('when Bobs liquidates alice for 100 dUSD but only has 99 dUSD then revert', async () => {
+								const dUSD99 = toUnit('99');
 								beforeEach(async () => {
 									// send bob some DPS
 									await dpassive.transfer(bob, toUnit('10000'), {
 										from: owner,
 									});
 
-									await dpassive.issueSynths(sUSD99, { from: bob });
+									await dpassive.issueSynths(dUSD99, { from: bob });
 
-									assert.bnEqual(await sUSDContract.balanceOf(bob), sUSD99);
+									assert.bnEqual(await dUSDContract.balanceOf(bob), dUSD99);
 								});
 
 								it('it should revert', async () => {
 									await assert.revert(
-										dpassive.liquidateDelinquentAccount(alice, sUSD100, { from: bob }),
-										'Not enough sUSD'
+										dpassive.liquidateDelinquentAccount(alice, dUSD100, { from: bob }),
+										'Not enough dUSD'
 									);
 								});
 							});
@@ -713,7 +713,7 @@ contract('Liquidations', accounts => {
 									assert.notEqual(deadline, 0);
 								});
 							});
-							describe('when Bob liquidates alice for 100 sUSD to get 110 DPS', () => {
+							describe('when Bob liquidates alice for 100 dUSD to get 110 DPS', () => {
 								const DPS110 = toUnit('110');
 								let aliceDebtBefore;
 								let aliceDPSBefore;
@@ -724,27 +724,27 @@ contract('Liquidations', accounts => {
 										from: owner,
 									});
 
-									await dpassive.issueSynths(sUSD100, { from: bob });
+									await dpassive.issueSynths(dUSD100, { from: bob });
 
-									assert.bnEqual(await sUSDContract.balanceOf(bob), sUSD100);
+									assert.bnEqual(await dUSDContract.balanceOf(bob), dUSD100);
 
 									// Record Alices state
-									aliceDebtBefore = await dpassive.debtBalanceOf(alice, sUSD);
+									aliceDebtBefore = await dpassive.debtBalanceOf(alice, dUSD);
 									aliceDPSBefore = await dpassive.collateral(alice);
 
 									// Record Bob's state
 									bobDPSBefore = await dpassive.balanceOf(bob);
 
 									// Bob Liquidates Alice
-									await dpassive.liquidateDelinquentAccount(alice, sUSD100, { from: bob });
+									await dpassive.liquidateDelinquentAccount(alice, dUSD100, { from: bob });
 								});
-								it('then Bob sUSD balance is reduced by 100 sUSD', async () => {
-									assert.bnEqual(await sUSDContract.balanceOf(bob), 0);
+								it('then Bob dUSD balance is reduced by 100 dUSD', async () => {
+									assert.bnEqual(await dUSDContract.balanceOf(bob), 0);
 								});
-								it('then Alice debt is reduced by 100 sUSD', async () => {
-									const aliceDebtAfter = await dpassive.debtBalanceOf(alice, sUSD);
+								it('then Alice debt is reduced by 100 dUSD', async () => {
+									const aliceDebtAfter = await dpassive.debtBalanceOf(alice, dUSD);
 									const difference = aliceDebtBefore.sub(aliceDebtAfter);
-									assert.bnEqual(difference, sUSD100);
+									assert.bnEqual(difference, dUSD100);
 								});
 								it('then Alice has less DPS + penalty', async () => {
 									const aliceDPSAfter = await dpassive.collateral(alice);
@@ -770,40 +770,40 @@ contract('Liquidations', accounts => {
 
 									assert.bnEqual(issuanceState.debtEntryIndex, accountsDebtEntry.debtEntryIndex);
 								});
-								describe('given carol has obtained sUSD to liquidate alice', () => {
-									const sUSD5 = toUnit('5');
-									const sUSD50 = toUnit('50');
+								describe('given carol has obtained dUSD to liquidate alice', () => {
+									const dUSD5 = toUnit('5');
+									const dUSD50 = toUnit('50');
 									const DPS55 = toUnit('55');
 									let carolDPSBefore;
 									beforeEach(async () => {
-										// send Carol some DPS for sUSD
+										// send Carol some DPS for dUSD
 										await dpassive.transfer(carol, toUnit('1000'), {
 											from: owner,
 										});
 
-										await dpassive.issueSynths(sUSD50, { from: carol });
-										assert.bnEqual(await sUSDContract.balanceOf(carol), sUSD50);
+										await dpassive.issueSynths(dUSD50, { from: carol });
+										assert.bnEqual(await dUSDContract.balanceOf(carol), dUSD50);
 
 										// Record Alices state
-										aliceDebtBefore = await dpassive.debtBalanceOf(alice, sUSD);
+										aliceDebtBefore = await dpassive.debtBalanceOf(alice, dUSD);
 										aliceDPSBefore = await dpassive.collateral(alice);
 
 										// Record Carol State
 										carolDPSBefore = await dpassive.balanceOf(carol);
 									});
-									describe('when carol liquidates Alice with 10 x 5 sUSD', () => {
+									describe('when carol liquidates Alice with 10 x 5 dUSD', () => {
 										beforeEach(async () => {
 											for (let i = 0; i < 10; i++) {
-												await dpassive.liquidateDelinquentAccount(alice, sUSD5, { from: carol });
+												await dpassive.liquidateDelinquentAccount(alice, dUSD5, { from: carol });
 											}
 										});
-										it('then Carols sUSD balance is reduced by 50 sUSD', async () => {
-											assert.bnEqual(await sUSDContract.balanceOf(carol), 0);
+										it('then Carols dUSD balance is reduced by 50 dUSD', async () => {
+											assert.bnEqual(await dUSDContract.balanceOf(carol), 0);
 										});
-										it('then Alice debt is reduced by 50 sUSD', async () => {
-											const aliceDebtAfter = await dpassive.debtBalanceOf(alice, sUSD);
+										it('then Alice debt is reduced by 50 dUSD', async () => {
+											const aliceDebtAfter = await dpassive.debtBalanceOf(alice, dUSD);
 											const difference = aliceDebtBefore.sub(aliceDebtAfter);
-											assert.bnEqual(difference, sUSD50);
+											assert.bnEqual(difference, dUSD50);
 										});
 										it('then Alice has less DPS + penalty', async () => {
 											const aliceDPSAfter = await dpassive.collateral(alice);
@@ -833,22 +833,22 @@ contract('Liquidations', accounts => {
 											);
 										});
 									});
-									describe('when carol liquidates Alice with 50 sUSD', () => {
+									describe('when carol liquidates Alice with 50 dUSD', () => {
 										let liquidationTransaction;
 										beforeEach(async () => {
 											liquidationTransaction = await dpassive.liquidateDelinquentAccount(
 												alice,
-												sUSD50,
+												dUSD50,
 												{ from: carol }
 											);
 										});
-										it('then Carols sUSD balance is reduced by 50 sUSD', async () => {
-											assert.bnEqual(await sUSDContract.balanceOf(carol), 0);
+										it('then Carols dUSD balance is reduced by 50 dUSD', async () => {
+											assert.bnEqual(await dUSDContract.balanceOf(carol), 0);
 										});
-										it('then Alice debt is reduced by 50 sUSD', async () => {
-											const aliceDebtAfter = await dpassive.debtBalanceOf(alice, sUSD);
+										it('then Alice debt is reduced by 50 dUSD', async () => {
+											const aliceDebtAfter = await dpassive.debtBalanceOf(alice, dUSD);
 											const difference = aliceDebtBefore.sub(aliceDebtAfter);
-											assert.bnEqual(difference, sUSD50);
+											assert.bnEqual(difference, dUSD50);
 										});
 										it('then Alice has less DPS + penalty', async () => {
 											const aliceDPSAfter = await dpassive.collateral(alice);
@@ -881,51 +881,51 @@ contract('Liquidations', accounts => {
 											assert.eventEqual(liquidationTransaction, 'AccountLiquidated', {
 												account: alice,
 												dpsRedeemed: DPS55,
-												amountLiquidated: sUSD50,
+												amountLiquidated: dUSD50,
 												liquidator: carol,
 											});
 										});
-										describe('when Bob liqudates Alice with 1000 sUSD', () => {
-											const sUSD1000 = toUnit('1000');
+										describe('when Bob liqudates Alice with 1000 dUSD', () => {
+											const dUSD1000 = toUnit('1000');
 											let liquidationTransaction;
 											let bobSynthBalanceBefore;
 											beforeEach(async () => {
-												// send Bob some DPS for sUSD
+												// send Bob some DPS for dUSD
 												await dpassive.transfer(bob, toUnit('10000'), {
 													from: owner,
 												});
 
-												await dpassive.issueSynths(sUSD1000, { from: bob });
+												await dpassive.issueSynths(dUSD1000, { from: bob });
 
-												bobSynthBalanceBefore = await sUSDContract.balanceOf(bob);
-												assert.bnEqual(bobSynthBalanceBefore, sUSD1000);
+												bobSynthBalanceBefore = await dUSDContract.balanceOf(bob);
+												assert.bnEqual(bobSynthBalanceBefore, dUSD1000);
 
 												// Record Alices state
-												aliceDebtBefore = await dpassive.debtBalanceOf(alice, sUSD);
+												aliceDebtBefore = await dpassive.debtBalanceOf(alice, dUSD);
 												aliceDPSBefore = await dpassive.collateral(alice);
 
 												// Bob Liquidates Alice
 												liquidationTransaction = await dpassive.liquidateDelinquentAccount(
 													alice,
-													sUSD1000,
+													dUSD1000,
 													{
 														from: bob,
 													}
 												);
 											});
-											it('then Bobs partially liquidates the 1000 sUSD to repair Alice to target issuance ratio', async () => {
-												const susdToFixRatio = await liquidations.calculateAmountToFixCollateral(
+											it('then Bobs partially liquidates the 1000 dUSD to repair Alice to target issuance ratio', async () => {
+												const dUSDToFixRatio = await liquidations.calculateAmountToFixCollateral(
 													aliceDebtBefore,
 													aliceDPSBefore
 												);
 
-												const aliceDebtAfter = await dpassive.debtBalanceOf(alice, sUSD);
-												assert.bnEqual(aliceDebtAfter, aliceDebtBefore.sub(susdToFixRatio));
+												const aliceDebtAfter = await dpassive.debtBalanceOf(alice, dUSD);
+												assert.bnEqual(aliceDebtAfter, aliceDebtBefore.sub(dUSDToFixRatio));
 
-												const bobSynthBalanceAfter = await sUSDContract.balanceOf(bob);
+												const bobSynthBalanceAfter = await dUSDContract.balanceOf(bob);
 												assert.bnEqual(
 													bobSynthBalanceAfter,
-													bobSynthBalanceBefore.sub(susdToFixRatio)
+													bobSynthBalanceBefore.sub(dUSDToFixRatio)
 												);
 											});
 											it('then Alice liquidation entry is removed', async () => {
@@ -965,7 +965,7 @@ contract('Liquidations', accounts => {
 							});
 							describe('given Alice has $600 Debt, $800 worth of DPS Collateral and c-ratio at 133.33%', () => {
 								describe('when bob calls liquidate on Alice in multiple calls until fixing the ratio', () => {
-									const sUSD1000 = toUnit('1000');
+									const dUSD1000 = toUnit('1000');
 									let aliceDebtBefore;
 									let aliceCollateralBefore;
 									let bobSynthBalanceBefore;
@@ -976,15 +976,15 @@ contract('Liquidations', accounts => {
 											from: owner,
 										});
 
-										await dpassive.issueSynths(sUSD1000, { from: bob });
+										await dpassive.issueSynths(dUSD1000, { from: bob });
 
 										// Record Bob's state
-										bobSynthBalanceBefore = await sUSDContract.balanceOf(bob);
+										bobSynthBalanceBefore = await dUSDContract.balanceOf(bob);
 
-										assert.bnEqual(bobSynthBalanceBefore, sUSD1000);
+										assert.bnEqual(bobSynthBalanceBefore, dUSD1000);
 
 										// Record Alices state
-										aliceDebtBefore = await dpassive.debtBalanceOf(alice, sUSD);
+										aliceDebtBefore = await dpassive.debtBalanceOf(alice, dUSD);
 										aliceCollateralBefore = await dpassive.collateral(alice);
 
 										// Calc amount to fix ratio
@@ -1017,9 +1017,9 @@ contract('Liquidations', accounts => {
 										// Alice should have liquidation entry removed
 										assert.bnEqual(await liquidations.getLiquidationDeadlineForAccount(david), 0);
 
-										// Bob's sUSD balance should be less amountToFixRatio
+										// Bob's dUSD balance should be less amountToFixRatio
 										assert.bnEqual(
-											await sUSDContract.balanceOf(bob),
+											await dUSDContract.balanceOf(bob),
 											bobSynthBalanceBefore.sub(amountToFixRatio)
 										);
 									});
@@ -1042,7 +1042,7 @@ contract('Liquidations', accounts => {
 			});
 			it('then liquidateDelinquentAccount fails', async () => {
 				await assert.revert(
-					dpassive.liquidateDelinquentAccount(alice, sUSD100),
+					dpassive.liquidateDelinquentAccount(alice, dUSD100),
 					'Account not open for liquidation'
 				);
 			});
@@ -1053,7 +1053,7 @@ contract('Liquidations', accounts => {
 			beforeEach(async () => {
 				await updateDPSPrice('6');
 
-				// David issues sUSD $600
+				// David issues dUSD $600
 				await dpassive.transfer(david, toUnit('800'), { from: owner });
 				await dpassive.issueMaxSynths({ from: david });
 
@@ -1065,12 +1065,12 @@ contract('Liquidations', accounts => {
 
 				assert.isTrue(issuanceRatio.gt(toUnit('1')));
 
-				davidDebtBefore = await dpassive.debtBalanceOf(david, sUSD);
+				davidDebtBefore = await dpassive.debtBalanceOf(david, dUSD);
 				davidCollateralBefore = await dpassive.collateral(david);
 				const collateralInUSD = await exchangeRates.effectiveValue(
 					DPS,
 					davidCollateralBefore,
-					sUSD
+					dUSD
 				);
 
 				assert.isTrue(davidDebtBefore.gt(collateralInUSD));
@@ -1089,7 +1089,7 @@ contract('Liquidations', accounts => {
 					// Drop DPS value to $0.1 after update rates resets to default
 					await updateDPSPrice('0.1');
 
-					// ensure Bob has enough sUSD
+					// ensure Bob has enough dUSD
 					await dpassive.transfer(bob, toUnit('100000'), {
 						from: owner,
 					});
@@ -1104,15 +1104,15 @@ contract('Liquidations', accounts => {
 					});
 					it('then liquidate reverts', async () => {
 						await assert.revert(
-							dpassive.liquidateDelinquentAccount(david, sUSD100, { from: bob }),
+							dpassive.liquidateDelinquentAccount(david, dUSD100, { from: bob }),
 							'A synth or DPS rate is invalid'
 						);
 					});
 				});
 				describe('when Bob liquidates all of davids collateral', async () => {
-					const sUSD600 = toUnit('600');
+					const dUSD600 = toUnit('600');
 					beforeEach(async () => {
-						await dpassive.liquidateDelinquentAccount(david, sUSD600, {
+						await dpassive.liquidateDelinquentAccount(david, dUSD600, {
 							from: bob,
 						});
 					});
@@ -1124,7 +1124,7 @@ contract('Liquidations', accounts => {
 						assert.bnEqual(davidCRatioAfter, 0);
 					});
 					it('then David should still have debt owing', async () => {
-						const davidDebt = await dpassive.debtBalanceOf(david, sUSD);
+						const davidDebt = await dpassive.debtBalanceOf(david, dUSD);
 						assert.isTrue(davidDebt.gt(0));
 					});
 					it('then David wont be open for liquidation', async () => {

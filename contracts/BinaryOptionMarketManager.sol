@@ -60,7 +60,7 @@ contract BinaryOptionMarketManager is Owned, Pausable, MixinResolver, IBinaryOpt
     /* ---------- Address Resolver Configuration ---------- */
 
     bytes32 internal constant CONTRACT_SYSTEMSTATUS = "SystemStatus";
-    bytes32 internal constant CONTRACT_SYNTHSUSD = "SynthsUSD";
+    bytes32 internal constant CONTRACT_SYNTHDUSD = "SynthdUSD";
     bytes32 internal constant CONTRACT_EXRATES = "ExchangeRates";
     bytes32 internal constant CONTRACT_BINARYOPTIONMARKETFACTORY = "BinaryOptionMarketFactory";
 
@@ -96,7 +96,7 @@ contract BinaryOptionMarketManager is Owned, Pausable, MixinResolver, IBinaryOpt
     function resolverAddressesRequired() public view override returns (bytes32[] memory addresses) {
         addresses = new bytes32[](4);
         addresses[0] = CONTRACT_SYSTEMSTATUS;
-        addresses[1] = CONTRACT_SYNTHSUSD;
+        addresses[1] = CONTRACT_SYNTHDUSD;
         addresses[2] = CONTRACT_EXRATES;
         addresses[3] = CONTRACT_BINARYOPTIONMARKETFACTORY;
     }
@@ -107,8 +107,8 @@ contract BinaryOptionMarketManager is Owned, Pausable, MixinResolver, IBinaryOpt
         return ISystemStatus(requireAndGetAddress(CONTRACT_SYSTEMSTATUS));
     }
 
-    function _sUSD() internal view returns (IERC20) {
-        return IERC20(requireAndGetAddress(CONTRACT_SYNTHSUSD));
+    function _dUSD() internal view returns (IERC20) {
+        return IERC20(requireAndGetAddress(CONTRACT_SYNTHDUSD));
     }
 
     function _exchangeRates() internal view returns (IExchangeRates) {
@@ -146,8 +146,8 @@ contract BinaryOptionMarketManager is Owned, Pausable, MixinResolver, IBinaryOpt
 
         // If it has a rate, then it's possibly a valid key
         if (exchangeRates.rateForCurrency(oracleKey) != 0) {
-            // But not sUSD
-            if (oracleKey == "sUSD") {
+            // But not dUSD
+            if (oracleKey == "dUSD") {
                 return false;
             }
 
@@ -278,7 +278,7 @@ contract BinaryOptionMarketManager is Owned, Pausable, MixinResolver, IBinaryOpt
         // The debt can't be incremented in the new market's constructor because until construction is complete,
         // the manager doesn't know its address in order to grant it permission.
         totalDeposited = totalDeposited.add(initialDeposit);
-        _sUSD().transferFrom(msg.sender, address(market), initialDeposit);
+        _dUSD().transferFrom(msg.sender, address(market), initialDeposit);
 
         emit MarketCreated(address(market), msg.sender, oracleKey, strikePrice, biddingEnd, maturity, expiry);
         return market;

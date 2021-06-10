@@ -18,7 +18,7 @@ import "./interfaces/IExchanger.sol";
 import "./interfaces/IDelegateApprovals.sol";
 import "./interfaces/IExchangeRates.sol";
 import "./interfaces/IEtherCollateral.sol";
-import "./interfaces/IEtherCollateralsUSD.sol";
+import "./interfaces/IEtherCollateraldUSD.sol";
 import "./interfaces/IHasBalance.sol";
 import "./interfaces/IERC20.sol";
 import "./interfaces/ILiquidations.sol";
@@ -60,8 +60,8 @@ contract Issuer is Owned, MixinSystemSettings, IIssuer {
 
     /* ========== ENCODED NAMES ========== */
 
-    bytes32 internal constant sUSD = "sUSD";
-    bytes32 internal constant sETH = "sETH";
+    bytes32 internal constant dUSD = "dUSD";
+    bytes32 internal constant dETH = "dETH";
     bytes32 internal constant DPS = "DPS";
 
     // Flexible storage names
@@ -78,7 +78,7 @@ contract Issuer is Owned, MixinSystemSettings, IIssuer {
     bytes32 private constant CONTRACT_FEEPOOL = "FeePool";
     bytes32 private constant CONTRACT_DELEGATEAPPROVALS = "DelegateApprovals";
     bytes32 private constant CONTRACT_ETHERCOLLATERAL = "EtherCollateral";
-    bytes32 private constant CONTRACT_ETHERCOLLATERAL_SUSD = "EtherCollateralsUSD";
+    bytes32 private constant CONTRACT_ETHERCOLLATERAL_DUSD = "EtherCollateraldUSD";
     bytes32 private constant CONTRACT_COLLATERALMANAGER = "CollateralManager";
     bytes32 private constant CONTRACT_REWARDESCROW_V2 = "RewardEscrowV2";
     bytes32 private constant CONTRACT_DPASSIVEESCROW = "DPassiveEscrow";
@@ -98,7 +98,7 @@ contract Issuer is Owned, MixinSystemSettings, IIssuer {
         newAddresses[4] = CONTRACT_FEEPOOL;
         newAddresses[5] = CONTRACT_DELEGATEAPPROVALS;
         newAddresses[6] = CONTRACT_ETHERCOLLATERAL;
-        newAddresses[7] = CONTRACT_ETHERCOLLATERAL_SUSD;
+        newAddresses[7] = CONTRACT_ETHERCOLLATERAL_DUSD;
         newAddresses[8] = CONTRACT_REWARDESCROW_V2;
         newAddresses[9] = CONTRACT_DPASSIVEESCROW;
         newAddresses[10] = CONTRACT_LIQUIDATIONS;
@@ -139,8 +139,8 @@ contract Issuer is Owned, MixinSystemSettings, IIssuer {
         return IEtherCollateral(requireAndGetAddress(CONTRACT_ETHERCOLLATERAL));
     }
 
-    function etherCollateralsUSD() internal view returns (IEtherCollateralsUSD) {
-        return IEtherCollateralsUSD(requireAndGetAddress(CONTRACT_ETHERCOLLATERAL_SUSD));
+    function etherCollateraldUSD() internal view returns (IEtherCollateraldUSD) {
+        return IEtherCollateraldUSD(requireAndGetAddress(CONTRACT_ETHERCOLLATERAL_DUSD));
     }
 
     function collateralManager() internal view returns (ICollateralManager) {
@@ -196,7 +196,7 @@ contract Issuer is Owned, MixinSystemSettings, IIssuer {
             anyRateIsInvalid = anyRateIsInvalid || invalid;
         }
 
-        if (currencyKey == sUSD) {
+        if (currencyKey == dUSD) {
             return (debt, anyRateIsInvalid);
         }
 
@@ -261,7 +261,7 @@ contract Issuer is Owned, MixinSystemSettings, IIssuer {
             bool anyRateIsInvalid
         )
     {
-        (alreadyIssued, totalSystemDebt, anyRateIsInvalid) = _debtBalanceOfAndTotalDebt(_issuer, sUSD);
+        (alreadyIssued, totalSystemDebt, anyRateIsInvalid) = _debtBalanceOfAndTotalDebt(_issuer, dUSD);
         (uint issuable, bool isInvalid) = _maxIssuableSynths(_issuer);
         maxIssuable = issuable;
         anyRateIsInvalid = anyRateIsInvalid || isInvalid;
@@ -282,7 +282,7 @@ contract Issuer is Owned, MixinSystemSettings, IIssuer {
     }
 
     function _maxIssuableSynths(address _issuer) internal view returns (uint, bool) {
-        // What is the value of their DPS balance in sUSD
+        // What is the value of their DPS balance in dUSD
         (uint dpsRate, bool isInvalid) = exchangeRates().rateAndInvalid(DPS);
         uint destinationValue = _dpsToUSD(_collateral(_issuer), dpsRate);
 
@@ -468,7 +468,7 @@ contract Issuer is Owned, MixinSystemSettings, IIssuer {
         address synthToRemove = address(synths[currencyKey]);
         require(synthToRemove != address(0), "Synth does not exist");
         require(IERC20(synthToRemove).totalSupply() == 0, "Synth supply exists");
-        require(currencyKey != sUSD, "Cannot remove synth");
+        require(currencyKey != dUSD, "Cannot remove synth");
 
         // Remove the synth from the availableSynths array.
         for (uint i = 0; i < availableSynths.length; i++) {
@@ -565,22 +565,22 @@ contract Issuer is Owned, MixinSystemSettings, IIssuer {
 
     function liquidateDelinquentAccount(
         address account,
-        uint susdAmount,
+        uint dUSDAmount,
         address liquidator
     ) external virtual override onlyDPassive returns (uint totalRedeemed, uint amountToLiquidate) {
-        // Ensure waitingPeriod and sUSD balance is settled as burning impacts the size of debt pool
-        require(!exchanger().hasWaitingPeriodOrSettlementOwing(liquidator, sUSD), "sUSD needs to be settled");
+        // Ensure waitingPeriod and dUSD balance is settled as burning impacts the size of debt pool
+        require(!exchanger().hasWaitingPeriodOrSettlementOwing(liquidator, dUSD), "dUSD needs to be settled");
 
         // Check account is liquidation open
         require(liquidations().isOpenForLiquidation(account), "Account not open for liquidation");
 
-        // require liquidator has enough sUSD
-        require(IERC20(address(synths[sUSD])).balanceOf(liquidator) >= susdAmount, "Not enough sUSD");
+        // require liquidator has enough dUSD
+        require(IERC20(address(synths[dUSD])).balanceOf(liquidator) >= dUSDAmount, "Not enough dUSD");
 
         uint liquidationPenalty = liquidations().liquidationPenalty();
 
-        // What is their debt in sUSD?
-        (uint debtBalance, uint totalDebtIssued, bool anyRateIsInvalid) = _debtBalanceOfAndTotalDebt(account, sUSD);
+        // What is their debt in dUSD?
+        (uint debtBalance, uint totalDebtIssued, bool anyRateIsInvalid) = _debtBalanceOfAndTotalDebt(account, dUSD);
         (uint dpsRate, bool dpsRateInvalid) = exchangeRates().rateAndInvalid(DPS);
         _requireRatesNotInvalid(anyRateIsInvalid || dpsRateInvalid);
 
@@ -589,7 +589,7 @@ contract Issuer is Owned, MixinSystemSettings, IIssuer {
             liquidations().calculateAmountToFixCollateral(debtBalance, _dpsToUSD(collateralForAccount, dpsRate));
 
         // Cap amount to liquidate to repair collateral ratio based on issuance ratio
-        amountToLiquidate = amountToFixRatio < susdAmount ? amountToFixRatio : susdAmount;
+        amountToLiquidate = amountToFixRatio < dUSDAmount ? amountToFixRatio : dUSDAmount;
 
         // what's the equivalent amount of DPS for the amountToLiquidate?
         uint dpsRedeemed = _usdToDps(amountToLiquidate, dpsRate);
@@ -598,19 +598,19 @@ contract Issuer is Owned, MixinSystemSettings, IIssuer {
         totalRedeemed = dpsRedeemed.multiplyDecimal(SafeDecimalMath.unit().add(liquidationPenalty));
 
         // if total DPS to redeem is greater than account's collateral
-        // account is under collateralised, liquidate all collateral and reduce sUSD to burn
+        // account is under collateralised, liquidate all collateral and reduce dUSD to burn
         if (totalRedeemed > collateralForAccount) {
             // set totalRedeemed to all transferable collateral
             totalRedeemed = collateralForAccount;
 
-            // whats the equivalent sUSD to burn for all collateral less penalty
+            // whats the equivalent dUSD to burn for all collateral less penalty
             amountToLiquidate = _dpsToUSD(
                 collateralForAccount.divideDecimal(SafeDecimalMath.unit().add(liquidationPenalty)),
                 dpsRate
             );
         }
 
-        // burn sUSD from messageSender (liquidator) and reduce account's debt
+        // burn dUSD from messageSender (liquidator) and reduce account's debt
         _burnSynths(account, liquidator, amountToLiquidate, debtBalance, totalDebtIssued);
 
         // Remove liquidation flag if amount liquidated fixes ratio
@@ -655,10 +655,10 @@ contract Issuer is Owned, MixinSystemSettings, IIssuer {
         _setLastIssueEvent(from);
 
         // Create their synths
-        synths[sUSD].issue(from, amount);
+        synths[dUSD].issue(from, amount);
 
         // Account for the issued debt in the cache
-        debtCache().updateCachedSynthDebtWithRate(sUSD, SafeDecimalMath.unit());
+        debtCache().updateCachedSynthDebtWithRate(dUSD, SafeDecimalMath.unit());
 
         // Store their locked DPS amount to determine their fee % for the period
         _appendAccountIssuanceRecord(from);
@@ -671,7 +671,7 @@ contract Issuer is Owned, MixinSystemSettings, IIssuer {
         uint existingDebt,
         uint totalDebtIssued
     ) internal returns (uint amountBurnt) {
-        // liquidation requires sUSD to be already settled / not in waiting period
+        // liquidation requires dUSD to be already settled / not in waiting period
 
         // If they're trying to burn more debt than they actually owe, rather than fail the transaction, let's just
         // clear their debt and leave them be.
@@ -681,16 +681,16 @@ contract Issuer is Owned, MixinSystemSettings, IIssuer {
         _removeFromDebtRegister(debtAccount, amountBurnt, existingDebt, totalDebtIssued);
 
         // synth.burn does a safe subtraction on balance (so it will revert if there are not enough synths).
-        synths[sUSD].burn(burnAccount, amountBurnt);
+        synths[dUSD].burn(burnAccount, amountBurnt);
 
         // Account for the burnt debt in the cache.
-        debtCache().updateCachedSynthDebtWithRate(sUSD, SafeDecimalMath.unit());
+        debtCache().updateCachedSynthDebtWithRate(dUSD, SafeDecimalMath.unit());
 
         // Store their debtRatio against a fee period to determine their fee/rewards % for the period
         _appendAccountIssuanceRecord(debtAccount);
     }
 
-    // If burning to target, `amount` is ignored, and the correct quantity of sUSD is burnt to reach the target
+    // If burning to target, `amount` is ignored, and the correct quantity of dUSD is burnt to reach the target
     // c-ratio, allowing fees to be claimed. In this case, pending settlements will be skipped as the user
     // will still have debt remaining after reaching their target.
     function _voluntaryBurnSynths(
@@ -701,14 +701,14 @@ contract Issuer is Owned, MixinSystemSettings, IIssuer {
         if (!burnToTarget) {
             // If not burning to target, then burning requires that the minimum stake time has elapsed.
             require(_canBurnSynths(from), "Minimum stake time not reached");
-            // First settle anything pending into sUSD as burning or issuing impacts the size of the debt pool
-            (, uint refunded, uint numEntriesSettled) = exchanger().settle(from, sUSD);
+            // First settle anything pending into dUSD as burning or issuing impacts the size of the debt pool
+            (, uint refunded, uint numEntriesSettled) = exchanger().settle(from, dUSD);
             if (numEntriesSettled > 0) {
-                amount = exchanger().calculateAmountAfterSettlement(from, sUSD, amount, refunded);
+                amount = exchanger().calculateAmountAfterSettlement(from, dUSD, amount, refunded);
             }
         }
 
-        (uint existingDebt, uint totalSystemValue, bool anyRateIsInvalid) = _debtBalanceOfAndTotalDebt(from, sUSD);
+        (uint existingDebt, uint totalSystemValue, bool anyRateIsInvalid) = _debtBalanceOfAndTotalDebt(from, dUSD);
         (uint maxIssuableSynthsForAccount, bool dpsRateInvalid) = _maxIssuableSynths(from);
         _requireRatesNotInvalid(anyRateIsInvalid || dpsRateInvalid);
         require(existingDebt > 0, "No debt to forgive");

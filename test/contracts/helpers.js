@@ -83,18 +83,18 @@ module.exports = {
 	async updateRatesWithDefaults({ exchangeRates, oracle, debtCache }) {
 		const timestamp = await currentTime();
 
-		const [DPS, sAUD, sEUR, sBTC, iBTC, sETH, ETH] = [
+		const [DPS, dAUD, dEUR, dBTC, iBTC, dETH, ETH] = [
 			'DPS',
-			'sAUD',
-			'sEUR',
-			'sBTC',
+			'dAUD',
+			'dEUR',
+			'dBTC',
 			'iBTC',
-			'sETH',
+			'dETH',
 			'ETH',
 		].map(toBytes32);
 
 		await exchangeRates.updateRates(
-			[DPS, sAUD, sEUR, sBTC, iBTC, sETH, ETH],
+			[DPS, dAUD, dEUR, dBTC, iBTC, dETH, ETH],
 			['0.1', '0.5', '1.25', '5000', '4000', '172', '172'].map(toUnit),
 			timestamp,
 			{

@@ -32,7 +32,7 @@
 	"EtherCollateral": {
 		"deploy": false
 	},
-	"EtherCollateralsUSD": {
+	"EtherCollateraldUSD": {
 		"deploy": false
 	},
 	"FeePool": {
@@ -89,13 +89,13 @@
 	"DappMaintenance": {
 		"deploy": false
 	},
-	"SynthsUSD": {
+	"SynthdUSD": {
 		"deploy": false
 	},
 	"ProxyERC20": {
 		"deploy": false
 	},
-	"ProxyERC20sUSD": {
+	"ProxyERC20dUSD": {
 		"deploy": false
 	},
 	"ProxyFeePool": {
@@ -104,7 +104,7 @@
 	"ProxyDPassive": {
 		"deploy": false
 	},
-	"ProxysUSD": {
+	"ProxydUSD": {
 		"deploy": false
 	},
 	"SafeDecimalMath": {
@@ -116,16 +116,16 @@
 	"TokenStateDPassive": {
 		"deploy": false
 	},
-	"TokenStatesUSD": {
+	"TokenStatedUSD": {
 		"deploy": false
 	},
-	"TokenStatesETH": {
+	"TokenStatedETH": {
 		"deploy": false
 	},
-	"ProxysETH": {
+	"ProxydETH": {
 		"deploy": false
 	},
-	"SynthsETH": {
+	"SynthdETH": {
 		"deploy": false
 	}
 }

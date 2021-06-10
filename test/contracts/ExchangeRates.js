@@ -50,14 +50,14 @@ const createRandomKeysAndRates = quantity => {
 
 contract('Exchange Rates', async accounts => {
 	const [deployerAccount, owner, oracle, accountOne, accountTwo] = accounts;
-	const [DPS, sJPY, sXTZ, sBNB, sUSD, sEUR, sAUD, fastGasPrice] = [
+	const [DPS, dJPY, dXTZ, dBNB, dUSD, dEUR, dAUD, fastGasPrice] = [
 		'DPS',
-		'sJPY',
-		'sXTZ',
-		'sBNB',
-		'sUSD',
-		'sEUR',
-		'sAUD',
+		'dJPY',
+		'dXTZ',
+		'dBNB',
+		'dUSD',
+		'dEUR',
+		'dAUD',
 		'fastGasPrice',
 	].map(toBytes32);
 	let instance;
@@ -121,14 +121,14 @@ contract('Exchange Rates', async accounts => {
 			assert.equal(await instance.owner(), owner);
 			assert.equal(await instance.oracle(), oracle);
 
-			assert.etherEqual(await instance.rateForCurrency(sUSD), '1');
+			assert.etherEqual(await instance.rateForCurrency(dUSD), '1');
 			assert.etherEqual(await instance.rateForCurrency(DPS), '0.2');
 
 			// Ensure that when the rate isn't found, 0 is returned as the exchange rate.
 			assert.etherEqual(await instance.rateForCurrency(toBytes32('OTHER')), '0');
 
-			const lastUpdatedTimeSUSD = await instance.lastRateUpdateTimes.call(sUSD);
-			assert.isAtLeast(lastUpdatedTimeSUSD.toNumber(), initialTime);
+			const lastUpdatedTimeDUSD = await instance.lastRateUpdateTimes.call(dUSD);
+			assert.isAtLeast(lastUpdatedTimeDUSD.toNumber(), initialTime);
 
 			const lastUpdatedTimeOTHER = await instance.lastRateUpdateTimes.call(toBytes32('OTHER'));
 			assert.equal(lastUpdatedTimeOTHER.toNumber(), 0);
@@ -136,8 +136,8 @@ contract('Exchange Rates', async accounts => {
 			const lastUpdatedTimeDPS = await instance.lastRateUpdateTimes.call(DPS);
 			assert.isAtLeast(lastUpdatedTimeDPS.toNumber(), initialTime);
 
-			const sUSDRate = await instance.rateForCurrency(sUSD);
-			assert.bnEqual(sUSDRate, toUnit('1'));
+			const dUSDRate = await instance.rateForCurrency(dUSD);
+			assert.bnEqual(dUSDRate, toUnit('1'));
 		});
 
 		it('two different currencies in same array should mean that the second one overrides', async () => {
@@ -324,14 +324,14 @@ contract('Exchange Rates', async accounts => {
 			assert.equal(lastUpdatedTimeLGHI.toNumber(), updatedTime);
 		});
 
-		it('should revert when trying to set sUSD price', async () => {
+		it('should revert when trying to set dUSD price', async () => {
 			await fastForward(1);
 
 			await assert.revert(
-				instance.updateRates([sUSD], [web3.utils.toWei('1.0', 'ether')], timeSent, {
+				instance.updateRates([dUSD], [web3.utils.toWei('1.0', 'ether')], timeSent, {
 					from: oracle,
 				}),
-				"Rate of sUSD cannot be updated, it's always UNIT"
+				"Rate of dUSD cannot be updated, it's always UNIT"
 			);
 		});
 
@@ -371,7 +371,7 @@ contract('Exchange Rates', async accounts => {
 		it('should revert when currency keys length != new rates length on update', async () => {
 			await assert.revert(
 				instance.updateRates(
-					[sUSD, DPS, toBytes32('GOLD')],
+					[dUSD, DPS, toBytes32('GOLD')],
 					[web3.utils.toWei('1', 'ether'), web3.utils.toWei('0.2', 'ether')],
 					await currentTime(),
 					{ from: oracle }
@@ -619,9 +619,9 @@ contract('Exchange Rates', async accounts => {
 	});
 
 	describe('rateIsStale()', () => {
-		it('should never allow sUSD to go stale via rateIsStale', async () => {
+		it('should never allow dUSD to go stale via rateIsStale', async () => {
 			await fastForward(await instance.rateStalePeriod());
-			const rateIsStale = await instance.rateIsStale(sUSD);
+			const rateIsStale = await instance.rateIsStale(dUSD);
 			assert.equal(rateIsStale, false);
 		});
 
@@ -686,7 +686,7 @@ contract('Exchange Rates', async accounts => {
 
 	describe('anyRateIsInvalid()', () => {
 		describe('stale scenarios', () => {
-			it('should never allow sUSD to go stale via anyRateIsInvalid', async () => {
+			it('should never allow dUSD to go stale via anyRateIsInvalid', async () => {
 				const keysArray = [DPS, toBytes32('GOLD')];
 
 				await instance.updateRates(
@@ -706,8 +706,8 @@ contract('Exchange Rates', async accounts => {
 					{ from: oracle }
 				);
 
-				// Even though sUSD hasn't been updated since the stale rate period has expired,
-				// we expect that sUSD remains "not stale"
+				// Even though dUSD hasn't been updated since the stale rate period has expired,
+				// we expect that dUSD remains "not stale"
 				assert.equal(await instance.anyRateIsInvalid(keysArray), false);
 			});
 
@@ -871,22 +871,22 @@ contract('Exchange Rates', async accounts => {
 		});
 
 		describe('flagged scenarios', () => {
-			describe('when sJPY aggregator is added', () => {
+			describe('when dJPY aggregator is added', () => {
 				beforeEach(async () => {
-					await instance.addAggregator(sJPY, aggregatorJPY.address, {
+					await instance.addAggregator(dJPY, aggregatorJPY.address, {
 						from: owner,
 					});
 				});
 				describe('when a regular and aggregated synth have rates', () => {
 					beforeEach(async () => {
 						const timestamp = await currentTime();
-						await instance.updateRates([toBytes32('sGOLD')], [web3.utils.toWei('1')], timestamp, {
+						await instance.updateRates([toBytes32('dGOLD')], [web3.utils.toWei('1')], timestamp, {
 							from: oracle,
 						});
 						await aggregatorJPY.setLatestAnswer(convertToDecimals(100, 8), timestamp);
 					});
 					it('then rateIsInvalid for both is false', async () => {
-						const rateIsInvalid = await instance.anyRateIsInvalid([toBytes32('sGOLD'), sJPY, sUSD]);
+						const rateIsInvalid = await instance.anyRateIsInvalid([toBytes32('dGOLD'), dJPY, dUSD]);
 						assert.equal(rateIsInvalid, false);
 					});
 
@@ -902,22 +902,22 @@ contract('Exchange Rates', async accounts => {
 
 						it('then rateIsInvalid for both is still false', async () => {
 							const rateIsInvalid = await instance.anyRateIsInvalid([
-								toBytes32('sGOLD'),
-								sJPY,
-								sUSD,
+								toBytes32('dGOLD'),
+								dJPY,
+								dUSD,
 							]);
 							assert.equal(rateIsInvalid, false);
 						});
 
-						describe('when the sJPY aggregator is flagged', () => {
+						describe('when the dJPY aggregator is flagged', () => {
 							beforeEach(async () => {
 								await mockFlagsInterface.flagAggregator(aggregatorJPY.address);
 							});
 							it('then rateIsInvalid for both is true', async () => {
 								const rateIsInvalid = await instance.anyRateIsInvalid([
-									toBytes32('sGOLD'),
-									sJPY,
-									sUSD,
+									toBytes32('dGOLD'),
+									dJPY,
+									dUSD,
 								]);
 								assert.equal(rateIsInvalid, true);
 							});
@@ -993,21 +993,21 @@ contract('Exchange Rates', async accounts => {
 			beforeEach(async () => {
 				// Send a price update to guarantee we're not depending on values from outside this test.
 				await instance.updateRates(
-					['sAUD', 'sEUR', 'DPS'].map(toBytes32),
+					['dAUD', 'dEUR', 'DPS'].map(toBytes32),
 					['0.5', '1.25', '0.1'].map(toUnit),
 					timestamp,
 					{ from: oracle }
 				);
 			});
 			it('should correctly calculate an exchange rate in effectiveValue()', async () => {
-				// 1 sUSD should be worth 2 sAUD.
-				assert.bnEqual(await instance.effectiveValue(sUSD, toUnit('1'), sAUD), toUnit('2'));
+				// 1 dUSD should be worth 2 dAUD.
+				assert.bnEqual(await instance.effectiveValue(dUSD, toUnit('1'), dAUD), toUnit('2'));
 
-				// 10 DPS should be worth 1 sUSD.
-				assert.bnEqual(await instance.effectiveValue(DPS, toUnit('10'), sUSD), toUnit('1'));
+				// 10 DPS should be worth 1 dUSD.
+				assert.bnEqual(await instance.effectiveValue(DPS, toUnit('10'), dUSD), toUnit('1'));
 
-				// 2 sEUR should be worth 2.50 sUSD
-				assert.bnEqual(await instance.effectiveValue(sEUR, toUnit('2'), sUSD), toUnit('2.5'));
+				// 2 dEUR should be worth 2.50 dUSD
+				assert.bnEqual(await instance.effectiveValue(dEUR, toUnit('2'), dUSD), toUnit('2.5'));
 			});
 
 			it('should calculate updated rates in effectiveValue()', async () => {
@@ -1016,16 +1016,16 @@ contract('Exchange Rates', async accounts => {
 
 				timestamp = await currentTime();
 
-				// Update all rates except sUSD.
-				await instance.updateRates([sEUR, DPS], ['1.25', '0.1'].map(toUnit), timestamp, {
+				// Update all rates except dUSD.
+				await instance.updateRates([dEUR, DPS], ['1.25', '0.1'].map(toUnit), timestamp, {
 					from: oracle,
 				});
 
 				const amountOfDPassives = toUnit('10');
 				const amountOfEur = toUnit('0.8');
 
-				// Should now be able to convert from DPS to sEUR since they are both not stale.
-				assert.bnEqual(await instance.effectiveValue(DPS, amountOfDPassives, sEUR), amountOfEur);
+				// Should now be able to convert from DPS to dEUR since they are both not stale.
+				assert.bnEqual(await instance.effectiveValue(DPS, amountOfDPassives, dEUR), amountOfEur);
 			});
 
 			it('should return 0 when relying on a non-existant dest exchange rate in effectiveValue()', async () => {
@@ -1036,11 +1036,11 @@ contract('Exchange Rates', async accounts => {
 				assert.equal(await instance.effectiveValue(toBytes32('XYZ'), toUnit('10'), DPS), '0');
 			});
 
-			it('effectiveValueAndRates() should return rates as well with sUSD on one side', async () => {
+			it('effectiveValueAndRates() should return rates as well with dUSD on one side', async () => {
 				const { value, sourceRate, destinationRate } = await instance.effectiveValueAndRates(
-					sUSD,
+					dUSD,
 					toUnit('1'),
-					sAUD
+					dAUD
 				);
 
 				assert.bnEqual(value, toUnit('2'));
@@ -1048,11 +1048,11 @@ contract('Exchange Rates', async accounts => {
 				assert.bnEqual(destinationRate, toUnit('0.5'));
 			});
 
-			it('effectiveValueAndRates() should return rates as well with sUSD on the other side', async () => {
+			it('effectiveValueAndRates() should return rates as well with dUSD on the other side', async () => {
 				const { value, sourceRate, destinationRate } = await instance.effectiveValueAndRates(
-					sAUD,
+					dAUD,
 					toUnit('1'),
-					sUSD
+					dUSD
 				);
 
 				assert.bnEqual(value, toUnit('0.5'));
@@ -1062,9 +1062,9 @@ contract('Exchange Rates', async accounts => {
 
 			it('effectiveValueAndRates() should return rates as well with two live rates', async () => {
 				const { value, sourceRate, destinationRate } = await instance.effectiveValueAndRates(
-					sAUD,
+					dAUD,
 					toUnit('1'),
-					sEUR
+					dEUR
 				);
 
 				assert.bnEqual(value, toUnit('0.4')); // 0.5/1.25 = 0.4
@@ -1075,10 +1075,10 @@ contract('Exchange Rates', async accounts => {
 	});
 
 	describe('inverted prices', () => {
-		const inverseRates = ['iBTC', 'iETH', 'sEUR', 'sBNB'];
-		const [iBTC, iETH, sEUR, sBNB] = inverseRates.map(toBytes32);
+		const inverseRates = ['iBTC', 'iETH', 'dEUR', 'dBNB'];
+		const [iBTC, iETH, dEUR, dBNB] = inverseRates.map(toBytes32);
 		it('rateIsFrozen for a regular synth returns false', async () => {
-			assert.equal(false, await instance.rateIsFrozen(sEUR));
+			assert.equal(false, await instance.rateIsFrozen(dEUR));
 		});
 		it('and list of invertedKeys is empty', async () => {
 			await assert.invalidOpcode(instance.invertedKeys(0));
@@ -1177,7 +1177,7 @@ contract('Exchange Rates', async accounts => {
 
 		describe('freezeRate()', () => {
 			it('reverts when the currency key is not an inverse', async () => {
-				await assert.revert(instance.freezeRate(sEUR), 'Cannot freeze non-inverse rate');
+				await assert.revert(instance.freezeRate(dEUR), 'Cannot freeze non-inverse rate');
 			});
 			describe('when an inverse is added for iBTC already frozen at the upper limit', () => {
 				beforeEach(async () => {
@@ -1410,8 +1410,8 @@ contract('Exchange Rates', async accounts => {
 				assert.notOk(await instance.canFreezeRate(iETH));
 			});
 			it('and canFreeze is false for other synths', async () => {
-				assert.notOk(await instance.canFreezeRate(sEUR));
-				assert.notOk(await instance.canFreezeRate(sBNB));
+				assert.notOk(await instance.canFreezeRate(dEUR));
+				assert.notOk(await instance.canFreezeRate(dBNB));
 				assert.notOk(await instance.canFreezeRate(toBytes32('ABC')));
 			});
 
@@ -1563,14 +1563,14 @@ contract('Exchange Rates', async accounts => {
 				beforeEach(async () => {
 					const rates = [4500.553, 225, 1.12, 4500.553].map(toUnit);
 					const timeSent = await currentTime();
-					txn = await instance.updateRates([iBTC, iETH, sEUR, sBNB], rates, timeSent, {
+					txn = await instance.updateRates([iBTC, iETH, dEUR, dBNB], rates, timeSent, {
 						from: oracle,
 					});
 				});
 				it('regular and inverted rates should be updated correctly', async () => {
 					await assertRatesAreCorrect({
 						txn,
-						currencyKeys: [iBTC, iETH, sEUR, sBNB],
+						currencyKeys: [iBTC, iETH, dEUR, dBNB],
 						expectedRates: [3499.447, 175, 1.12, 4500.553].map(toUnit),
 					});
 				});
@@ -1614,14 +1614,14 @@ contract('Exchange Rates', async accounts => {
 				beforeEach(async () => {
 					const rates = [8050, 400, 1.12, 8050].map(toUnit);
 					const timeSent = await currentTime();
-					txn = await instance.updateRates([iBTC, iETH, sEUR, sBNB], rates, timeSent, {
+					txn = await instance.updateRates([iBTC, iETH, dEUR, dBNB], rates, timeSent, {
 						from: oracle,
 					});
 				});
 				it('inverted rates return at the lower bounds', async () => {
 					await assertRatesAreCorrect({
 						txn,
-						currencyKeys: [iBTC, iETH, sEUR, sBNB],
+						currencyKeys: [iBTC, iETH, dEUR, dBNB],
 						expectedRates: [2300, 75, 1.12, 8050].map(toUnit),
 						outOfBounds: [iBTC, iETH],
 					});
@@ -1640,7 +1640,7 @@ contract('Exchange Rates', async accounts => {
 						beforeEach(async () => {
 							const rates = [3500, 300, 2.12, 3500].map(toUnit);
 							const timeSent = await currentTime();
-							txn = await instance.updateRates([iBTC, iETH, sEUR, sBNB], rates, timeSent, {
+							txn = await instance.updateRates([iBTC, iETH, dEUR, dBNB], rates, timeSent, {
 								from: oracle,
 							});
 						});
@@ -1648,7 +1648,7 @@ contract('Exchange Rates', async accounts => {
 						it('inverted rates must remain frozen at the lower bounds', async () => {
 							await assertRatesAreCorrect({
 								txn,
-								currencyKeys: [iBTC, iETH, sEUR, sBNB],
+								currencyKeys: [iBTC, iETH, dEUR, dBNB],
 								expectedRates: [2300, 75, 2.12, 3500].map(toUnit),
 							});
 						});
@@ -1658,7 +1658,7 @@ contract('Exchange Rates', async accounts => {
 						beforeEach(async () => {
 							const rates = [1000, 50, 2.3, 1000].map(toUnit);
 							const timeSent = await currentTime();
-							txn = await instance.updateRates([iBTC, iETH, sEUR, sBNB], rates, timeSent, {
+							txn = await instance.updateRates([iBTC, iETH, dEUR, dBNB], rates, timeSent, {
 								from: oracle,
 							});
 						});
@@ -1666,7 +1666,7 @@ contract('Exchange Rates', async accounts => {
 						it('inverted rates must remain frozen at the lower bounds', async () => {
 							await assertRatesAreCorrect({
 								txn,
-								currencyKeys: [iBTC, iETH, sEUR, sBNB],
+								currencyKeys: [iBTC, iETH, dEUR, dBNB],
 								expectedRates: [2300, 75, 2.3, 1000].map(toUnit),
 							});
 						});
@@ -1709,14 +1709,14 @@ contract('Exchange Rates', async accounts => {
 							beforeEach(async () => {
 								const rates = [1250, 201, 1.12, 1250].map(toUnit);
 								const timeSent = await currentTime();
-								txn = await instance.updateRates([iBTC, iETH, sEUR, sBNB], rates, timeSent, {
+								txn = await instance.updateRates([iBTC, iETH, dEUR, dBNB], rates, timeSent, {
 									from: oracle,
 								});
 							});
 							it('then the inverted synth updates as it is no longer frozen and respects new entryPoint and limits', async () => {
 								await assertRatesAreCorrect({
 									txn,
-									currencyKeys: [iBTC, iETH, sEUR, sBNB],
+									currencyKeys: [iBTC, iETH, dEUR, dBNB],
 									expectedRates: [8750, 75, 1.12, 1250].map(toUnit),
 								});
 							});
@@ -1730,14 +1730,14 @@ contract('Exchange Rates', async accounts => {
 								beforeEach(async () => {
 									const rates = [1000, 201, 1.12, 1250].map(toUnit);
 									const timeSent = await currentTime();
-									txn = await instance.updateRates([iBTC, iETH, sEUR, sBNB], rates, timeSent, {
+									txn = await instance.updateRates([iBTC, iETH, dEUR, dBNB], rates, timeSent, {
 										from: oracle,
 									});
 								});
 								it('then the inverted shows at new upper limit', async () => {
 									await assertRatesAreCorrect({
 										txn,
-										currencyKeys: [iBTC, iETH, sEUR, sBNB],
+										currencyKeys: [iBTC, iETH, dEUR, dBNB],
 										expectedRates: [8900, 75, 1.12, 1250].map(toUnit),
 									});
 								});
@@ -1757,14 +1757,14 @@ contract('Exchange Rates', async accounts => {
 				beforeEach(async () => {
 					const rates = [1200, 45, 1.12, 1200].map(toUnit);
 					const timeSent = await currentTime();
-					txn = await instance.updateRates([iBTC, iETH, sEUR, sBNB], rates, timeSent, {
+					txn = await instance.updateRates([iBTC, iETH, dEUR, dBNB], rates, timeSent, {
 						from: oracle,
 					});
 				});
 				it('inverted rates must be set to the upper bounds', async () => {
 					await assertRatesAreCorrect({
 						txn,
-						currencyKeys: [iBTC, iETH, sEUR, sBNB],
+						currencyKeys: [iBTC, iETH, dEUR, dBNB],
 						expectedRates: [6500, 350, 1.12, 1200].map(toUnit),
 						outOfBounds: [iBTC, iETH],
 					});
@@ -1779,14 +1779,14 @@ contract('Exchange Rates', async accounts => {
 						beforeEach(async () => {
 							const rates = [3500, 300, 2.12, 3500].map(toUnit);
 							const timeSent = await currentTime();
-							txn = await instance.updateRates([iBTC, iETH, sEUR, sBNB], rates, timeSent, {
+							txn = await instance.updateRates([iBTC, iETH, dEUR, dBNB], rates, timeSent, {
 								from: oracle,
 							});
 						});
 						it('inverted rates must remain frozen at the upper bounds', async () => {
 							await assertRatesAreCorrect({
 								txn,
-								currencyKeys: [iBTC, iETH, sEUR, sBNB],
+								currencyKeys: [iBTC, iETH, dEUR, dBNB],
 								expectedRates: [6500, 350, 2.12, 3500].map(toUnit),
 							});
 						});
@@ -1808,13 +1808,13 @@ contract('Exchange Rates', async accounts => {
 				describe('when a regular (non-inverse) synth is removed by the owner', () => {
 					it('then it reverts', async () => {
 						await assert.revert(
-							instance.removeInversePricing(sEUR, {
+							instance.removeInversePricing(dEUR, {
 								from: owner,
 							}),
 							'No inverted price exists'
 						);
 						await assert.revert(
-							instance.removeInversePricing(sBNB, {
+							instance.removeInversePricing(dBNB, {
 								from: owner,
 							}),
 							'No inverted price exists'
@@ -1879,7 +1879,7 @@ contract('Exchange Rates', async accounts => {
 			it('only an owner can add an aggregator', async () => {
 				await onlyGivenAddressCanInvoke({
 					fnc: instance.addAggregator,
-					args: [sJPY, aggregatorJPY.address],
+					args: [dJPY, aggregatorJPY.address],
 					accounts,
 					address: owner,
 				});
@@ -1890,7 +1890,7 @@ contract('Exchange Rates', async accounts => {
 					const newAggregator = await MockAggregator.new({ from: owner });
 					await newAggregator.setDecimals('19');
 					await assert.revert(
-						instance.addAggregator(sJPY, newAggregator.address, {
+						instance.addAggregator(dJPY, newAggregator.address, {
 							from: owner,
 						}),
 						'Aggregator decimals should be lower or equal to 18'
@@ -1904,10 +1904,10 @@ contract('Exchange Rates', async accounts => {
 				});
 			});
 
-			describe('when the owner attempts to add an invalid address for sJPY ', () => {
+			describe('when the owner attempts to add an invalid address for dJPY ', () => {
 				it('then zero address is invalid', async () => {
 					await assert.revert(
-						instance.addAggregator(sJPY, ZERO_ADDRESS, {
+						instance.addAggregator(dJPY, ZERO_ADDRESS, {
 							from: owner,
 						})
 						// 'function call to a non-contract account' (this reason is not valid in Ganache so fails in coverage)
@@ -1915,7 +1915,7 @@ contract('Exchange Rates', async accounts => {
 				});
 				it('and a non-aggregator address is invalid', async () => {
 					await assert.revert(
-						instance.addAggregator(sJPY, instance.address, {
+						instance.addAggregator(dJPY, instance.address, {
 							from: owner,
 						})
 						// 'function selector was not recognized'  (this reason is not valid in Ganache so fails in coverage)
@@ -1928,22 +1928,22 @@ contract('Exchange Rates', async accounts => {
 				assert.deepEqual(await instance.currenciesUsingAggregator(ZERO_ADDRESS), []);
 			});
 
-			describe('when the owner adds sJPY added as an aggregator', () => {
+			describe('when the owner adds dJPY added as an aggregator', () => {
 				let txn;
 				beforeEach(async () => {
-					txn = await instance.addAggregator(sJPY, aggregatorJPY.address, {
+					txn = await instance.addAggregator(dJPY, aggregatorJPY.address, {
 						from: owner,
 					});
 				});
 
 				it('then the list of aggregatorKeys lists it', async () => {
-					assert.equal('sJPY', bytesToString(await instance.aggregatorKeys(0)));
+					assert.equal('dJPY', bytesToString(await instance.aggregatorKeys(0)));
 					await assert.invalidOpcode(instance.aggregatorKeys(1));
 				});
 
 				it('and the AggregatorAdded event is emitted', () => {
 					assert.eventEqual(txn, 'AggregatorAdded', {
-						currencyKey: sJPY,
+						currencyKey: dJPY,
 						aggregator: aggregatorJPY.address,
 					});
 				});
@@ -1951,72 +1951,72 @@ contract('Exchange Rates', async accounts => {
 				it('only an owner can remove an aggregator', async () => {
 					await onlyGivenAddressCanInvoke({
 						fnc: instance.removeAggregator,
-						args: [sJPY],
+						args: [dJPY],
 						accounts,
 						address: owner,
 					});
 				});
 
-				it('and currenciesUsingAggregator for that aggregator returns sJPY', async () => {
-					assert.deepEqual(await instance.currenciesUsingAggregator(aggregatorJPY.address), [sJPY]);
+				it('and currenciesUsingAggregator for that aggregator returns dJPY', async () => {
+					assert.deepEqual(await instance.currenciesUsingAggregator(aggregatorJPY.address), [dJPY]);
 				});
 
 				describe('when the owner adds the same aggregator to two other rates', () => {
 					beforeEach(async () => {
-						await instance.addAggregator(sEUR, aggregatorJPY.address, {
+						await instance.addAggregator(dEUR, aggregatorJPY.address, {
 							from: owner,
 						});
-						await instance.addAggregator(sBNB, aggregatorJPY.address, {
+						await instance.addAggregator(dBNB, aggregatorJPY.address, {
 							from: owner,
 						});
 					});
-					it('and currenciesUsingAggregator for that aggregator returns sJPY', async () => {
+					it('and currenciesUsingAggregator for that aggregator returns dJPY', async () => {
 						assert.deepEqual(await instance.currenciesUsingAggregator(aggregatorJPY.address), [
-							sJPY,
-							sEUR,
-							sBNB,
+							dJPY,
+							dEUR,
+							dBNB,
 						]);
 					});
 				});
 				describe('when the owner tries to remove an invalid aggregator', () => {
 					it('then it reverts', async () => {
 						await assert.revert(
-							instance.removeAggregator(sXTZ, { from: owner }),
+							instance.removeAggregator(dXTZ, { from: owner }),
 							'No aggregator exists for key'
 						);
 					});
 				});
 
-				describe('when the owner adds sXTZ as an aggregator', () => {
+				describe('when the owner adds dXTZ as an aggregator', () => {
 					beforeEach(async () => {
-						txn = await instance.addAggregator(sXTZ, aggregatorXTZ.address, {
+						txn = await instance.addAggregator(dXTZ, aggregatorXTZ.address, {
 							from: owner,
 						});
 					});
 
 					it('then the list of aggregatorKeys lists it also', async () => {
-						assert.equal('sJPY', bytesToString(await instance.aggregatorKeys(0)));
-						assert.equal('sXTZ', bytesToString(await instance.aggregatorKeys(1)));
+						assert.equal('dJPY', bytesToString(await instance.aggregatorKeys(0)));
+						assert.equal('dXTZ', bytesToString(await instance.aggregatorKeys(1)));
 						await assert.invalidOpcode(instance.aggregatorKeys(2));
 					});
 
 					it('and the AggregatorAdded event is emitted', () => {
 						assert.eventEqual(txn, 'AggregatorAdded', {
-							currencyKey: sXTZ,
+							currencyKey: dXTZ,
 							aggregator: aggregatorXTZ.address,
 						});
 					});
 
-					it('and currenciesUsingAggregator for that aggregator returns sXTZ', async () => {
+					it('and currenciesUsingAggregator for that aggregator returns dXTZ', async () => {
 						assert.deepEqual(await instance.currenciesUsingAggregator(aggregatorXTZ.address), [
-							sXTZ,
+							dXTZ,
 						]);
 					});
 
 					describe('when the ratesAndInvalidForCurrencies is queried', () => {
 						let response;
 						beforeEach(async () => {
-							response = await instance.ratesAndInvalidForCurrencies([sJPY, sXTZ]);
+							response = await instance.ratesAndInvalidForCurrencies([dJPY, dXTZ]);
 						});
 
 						it('then the rates are invalid', () => {
@@ -2033,8 +2033,8 @@ contract('Exchange Rates', async accounts => {
 						let responseJPY;
 						let responseXTZ;
 						beforeEach(async () => {
-							responseJPY = await instance.rateAndInvalid(sJPY);
-							responseXTZ = await instance.rateAndInvalid(sXTZ);
+							responseJPY = await instance.rateAndInvalid(dJPY);
+							responseXTZ = await instance.rateAndInvalid(dXTZ);
 						});
 
 						it('then the rates are invalid', () => {
@@ -2048,7 +2048,7 @@ contract('Exchange Rates', async accounts => {
 						});
 					});
 
-					describe('when the aggregator price is set for sJPY', () => {
+					describe('when the aggregator price is set for dJPY', () => {
 						const newRate = 111;
 						let timestamp;
 						beforeEach(async () => {
@@ -2059,7 +2059,7 @@ contract('Exchange Rates', async accounts => {
 						describe('when the ratesAndInvalidForCurrencies is queried', () => {
 							let response;
 							beforeEach(async () => {
-								response = await instance.ratesAndInvalidForCurrencies([sJPY, sXTZ]);
+								response = await instance.ratesAndInvalidForCurrencies([dJPY, dXTZ]);
 							});
 
 							it('then the rates are still invalid', () => {
@@ -2076,8 +2076,8 @@ contract('Exchange Rates', async accounts => {
 							let responseJPY;
 							let responseXTZ;
 							beforeEach(async () => {
-								responseJPY = await instance.rateAndInvalid(sJPY);
-								responseXTZ = await instance.rateAndInvalid(sXTZ);
+								responseJPY = await instance.rateAndInvalid(dJPY);
+								responseXTZ = await instance.rateAndInvalid(dXTZ);
 							});
 
 							it('then one rate is invalid', () => {
@@ -2091,7 +2091,7 @@ contract('Exchange Rates', async accounts => {
 							});
 						});
 
-						describe('when the aggregator price is set for sXTZ', () => {
+						describe('when the aggregator price is set for dXTZ', () => {
 							const newRateXTZ = 222;
 							let timestampXTZ;
 							beforeEach(async () => {
@@ -2103,7 +2103,7 @@ contract('Exchange Rates', async accounts => {
 							describe('when the ratesAndInvalidForCurrencies is queried', () => {
 								let response;
 								beforeEach(async () => {
-									response = await instance.ratesAndInvalidForCurrencies([sJPY, sXTZ, sUSD]);
+									response = await instance.ratesAndInvalidForCurrencies([dJPY, dXTZ, dUSD]);
 								});
 
 								it('then the rates are no longer invalid', () => {
@@ -2122,9 +2122,9 @@ contract('Exchange Rates', async accounts => {
 								let responseXTZ;
 								let responseUSD;
 								beforeEach(async () => {
-									responseJPY = await instance.rateAndInvalid(sJPY);
-									responseXTZ = await instance.rateAndInvalid(sXTZ);
-									responseUSD = await instance.rateAndInvalid(sUSD);
+									responseJPY = await instance.rateAndInvalid(dJPY);
+									responseXTZ = await instance.rateAndInvalid(dXTZ);
+									responseUSD = await instance.rateAndInvalid(dUSD);
 								});
 
 								it('then both rates are valid', () => {
@@ -2140,14 +2140,14 @@ contract('Exchange Rates', async accounts => {
 								});
 							});
 
-							describe('when the flags return true for sJPY', () => {
+							describe('when the flags return true for dJPY', () => {
 								beforeEach(async () => {
 									await mockFlagsInterface.flagAggregator(aggregatorJPY.address);
 								});
 								describe('when the ratesAndInvalidForCurrencies is queried', () => {
 									let response;
 									beforeEach(async () => {
-										response = await instance.ratesAndInvalidForCurrencies([sJPY, sXTZ, sUSD]);
+										response = await instance.ratesAndInvalidForCurrencies([dJPY, dXTZ, dUSD]);
 									});
 
 									it('then the rates are invalid', () => {
@@ -2157,7 +2157,7 @@ contract('Exchange Rates', async accounts => {
 								describe('when rateAndInvalid is queried', () => {
 									let response;
 									beforeEach(async () => {
-										response = await instance.rateAndInvalid(sJPY);
+										response = await instance.rateAndInvalid(dJPY);
 									});
 
 									it('then the rates are invalid', () => {
@@ -2166,28 +2166,28 @@ contract('Exchange Rates', async accounts => {
 								});
 							});
 
-							describe('when the aggregator is removed for sJPY', () => {
+							describe('when the aggregator is removed for dJPY', () => {
 								beforeEach(async () => {
-									txn = await instance.removeAggregator(sJPY, {
+									txn = await instance.removeAggregator(dJPY, {
 										from: owner,
 									});
 								});
 								it('then the AggregatorRemoved event is emitted', () => {
 									assert.eventEqual(txn, 'AggregatorRemoved', {
-										currencyKey: sJPY,
+										currencyKey: dJPY,
 										aggregator: aggregatorJPY.address,
 									});
 								});
 								describe('when a user queries the aggregatorKeys', () => {
-									it('then only sXTZ is left', async () => {
-										assert.equal('sXTZ', bytesToString(await instance.aggregatorKeys(0)));
+									it('then only dXTZ is left', async () => {
+										assert.equal('dXTZ', bytesToString(await instance.aggregatorKeys(0)));
 										await assert.invalidOpcode(instance.aggregatorKeys(1));
 									});
 								});
 								describe('when the ratesAndInvalidForCurrencies is queried', () => {
 									let response;
 									beforeEach(async () => {
-										response = await instance.ratesAndInvalidForCurrencies([sJPY, sXTZ, sUSD]);
+										response = await instance.ratesAndInvalidForCurrencies([dJPY, dXTZ, dUSD]);
 									});
 
 									it('then the rates are invalid again', () => {
@@ -2204,9 +2204,9 @@ contract('Exchange Rates', async accounts => {
 									let responseXTZ;
 									let responseUSD;
 									beforeEach(async () => {
-										responseJPY = await instance.rateAndInvalid(sJPY);
-										responseXTZ = await instance.rateAndInvalid(sXTZ);
-										responseUSD = await instance.rateAndInvalid(sUSD);
+										responseJPY = await instance.rateAndInvalid(dJPY);
+										responseXTZ = await instance.rateAndInvalid(dXTZ);
+										responseUSD = await instance.rateAndInvalid(dUSD);
 									});
 
 									it('then the rates are invalid again', () => {
@@ -2222,7 +2222,7 @@ contract('Exchange Rates', async accounts => {
 									});
 								});
 
-								describe('when sJPY has a non-aggregated rate', () => {});
+								describe('when dJPY has a non-aggregated rate', () => {});
 							});
 						});
 					});
@@ -2237,15 +2237,15 @@ contract('Exchange Rates', async accounts => {
 						await aggregatorJPY.setLatestAnswer(convertToDecimals(newRate, 8), timestamp);
 					});
 
-					describe('when the price is fetched for sJPY', () => {
+					describe('when the price is fetched for dJPY', () => {
 						it('the specific number is returned with 18 decimals', async () => {
-							const result = await instance.rateForCurrency(sJPY, {
+							const result = await instance.rateForCurrency(dJPY, {
 								from: accountOne,
 							});
 							assert.bnEqual(result, toUnit(newRate.toString()));
 						});
 						it('and the timestamp is the latest', async () => {
-							const result = await instance.lastRateUpdateTimes(sJPY, {
+							const result = await instance.lastRateUpdateTimes(dJPY, {
 								from: accountOne,
 							});
 							assert.bnEqual(result.toNumber(), timestamp);
@@ -2285,20 +2285,20 @@ contract('Exchange Rates', async accounts => {
 				});
 			});
 
-			describe('when a price already exists for sJPY', () => {
+			describe('when a price already exists for dJPY', () => {
 				const oldPrice = 100;
 				let timeOldSent;
 				beforeEach(async () => {
 					timeOldSent = await currentTime();
 
-					await instance.updateRates([sJPY], [web3.utils.toWei(oldPrice.toString())], timeOldSent, {
+					await instance.updateRates([dJPY], [web3.utils.toWei(oldPrice.toString())], timeOldSent, {
 						from: oracle,
 					});
 				});
-				describe('when the ratesAndInvalidForCurrencies is queried with sJPY', () => {
+				describe('when the ratesAndInvalidForCurrencies is queried with dJPY', () => {
 					let response;
 					beforeEach(async () => {
-						response = await instance.ratesAndInvalidForCurrencies([sJPY, sUSD]);
+						response = await instance.ratesAndInvalidForCurrencies([dJPY, dUSD]);
 					});
 
 					it('then the rates are NOT invalid', () => {
@@ -2309,10 +2309,10 @@ contract('Exchange Rates', async accounts => {
 						assert.bnEqual(response[0][0], web3.utils.toWei(oldPrice.toString()));
 					});
 				});
-				describe('when rateAndInvalid is queried with sJPY', () => {
+				describe('when rateAndInvalid is queried with dJPY', () => {
 					let response;
 					beforeEach(async () => {
-						response = await instance.rateAndInvalid(sJPY);
+						response = await instance.rateAndInvalid(dJPY);
 					});
 
 					it('then the rate is NOT invalid', () => {
@@ -2324,47 +2324,47 @@ contract('Exchange Rates', async accounts => {
 					});
 				});
 
-				describe('when the price is inspected for sJPY', () => {
+				describe('when the price is inspected for dJPY', () => {
 					it('then the price is returned as expected', async () => {
-						const result = await instance.rateForCurrency(sJPY, {
+						const result = await instance.rateForCurrency(dJPY, {
 							from: accountOne,
 						});
 						assert.equal(result.toString(), toUnit(oldPrice));
 					});
 					it('then the timestamp is returned as expected', async () => {
-						const result = await instance.lastRateUpdateTimes(sJPY, {
+						const result = await instance.lastRateUpdateTimes(dJPY, {
 							from: accountOne,
 						});
 						assert.equal(result.toNumber(), timeOldSent);
 					});
 				});
 
-				describe('when sJPY added as an aggregator (replacing existing)', () => {
+				describe('when dJPY added as an aggregator (replacing existing)', () => {
 					beforeEach(async () => {
-						await instance.addAggregator(sJPY, aggregatorJPY.address, {
+						await instance.addAggregator(dJPY, aggregatorJPY.address, {
 							from: owner,
 						});
 					});
-					describe('when the price is fetched for sJPY', () => {
+					describe('when the price is fetched for dJPY', () => {
 						it('0 is returned', async () => {
-							const result = await instance.rateForCurrency(sJPY, {
+							const result = await instance.rateForCurrency(dJPY, {
 								from: accountOne,
 							});
 							assert.equal(result.toNumber(), 0);
 						});
 					});
-					describe('when the timestamp is fetched for sJPY', () => {
+					describe('when the timestamp is fetched for dJPY', () => {
 						it('0 is returned', async () => {
-							const result = await instance.lastRateUpdateTimes(sJPY, {
+							const result = await instance.lastRateUpdateTimes(dJPY, {
 								from: accountOne,
 							});
 							assert.equal(result.toNumber(), 0);
 						});
 					});
-					describe('when the ratesAndInvalidForCurrencies is queried with sJPY', () => {
+					describe('when the ratesAndInvalidForCurrencies is queried with dJPY', () => {
 						let response;
 						beforeEach(async () => {
-							response = await instance.ratesAndInvalidForCurrencies([sJPY]);
+							response = await instance.ratesAndInvalidForCurrencies([dJPY]);
 						});
 
 						it('then the rates are invalid', () => {
@@ -2375,10 +2375,10 @@ contract('Exchange Rates', async accounts => {
 							assert.bnEqual(response[0][0], '0');
 						});
 					});
-					describe('when the rateAndInvalid is queried with sJPY', () => {
+					describe('when the rateAndInvalid is queried with dJPY', () => {
 						let response;
 						beforeEach(async () => {
-							response = await instance.rateAndInvalid(sJPY);
+							response = await instance.rateAndInvalid(dJPY);
 						});
 
 						it('then the rate is invalid', () => {
@@ -2399,25 +2399,25 @@ contract('Exchange Rates', async accounts => {
 							await aggregatorJPY.setLatestAnswer(convertToDecimals(newRate, 8), timestamp);
 						});
 
-						describe('when the price is fetched for sJPY', () => {
+						describe('when the price is fetched for dJPY', () => {
 							it('the new aggregator rate is returned instead of the old price', async () => {
-								const result = await instance.rateForCurrency(sJPY, {
+								const result = await instance.rateForCurrency(dJPY, {
 									from: accountOne,
 								});
 								assert.bnEqual(result, toUnit(newRate.toString()));
 							});
 							it('and the timestamp is the new one', async () => {
-								const result = await instance.lastRateUpdateTimes(sJPY, {
+								const result = await instance.lastRateUpdateTimes(dJPY, {
 									from: accountOne,
 								});
 								assert.bnEqual(result.toNumber(), timestamp);
 							});
 						});
 
-						describe('when the ratesAndInvalidForCurrencies is queried with sJPY', () => {
+						describe('when the ratesAndInvalidForCurrencies is queried with dJPY', () => {
 							let response;
 							beforeEach(async () => {
-								response = await instance.ratesAndInvalidForCurrencies([sJPY, sUSD]);
+								response = await instance.ratesAndInvalidForCurrencies([dJPY, dUSD]);
 							});
 
 							it('then the rates are NOT invalid', () => {
@@ -2429,10 +2429,10 @@ contract('Exchange Rates', async accounts => {
 							});
 						});
 
-						describe('when rateAndInvalid is queried with sJPY', () => {
+						describe('when rateAndInvalid is queried with dJPY', () => {
 							let response;
 							beforeEach(async () => {
-								response = await instance.rateAndInvalid(sJPY);
+								response = await instance.rateAndInvalid(dJPY);
 							});
 
 							it('then the rates are NOT invalid', () => {
@@ -2444,9 +2444,9 @@ contract('Exchange Rates', async accounts => {
 							});
 						});
 
-						describe('when the aggregator is removed for sJPY', () => {
+						describe('when the aggregator is removed for dJPY', () => {
 							beforeEach(async () => {
-								await instance.removeAggregator(sJPY, {
+								await instance.removeAggregator(dJPY, {
 									from: owner,
 								});
 							});
@@ -2455,24 +2455,24 @@ contract('Exchange Rates', async accounts => {
 									await assert.invalidOpcode(instance.aggregatorKeys(0));
 								});
 							});
-							describe('when the price is inspected for sJPY', () => {
+							describe('when the price is inspected for dJPY', () => {
 								it('then the old price is returned', async () => {
-									const result = await instance.rateForCurrency(sJPY, {
+									const result = await instance.rateForCurrency(dJPY, {
 										from: accountOne,
 									});
 									assert.equal(result.toString(), toUnit(oldPrice));
 								});
 								it('and the timestamp is returned as expected', async () => {
-									const result = await instance.lastRateUpdateTimes(sJPY, {
+									const result = await instance.lastRateUpdateTimes(dJPY, {
 										from: accountOne,
 									});
 									assert.equal(result.toNumber(), timeOldSent);
 								});
 							});
-							describe('when the ratesAndInvalidForCurrencies is queried with sJPY', () => {
+							describe('when the ratesAndInvalidForCurrencies is queried with dJPY', () => {
 								let response;
 								beforeEach(async () => {
-									response = await instance.ratesAndInvalidForCurrencies([sJPY, sUSD]);
+									response = await instance.ratesAndInvalidForCurrencies([dJPY, dUSD]);
 								});
 
 								it('then the rates are NOT invalid', () => {
@@ -2484,10 +2484,10 @@ contract('Exchange Rates', async accounts => {
 								});
 							});
 
-							describe('when the rateAndInvalid is queried with sJPY', () => {
+							describe('when the rateAndInvalid is queried with dJPY', () => {
 								let response;
 								beforeEach(async () => {
-									response = await instance.rateAndInvalid(sJPY);
+									response = await instance.rateAndInvalid(dJPY);
 								});
 
 								it('then the rates are NOT invalid', () => {
@@ -2502,33 +2502,33 @@ contract('Exchange Rates', async accounts => {
 					});
 				});
 
-				describe('when sXTZ added as an aggregator', () => {
+				describe('when dXTZ added as an aggregator', () => {
 					beforeEach(async () => {
-						await instance.addAggregator(sXTZ, aggregatorXTZ.address, {
+						await instance.addAggregator(dXTZ, aggregatorXTZ.address, {
 							from: owner,
 						});
 					});
-					describe('when the ratesAndInvalidForCurrencies is queried with sJPY and sXTZ', () => {
+					describe('when the ratesAndInvalidForCurrencies is queried with dJPY and dXTZ', () => {
 						let response;
 						beforeEach(async () => {
-							response = await instance.ratesAndInvalidForCurrencies([sJPY, sXTZ, sUSD]);
+							response = await instance.ratesAndInvalidForCurrencies([dJPY, dXTZ, dUSD]);
 						});
 
 						it('then the rates are invalid', () => {
 							assert.equal(response[1], true);
 						});
 
-						it('with sXTZ having no value', () => {
+						it('with dXTZ having no value', () => {
 							assert.bnEqual(response[0][0], web3.utils.toWei(oldPrice.toString()));
 							assert.bnEqual(response[0][1], '0');
 						});
 					});
-					describe('when the rateAndInvalid is queried with sJPY and sXTZ', () => {
+					describe('when the rateAndInvalid is queried with dJPY and dXTZ', () => {
 						let responseJPY;
 						let responseXTZ;
 						beforeEach(async () => {
-							responseJPY = await instance.rateAndInvalid(sJPY);
-							responseXTZ = await instance.rateAndInvalid(sXTZ);
+							responseJPY = await instance.rateAndInvalid(dJPY);
+							responseXTZ = await instance.rateAndInvalid(dXTZ);
 						});
 
 						it('then the XTZ rate is invalid', () => {
@@ -2536,13 +2536,13 @@ contract('Exchange Rates', async accounts => {
 							assert.equal(responseXTZ[1], true);
 						});
 
-						it('with sXTZ having no value', () => {
+						it('with dXTZ having no value', () => {
 							assert.bnEqual(responseJPY[0], web3.utils.toWei(oldPrice.toString()));
 							assert.bnEqual(responseXTZ[0], '0');
 						});
 					});
 
-					describe('when the aggregator price is set to set for sXTZ', () => {
+					describe('when the aggregator price is set to set for dXTZ', () => {
 						const newRate = 99;
 						let timestamp;
 						beforeEach(async () => {
@@ -2551,10 +2551,10 @@ contract('Exchange Rates', async accounts => {
 							await aggregatorXTZ.setLatestAnswer(convertToDecimals(newRate, 8), timestamp);
 						});
 
-						describe('when the ratesAndInvalidForCurrencies is queried with sJPY and sXTZ', () => {
+						describe('when the ratesAndInvalidForCurrencies is queried with dJPY and dXTZ', () => {
 							let response;
 							beforeEach(async () => {
-								response = await instance.ratesAndInvalidForCurrencies([sJPY, sXTZ, sUSD]);
+								response = await instance.ratesAndInvalidForCurrencies([dJPY, dXTZ, dUSD]);
 							});
 
 							it('then the rates are NOT invalid', () => {
@@ -2570,27 +2570,27 @@ contract('Exchange Rates', async accounts => {
 				});
 			});
 			describe('warning flags and invalid rates', () => {
-				it('sUSD is never flagged / invalid.', async () => {
-					assert.isFalse(await instance.rateIsFlagged(sUSD));
-					assert.isFalse(await instance.rateIsInvalid(sUSD));
+				it('dUSD is never flagged / invalid.', async () => {
+					assert.isFalse(await instance.rateIsFlagged(dUSD));
+					assert.isFalse(await instance.rateIsInvalid(dUSD));
 				});
 				describe('when JPY is aggregated', () => {
 					beforeEach(async () => {
-						await instance.addAggregator(sJPY, aggregatorJPY.address, {
+						await instance.addAggregator(dJPY, aggregatorJPY.address, {
 							from: owner,
 						});
 					});
 					it('then the rate shows as stale', async () => {
-						assert.equal(await instance.rateIsStale(sJPY), true);
+						assert.equal(await instance.rateIsStale(dJPY), true);
 					});
 					it('then the rate shows as invalid', async () => {
-						assert.equal(await instance.rateIsInvalid(sJPY), true);
-						assert.equal((await instance.rateAndInvalid(sJPY))[1], true);
+						assert.equal(await instance.rateIsInvalid(dJPY), true);
+						assert.equal((await instance.rateAndInvalid(dJPY))[1], true);
 					});
 					it('but the rate is not flagged', async () => {
-						assert.equal(await instance.rateIsFlagged(sJPY), false);
+						assert.equal(await instance.rateIsFlagged(dJPY), false);
 					});
-					describe('when the rate is set for sJPY', () => {
+					describe('when the rate is set for dJPY', () => {
 						const newRate = 123.456;
 						let timestamp;
 						beforeEach(async () => {
@@ -2599,28 +2599,28 @@ contract('Exchange Rates', async accounts => {
 							await aggregatorJPY.setLatestAnswer(convertToDecimals(newRate, 8), timestamp);
 						});
 						it('then the rate shows as not stale', async () => {
-							assert.equal(await instance.rateIsStale(sJPY), false);
+							assert.equal(await instance.rateIsStale(dJPY), false);
 						});
 						it('then the rate shows as not invalid', async () => {
-							assert.equal(await instance.rateIsInvalid(sJPY), false);
-							assert.equal((await instance.rateAndInvalid(sJPY))[1], false);
+							assert.equal(await instance.rateIsInvalid(dJPY), false);
+							assert.equal((await instance.rateAndInvalid(dJPY))[1], false);
 						});
 						it('but the rate is not flagged', async () => {
-							assert.equal(await instance.rateIsFlagged(sJPY), false);
+							assert.equal(await instance.rateIsFlagged(dJPY), false);
 						});
-						describe('when the rate is flagged for sJPY', () => {
+						describe('when the rate is flagged for dJPY', () => {
 							beforeEach(async () => {
 								await mockFlagsInterface.flagAggregator(aggregatorJPY.address);
 							});
 							it('then the rate shows as not stale', async () => {
-								assert.equal(await instance.rateIsStale(sJPY), false);
+								assert.equal(await instance.rateIsStale(dJPY), false);
 							});
 							it('then the rate shows as invalid', async () => {
-								assert.equal(await instance.rateIsInvalid(sJPY), true);
-								assert.equal((await instance.rateAndInvalid(sJPY))[1], true);
+								assert.equal(await instance.rateIsInvalid(dJPY), true);
+								assert.equal((await instance.rateAndInvalid(dJPY))[1], true);
 							});
 							it('and the rate is not flagged', async () => {
-								assert.equal(await instance.rateIsFlagged(sJPY), true);
+								assert.equal(await instance.rateIsFlagged(dJPY), true);
 							});
 						});
 					});
@@ -2630,31 +2630,31 @@ contract('Exchange Rates', async accounts => {
 	});
 
 	describe('roundIds for historical rates', () => {
-		it('getCurrentRoundId() by default is 0 for all synths except sUSD which is 1', async () => {
+		it('getCurrentRoundId() by default is 0 for all synths except dUSD which is 1', async () => {
 			// Note: rates that were set in the truffle migration will be at 1, so we need to check
 			// other synths
-			assert.equal(await instance.getCurrentRoundId(sJPY), '0');
-			assert.equal(await instance.getCurrentRoundId(sBNB), '0');
-			assert.equal(await instance.getCurrentRoundId(sUSD), '1');
+			assert.equal(await instance.getCurrentRoundId(dJPY), '0');
+			assert.equal(await instance.getCurrentRoundId(dBNB), '0');
+			assert.equal(await instance.getCurrentRoundId(dUSD), '1');
 		});
 
-		it('ratesAndUpdatedTimeForCurrencyLastNRounds() shows first entry for sUSD', async () => {
-			const timeOfsUSDRateSetOnInit = await instance.lastRateUpdateTimes(sUSD);
-			assert.deepEqual(await instance.ratesAndUpdatedTimeForCurrencyLastNRounds(sUSD, '3'), [
+		it('ratesAndUpdatedTimeForCurrencyLastNRounds() shows first entry for dUSD', async () => {
+			const timeOfdUSDRateSetOnInit = await instance.lastRateUpdateTimes(dUSD);
+			assert.deepEqual(await instance.ratesAndUpdatedTimeForCurrencyLastNRounds(dUSD, '3'), [
 				[toUnit('1'), '0', '0'],
-				[timeOfsUSDRateSetOnInit, '0', '0'],
+				[timeOfdUSDRateSetOnInit, '0', '0'],
 			]);
 		});
 		it('ratesAndUpdatedTimeForCurrencyLastNRounds() returns 0s for other currency keys', async () => {
 			const fiveZeros = new Array(5).fill('0');
-			assert.deepEqual(await instance.ratesAndUpdatedTimeForCurrencyLastNRounds(sAUD, '5'), [
+			assert.deepEqual(await instance.ratesAndUpdatedTimeForCurrencyLastNRounds(dAUD, '5'), [
 				fiveZeros,
 				fiveZeros,
 			]);
 		});
-		describe('given an aggregator exists for sJPY', () => {
+		describe('given an aggregator exists for dJPY', () => {
 			beforeEach(async () => {
-				await instance.addAggregator(sJPY, aggregatorJPY.address, {
+				await instance.addAggregator(dJPY, aggregatorJPY.address, {
 					from: owner,
 				});
 			});
@@ -2668,13 +2668,13 @@ contract('Exchange Rates', async accounts => {
 					}
 				});
 
-				describe('and the sBNB rate (non-aggregator) has been set three times directly also', () => {
+				describe('and the dBNB rate (non-aggregator) has been set three times directly also', () => {
 					let timestamp;
 
 					beforeEach(async () => {
 						for (let i = 0; i < 3; i++) {
 							timestamp = 10000;
-							await instance.updateRates([sBNB], [toUnit((1000 + i).toString())], timestamp + i, {
+							await instance.updateRates([dBNB], [toUnit((1000 + i).toString())], timestamp + i, {
 								from: oracle,
 							});
 						}
@@ -2682,12 +2682,12 @@ contract('Exchange Rates', async accounts => {
 					describe('getCurrentRoundId())', () => {
 						describe('when invoked for an aggregator', () => {
 							it('getCurrentRound() returns the last entry', async () => {
-								await assert.equal((await instance.getCurrentRoundId(sJPY)).toString(), '3');
+								await assert.equal((await instance.getCurrentRoundId(dJPY)).toString(), '3');
 							});
 						});
 						describe('when invoked for a regular price', () => {
 							it('getCurrentRound() returns the last entry', async () => {
-								await assert.equal((await instance.getCurrentRoundId(sBNB)).toString(), '3');
+								await assert.equal((await instance.getCurrentRoundId(dBNB)).toString(), '3');
 							});
 						});
 					});
@@ -2700,7 +2700,7 @@ contract('Exchange Rates', async accounts => {
 						it('when invoked for an aggregator', async () => {
 							const assertRound = async ({ roundId }) => {
 								const { rate, time } = await instance.rateAndTimestampAtRound(
-									sJPY,
+									dJPY,
 									roundId.toString()
 								);
 								assert.bnEqual(rate, toUnit((100 + roundId - 1).toString()));
@@ -2713,7 +2713,7 @@ contract('Exchange Rates', async accounts => {
 						it('when invoked for a regular price', async () => {
 							const assertRound = async ({ roundId }) => {
 								const { rate, time } = await instance.rateAndTimestampAtRound(
-									sBNB,
+									dBNB,
 									roundId.toString()
 								);
 								assert.bnEqual(rate, toUnit((1000 + roundId - 1).toString()));
@@ -2730,7 +2730,7 @@ contract('Exchange Rates', async accounts => {
 							it('then it returns 0s', async () => {
 								const fiveZeros = new Array(5).fill('0');
 								assert.deepEqual(
-									await instance.ratesAndUpdatedTimeForCurrencyLastNRounds(sAUD, '5'),
+									await instance.ratesAndUpdatedTimeForCurrencyLastNRounds(dAUD, '5'),
 									[fiveZeros, fiveZeros]
 								);
 							});
@@ -2738,7 +2738,7 @@ contract('Exchange Rates', async accounts => {
 						describe('when invoked for an aggregated price', () => {
 							it('then it returns the rates as expected', async () => {
 								assert.deepEqual(
-									await instance.ratesAndUpdatedTimeForCurrencyLastNRounds(sJPY, '3'),
+									await instance.ratesAndUpdatedTimeForCurrencyLastNRounds(dJPY, '3'),
 									[
 										[toUnit('102'), toUnit('101'), toUnit('100')],
 										['1002', '1001', '1000'],
@@ -2748,7 +2748,7 @@ contract('Exchange Rates', async accounts => {
 
 							it('then it returns the rates as expected, even over the edge', async () => {
 								assert.deepEqual(
-									await instance.ratesAndUpdatedTimeForCurrencyLastNRounds(sJPY, '5'),
+									await instance.ratesAndUpdatedTimeForCurrencyLastNRounds(dJPY, '5'),
 									[
 										[toUnit('102'), toUnit('101'), toUnit('100'), '0', '0'],
 										['1002', '1001', '1000', '0', '0'],
@@ -2760,7 +2760,7 @@ contract('Exchange Rates', async accounts => {
 						describe('when invoked for a regular price', () => {
 							it('then it returns the rates as expected', async () => {
 								assert.deepEqual(
-									await instance.ratesAndUpdatedTimeForCurrencyLastNRounds(sBNB, '3'),
+									await instance.ratesAndUpdatedTimeForCurrencyLastNRounds(dBNB, '3'),
 									[
 										[toUnit('1002'), toUnit('1001'), toUnit('1000')],
 										['10002', '10001', '10000'],
@@ -2769,7 +2769,7 @@ contract('Exchange Rates', async accounts => {
 							});
 							it('then it returns the rates as expected, even over the edge', async () => {
 								assert.deepEqual(
-									await instance.ratesAndUpdatedTimeForCurrencyLastNRounds(sBNB, '5'),
+									await instance.ratesAndUpdatedTimeForCurrencyLastNRounds(dBNB, '5'),
 									[
 										[toUnit('1002'), toUnit('1001'), toUnit('1000'), '0', '0'],
 										['10002', '10001', '10000', '0', '0'],
@@ -2783,13 +2783,13 @@ contract('Exchange Rates', async accounts => {
 
 			describe('and both the aggregator and regular prices have been given three rates, 30seconds apart', () => {
 				beforeEach(async () => {
-					await aggregatorJPY.setLatestAnswer(convertToDecimals(100, 8), 30); // round 1 for sJPY
-					await aggregatorJPY.setLatestAnswer(convertToDecimals(200, 8), 60); // round 2 for sJPY
-					await aggregatorJPY.setLatestAnswer(convertToDecimals(300, 8), 90); // round 3 for sJPY
+					await aggregatorJPY.setLatestAnswer(convertToDecimals(100, 8), 30); // round 1 for dJPY
+					await aggregatorJPY.setLatestAnswer(convertToDecimals(200, 8), 60); // round 2 for dJPY
+					await aggregatorJPY.setLatestAnswer(convertToDecimals(300, 8), 90); // round 3 for dJPY
 
-					await instance.updateRates([sBNB], [toUnit('1000')], '30', { from: oracle }); // round 1 for sBNB
-					await instance.updateRates([sBNB], [toUnit('2000')], '60', { from: oracle }); // round 2 for sBNB
-					await instance.updateRates([sBNB], [toUnit('3000')], '90', { from: oracle }); // round 3 for sBNB
+					await instance.updateRates([dBNB], [toUnit('1000')], '30', { from: oracle }); // round 1 for dBNB
+					await instance.updateRates([dBNB], [toUnit('2000')], '60', { from: oracle }); // round 2 for dBNB
+					await instance.updateRates([dBNB], [toUnit('3000')], '90', { from: oracle }); // round 3 for dBNB
 				});
 
 				describe('getLastRoundIdBeforeElapsedSecs()', () => {
@@ -2797,11 +2797,11 @@ contract('Exchange Rates', async accounts => {
 						it('then it receives round 1 - no change ', async () => {
 							// assert both aggregated price and regular prices work as expected
 							assert.equal(
-								(await instance.getLastRoundIdBeforeElapsedSecs(sJPY, '1', 40, 10)).toString(),
+								(await instance.getLastRoundIdBeforeElapsedSecs(dJPY, '1', 40, 10)).toString(),
 								'1'
 							);
 							assert.equal(
-								(await instance.getLastRoundIdBeforeElapsedSecs(sBNB, '1', 40, 10)).toString(),
+								(await instance.getLastRoundIdBeforeElapsedSecs(dBNB, '1', 40, 10)).toString(),
 								'1'
 							);
 						});
@@ -2810,11 +2810,11 @@ contract('Exchange Rates', async accounts => {
 					describe('when getLastRoundIdBeforeElapsedSecs() is invoked with the first round and a waiting time of 30s exactly', () => {
 						it('then it receives round 2 ', async () => {
 							assert.equal(
-								(await instance.getLastRoundIdBeforeElapsedSecs(sJPY, '1', 40, 20)).toString(),
+								(await instance.getLastRoundIdBeforeElapsedSecs(dJPY, '1', 40, 20)).toString(),
 								'2'
 							);
 							assert.equal(
-								(await instance.getLastRoundIdBeforeElapsedSecs(sBNB, '1', 40, 20)).toString(),
+								(await instance.getLastRoundIdBeforeElapsedSecs(dBNB, '1', 40, 20)).toString(),
 								'2'
 							);
 						});
@@ -2823,11 +2823,11 @@ contract('Exchange Rates', async accounts => {
 					describe('when getLastRoundIdBeforeElapsedSecs() is invoked with the second round and a waiting time of 30s exactly', () => {
 						it('then it receives round 3', async () => {
 							assert.equal(
-								(await instance.getLastRoundIdBeforeElapsedSecs(sJPY, '2', 65, 25)).toString(),
+								(await instance.getLastRoundIdBeforeElapsedSecs(dJPY, '2', 65, 25)).toString(),
 								'3'
 							);
 							assert.equal(
-								(await instance.getLastRoundIdBeforeElapsedSecs(sBNB, '2', 65, 25)).toString(),
+								(await instance.getLastRoundIdBeforeElapsedSecs(dBNB, '2', 65, 25)).toString(),
 								'3'
 							);
 						});
@@ -2836,11 +2836,11 @@ contract('Exchange Rates', async accounts => {
 					describe('when getLastRoundIdBeforeElapsedSecs() is invoked with the first round and a waiting time between 30s to 60s', () => {
 						it('then it receives round 2 ', async () => {
 							assert.equal(
-								(await instance.getLastRoundIdBeforeElapsedSecs(sJPY, '1', 40, 40)).toString(),
+								(await instance.getLastRoundIdBeforeElapsedSecs(dJPY, '1', 40, 40)).toString(),
 								'2'
 							);
 							assert.equal(
-								(await instance.getLastRoundIdBeforeElapsedSecs(sBNB, '1', 40, 40)).toString(),
+								(await instance.getLastRoundIdBeforeElapsedSecs(dBNB, '1', 40, 40)).toString(),
 								'2'
 							);
 						});
@@ -2848,11 +2848,11 @@ contract('Exchange Rates', async accounts => {
 					describe('when getLastRoundIdBeforeElapsedSecs() is invoked with the first round and a waiting time of 60s exactly', () => {
 						it('then it receives round 3 ', async () => {
 							assert.equal(
-								(await instance.getLastRoundIdBeforeElapsedSecs(sJPY, '1', 50, 40)).toString(),
+								(await instance.getLastRoundIdBeforeElapsedSecs(dJPY, '1', 50, 40)).toString(),
 								'3'
 							);
 							assert.equal(
-								(await instance.getLastRoundIdBeforeElapsedSecs(sBNB, '1', 50, 40)).toString(),
+								(await instance.getLastRoundIdBeforeElapsedSecs(dBNB, '1', 50, 40)).toString(),
 								'3'
 							);
 						});
@@ -2860,11 +2860,11 @@ contract('Exchange Rates', async accounts => {
 					describe('when getLastRoundIdBeforeElapsedSecs() is invoked with the first round and a waiting time beyond 60s', () => {
 						it('then it receives round 3 as well ', async () => {
 							assert.equal(
-								(await instance.getLastRoundIdBeforeElapsedSecs(sJPY, '1', 55, 6000)).toString(),
+								(await instance.getLastRoundIdBeforeElapsedSecs(dJPY, '1', 55, 6000)).toString(),
 								'3'
 							);
 							assert.equal(
-								(await instance.getLastRoundIdBeforeElapsedSecs(sBNB, '1', 50, 40)).toString(),
+								(await instance.getLastRoundIdBeforeElapsedSecs(dBNB, '1', 50, 40)).toString(),
 								'3'
 							);
 						});
@@ -2872,11 +2872,11 @@ contract('Exchange Rates', async accounts => {
 					describe('when getLastRoundIdBeforeElapsedSecs() is invoked with the third round and a waiting time beyond 60s', () => {
 						it('then it still receives round 3', async () => {
 							assert.equal(
-								(await instance.getLastRoundIdBeforeElapsedSecs(sJPY, '3', 180, 9000)).toString(),
+								(await instance.getLastRoundIdBeforeElapsedSecs(dJPY, '3', 180, 9000)).toString(),
 								'3'
 							);
 							assert.equal(
-								(await instance.getLastRoundIdBeforeElapsedSecs(sBNB, '1', 50, 40)).toString(),
+								(await instance.getLastRoundIdBeforeElapsedSecs(dBNB, '1', 50, 40)).toString(),
 								'3'
 							);
 						});
@@ -2887,58 +2887,58 @@ contract('Exchange Rates', async accounts => {
 				describe('when both the aggregator and regular prices have been give three rates with current timestamps', () => {
 					beforeEach(async () => {
 						let timestamp = await currentTime();
-						await aggregatorJPY.setLatestAnswer(convertToDecimals(100, 8), timestamp); // round 1 for sJPY
-						await instance.updateRates([sBNB], [toUnit('1000')], timestamp, { from: oracle }); // round 1 for sBNB
+						await aggregatorJPY.setLatestAnswer(convertToDecimals(100, 8), timestamp); // round 1 for dJPY
+						await instance.updateRates([dBNB], [toUnit('1000')], timestamp, { from: oracle }); // round 1 for dBNB
 
 						await fastForward(120);
 						timestamp = await currentTime();
-						await aggregatorJPY.setLatestAnswer(convertToDecimals(200, 8), timestamp); // round 2 for sJPY
-						await instance.updateRates([sBNB], [toUnit('2000')], timestamp, { from: oracle }); // round 2 for sBNB
+						await aggregatorJPY.setLatestAnswer(convertToDecimals(200, 8), timestamp); // round 2 for dJPY
+						await instance.updateRates([dBNB], [toUnit('2000')], timestamp, { from: oracle }); // round 2 for dBNB
 
 						await fastForward(120);
 						timestamp = await currentTime();
-						await aggregatorJPY.setLatestAnswer(convertToDecimals(300, 8), timestamp); // round 3 for sJPY
-						await instance.updateRates([sBNB], [toUnit('4000')], timestamp, { from: oracle }); // round 3 for sBNB
+						await aggregatorJPY.setLatestAnswer(convertToDecimals(300, 8), timestamp); // round 3 for dJPY
+						await instance.updateRates([dBNB], [toUnit('4000')], timestamp, { from: oracle }); // round 3 for dBNB
 					});
 					it('accepts various changes to src roundId', async () => {
 						assert.bnEqual(
-							await instance.effectiveValueAtRound(sJPY, toUnit('1'), sBNB, '1', '1'),
+							await instance.effectiveValueAtRound(dJPY, toUnit('1'), dBNB, '1', '1'),
 							toUnit('0.1')
 						);
 						assert.bnEqual(
-							await instance.effectiveValueAtRound(sJPY, toUnit('1'), sBNB, '2', '1'),
+							await instance.effectiveValueAtRound(dJPY, toUnit('1'), dBNB, '2', '1'),
 							toUnit('0.2')
 						);
 						assert.bnEqual(
-							await instance.effectiveValueAtRound(sJPY, toUnit('1'), sBNB, '3', '1'),
+							await instance.effectiveValueAtRound(dJPY, toUnit('1'), dBNB, '3', '1'),
 							toUnit('0.3')
 						);
 					});
 					it('accepts various changes to dest roundId', async () => {
 						assert.bnEqual(
-							await instance.effectiveValueAtRound(sJPY, toUnit('1'), sBNB, '1', '1'),
+							await instance.effectiveValueAtRound(dJPY, toUnit('1'), dBNB, '1', '1'),
 							toUnit('0.1')
 						);
 						assert.bnEqual(
-							await instance.effectiveValueAtRound(sJPY, toUnit('1'), sBNB, '1', '2'),
+							await instance.effectiveValueAtRound(dJPY, toUnit('1'), dBNB, '1', '2'),
 							toUnit('0.05')
 						);
 						assert.bnEqual(
-							await instance.effectiveValueAtRound(sJPY, toUnit('1'), sBNB, '1', '3'),
+							await instance.effectiveValueAtRound(dJPY, toUnit('1'), dBNB, '1', '3'),
 							toUnit('0.025')
 						);
 					});
 					it('and combinations therein', async () => {
 						assert.bnEqual(
-							await instance.effectiveValueAtRound(sJPY, toUnit('1'), sBNB, '2', '2'),
+							await instance.effectiveValueAtRound(dJPY, toUnit('1'), dBNB, '2', '2'),
 							toUnit('0.1')
 						);
 						assert.bnEqual(
-							await instance.effectiveValueAtRound(sJPY, toUnit('1'), sBNB, '3', '3'),
+							await instance.effectiveValueAtRound(dJPY, toUnit('1'), dBNB, '3', '3'),
 							toUnit('0.075')
 						);
 						assert.bnEqual(
-							await instance.effectiveValueAtRound(sJPY, toUnit('1'), sBNB, '3', '2'),
+							await instance.effectiveValueAtRound(dJPY, toUnit('1'), dBNB, '3', '2'),
 							toUnit('0.15')
 						);
 					});

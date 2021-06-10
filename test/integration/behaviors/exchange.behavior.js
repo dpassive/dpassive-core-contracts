@@ -4,44 +4,44 @@ const { toBytes32 } = require('../../../index');
 const { ensureBalance } = require('../utils/balances');
 
 function itCanPerformExchanges({ ctx }) {
-	const sUSDAmount = ethers.utils.parseEther('100');
+	const dUSDAmount = ethers.utils.parseEther('100');
 
 	let owner;
 
-	let DPassive, Exchanger, SynthsETH;
+	let DPassive, Exchanger, SynthdETH;
 
 	before('target contracts and users', () => {
-		({ DPassive, Exchanger, SynthsETH } = ctx.contracts);
+		({ DPassive, Exchanger, SynthdETH } = ctx.contracts);
 
 		owner = ctx.owner;
 	});
 
-	before('ensure the owner has sUSD', async () => {
-		await ensureBalance({ ctx, symbol: 'sUSD', user: owner, balance: sUSDAmount });
+	before('ensure the owner has dUSD', async () => {
+		await ensureBalance({ ctx, symbol: 'dUSD', user: owner, balance: dUSDAmount });
 	});
 
-	describe('when the owner exchanges from sUSD to sETH', () => {
-		let balancesETH;
+	describe('when the owner exchanges from dUSD to dETH', () => {
+		let balancedETH;
 
 		before('record balances', async () => {
-			balancesETH = await SynthsETH.balanceOf(owner.address);
+			balancedETH = await SynthdETH.balanceOf(owner.address);
 		});
 
 		before('perform the exchange', async () => {
 			DPassive = DPassive.connect(owner);
 
-			const tx = await DPassive.exchange(toBytes32('sUSD'), sUSDAmount, toBytes32('sETH'));
+			const tx = await DPassive.exchange(toBytes32('dUSD'), dUSDAmount, toBytes32('dETH'));
 			await tx.wait();
 		});
 
-		it('receives the expected amount of sETH', async () => {
+		it('receives the expected amount of dETH', async () => {
 			const [expectedAmount, ,] = await Exchanger.getAmountsForExchange(
-				sUSDAmount,
-				toBytes32('sUSD'),
-				toBytes32('sETH')
+				dUSDAmount,
+				toBytes32('dUSD'),
+				toBytes32('dETH')
 			);
 
-			assert.bnEqual(await SynthsETH.balanceOf(owner.address), balancesETH.add(expectedAmount));
+			assert.bnEqual(await SynthdETH.balanceOf(owner.address), balancedETH.add(expectedAmount));
 		});
 	});
 }

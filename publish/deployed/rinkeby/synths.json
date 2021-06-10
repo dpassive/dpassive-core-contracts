@@ -1,54 +1,54 @@
 [
 	{
-		"name": "sUSD",
+		"name": "dUSD",
 		"asset": "USD",
 		"subclass": "MultiCollateralSynth"
 	},
 	{
-		"name": "sEUR",
+		"name": "dEUR",
 		"asset": "EUR"
 	},
 	{
-		"name": "sJPY",
+		"name": "dJPY",
 		"asset": "JPY"
 	},
 	{
-		"name": "sAUD",
+		"name": "dAUD",
 		"asset": "AUD"
 	},
 	{
-		"name": "sGBP",
+		"name": "dGBP",
 		"asset": "GBP"
 	},
 	{
-		"name": "sCHF",
+		"name": "dCHF",
 		"asset": "CHF"
 	},
 	{
-		"name": "sXAU",
+		"name": "dXAU",
 		"asset": "XAU"
 	},
 	{
-		"name": "sXAG",
+		"name": "dXAG",
 		"asset": "XAG"
 	},
 	{
-		"name": "sBTC",
+		"name": "dBTC",
 		"asset": "BTC",
 		"subclass": "MultiCollateralSynth"
 	},
 	{
-		"name": "sETH",
+		"name": "dETH",
 		"asset": "ETH",
 		"subclass": "MultiCollateralSynth"
 	},
 	{
-		"name": "sBNB",
+		"name": "dBNB",
 		"asset": "BNB",
 		"subclass": "PurgeableSynth"
 	},
 	{
-		"name": "sTRX",
+		"name": "dTRX",
 		"asset": "TRX"
 	},
 	{
@@ -94,7 +94,7 @@
 		"asset": "ADA"
 	},
 	{
-		"name": "sCEX",
+		"name": "dCEX",
 		"asset": "CEX",
 		"index": [
 			{
@@ -136,7 +136,7 @@
 		"subclass": "PurgeableSynth"
 	},
 	{
-		"name": "sDEFI",
+		"name": "dDEFI",
 		"asset": "DEFI",
 		"index": [
 			{
@@ -345,7 +345,7 @@
 	{
 		"name": "iCEX",
 		"asset": "CEX",
-		"index": "sCEX",
+		"index": "dCEX",
 		"subclass": "PurgeableSynth",
 		"inverted": {
 			"entryPoint": 943.4772,
@@ -356,7 +356,7 @@
 	{
 		"name": "iDEFI",
 		"asset": "DEFI",
-		"index": "sDEFI",
+		"index": "dDEFI",
 		"subclass": "PurgeableSynth",
 		"inverted": {
 			"entryPoint": 4249.0685,

@@ -19,7 +19,7 @@ contract BinaryOption is IERC20, IBinaryOption {
     /* ========== STATE VARIABLES ========== */
 
     string public constant override name = "DPS Binary Option";
-    string public constant override symbol = "sOPT";
+    string public constant override symbol = "dOPT";
     uint8 public constant override decimals = 18;
 
     BinaryOptionMarket private _market;

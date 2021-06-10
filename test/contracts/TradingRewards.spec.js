@@ -15,12 +15,12 @@ const { toBytes32 } = require('../..');
 contract('TradingRewards', accounts => {
 	const [, owner, account1] = accounts;
 
-	const synths = ['sUSD', 'sETH', 'sBTC'];
+	const synths = ['dUSD', 'dETH', 'dBTC'];
 	const synthKeys = synths.map(toBytes32);
-	const [sUSD, sETH, sBTC] = synthKeys;
+	const [dUSD, dETH, dBTC] = synthKeys;
 
 	let dpassive, exchanger, exchangeRates, rewards, resolver, systemSettings;
-	let sUSDContract, sETHContract, sBTCContract;
+	let dUSDContract, dETHContract, dBTCContract;
 
 	let exchangeLogs;
 
@@ -29,8 +29,8 @@ contract('TradingRewards', accounts => {
 	const amountIssued = toUnit('1000');
 	const allExchangeFeeRates = toUnit('0.001');
 	const rates = {
-		[sETH]: toUnit('100'),
-		[sBTC]: toUnit('12000'),
+		[dETH]: toUnit('100'),
+		[dBTC]: toUnit('12000'),
 	};
 
 	let feesPaidUSD;
@@ -69,9 +69,9 @@ contract('TradingRewards', accounts => {
 				AddressResolver: resolver,
 				Exchanger: exchanger,
 				ExchangeRates: exchangeRates,
-				SynthsUSD: sUSDContract,
-				SynthsETH: sETHContract,
-				SynthsBTC: sBTCContract,
+				SynthdUSD: dUSDContract,
+				SynthdETH: dETHContract,
+				SynthdBTC: dBTCContract,
 				SystemSettings: systemSettings,
 			} = await setupAllContracts({
 				accounts,
@@ -89,16 +89,16 @@ contract('TradingRewards', accounts => {
 		});
 
 		before('BRRRRRR', async () => {
-			await sUSDContract.issue(account1, amountIssued);
-			await sETHContract.issue(account1, amountIssued);
-			await sBTCContract.issue(account1, amountIssued);
+			await dUSDContract.issue(account1, amountIssued);
+			await dETHContract.issue(account1, amountIssued);
+			await dBTCContract.issue(account1, amountIssued);
 		});
 
 		before('set exchange rates', async () => {
 			const oracle = account1;
 			const timestamp = await currentTime();
 
-			await exchangeRates.updateRates([sETH, sBTC], Object.values(rates), timestamp, {
+			await exchangeRates.updateRates([dETH, dBTC], Object.values(rates), timestamp, {
 				from: oracle,
 			});
 
@@ -111,9 +111,9 @@ contract('TradingRewards', accounts => {
 		});
 
 		it('has expected balances for accounts', async () => {
-			assert.bnEqual(amountIssued, await sUSDContract.balanceOf(account1));
-			assert.bnEqual(amountIssued, await sETHContract.balanceOf(account1));
-			assert.bnEqual(amountIssued, await sBTCContract.balanceOf(account1));
+			assert.bnEqual(amountIssued, await dUSDContract.balanceOf(account1));
+			assert.bnEqual(amountIssued, await dETHContract.balanceOf(account1));
+			assert.bnEqual(amountIssued, await dBTCContract.balanceOf(account1));
 		});
 
 		it('has expected parameters', async () => {
@@ -135,9 +135,9 @@ contract('TradingRewards', accounts => {
 				before('perform an exchange and get tx logs', async () => {
 					await executeTrade({
 						account: account1,
-						fromCurrencyKey: sUSD,
+						fromCurrencyKey: dUSD,
 						fromCurrencyAmount: toUnit('100'),
-						toCurrencyKey: sETH,
+						toCurrencyKey: dETH,
 					});
 				});
 
@@ -210,30 +210,30 @@ contract('TradingRewards', accounts => {
 
 			itCorrectlyPerformsAnExchange({
 				account: account1,
-				fromCurrencyKey: sUSD,
+				fromCurrencyKey: dUSD,
 				fromCurrencyAmount: toUnit('100'),
-				toCurrencyKey: sETH,
+				toCurrencyKey: dETH,
 			});
 
 			itCorrectlyPerformsAnExchange({
 				account: account1,
-				fromCurrencyKey: sUSD,
+				fromCurrencyKey: dUSD,
 				fromCurrencyAmount: toUnit('100'),
-				toCurrencyKey: sBTC,
+				toCurrencyKey: dBTC,
 			});
 
 			itCorrectlyPerformsAnExchange({
 				account: account1,
-				fromCurrencyKey: sETH,
+				fromCurrencyKey: dETH,
 				fromCurrencyAmount: toUnit('10'),
-				toCurrencyKey: sBTC,
+				toCurrencyKey: dBTC,
 			});
 
 			itCorrectlyPerformsAnExchange({
 				account: account1,
-				fromCurrencyKey: sBTC,
+				fromCurrencyKey: dBTC,
 				fromCurrencyAmount: toUnit('1'),
-				toCurrencyKey: sETH,
+				toCurrencyKey: dETH,
 			});
 
 			describe('when exchangeFeeRate is set to 0', () => {
@@ -254,9 +254,9 @@ contract('TradingRewards', accounts => {
 					before('perform an exchange and get tx logs', async () => {
 						await executeTrade({
 							account: account1,
-							fromCurrencyKey: sUSD,
+							fromCurrencyKey: dUSD,
 							fromCurrencyAmount: toUnit('100'),
-							toCurrencyKey: sETH,
+							toCurrencyKey: dETH,
 						});
 					});
 
@@ -276,9 +276,9 @@ contract('TradingRewards', accounts => {
 				describe('when a valid originator address is passed', () => {
 					before('execute exchange with tracking', async () => {
 						const exchangeTx = await dpassive.exchangeWithTracking(
-							sUSD,
+							dUSD,
 							toUnit('100'),
-							sETH,
+							dETH,
 							account1,
 							toBytes32('1INCH'),
 							{
@@ -301,9 +301,9 @@ contract('TradingRewards', accounts => {
 				describe('when no valid originator address is passed', () => {
 					before('execute exchange with tracking', async () => {
 						const exchangeTx = await dpassive.exchangeWithTracking(
-							sUSD,
+							dUSD,
 							toUnit('100'),
-							sETH,
+							dETH,
 							zeroAddress, // No originator = 0x0
 							toBytes32('1INCH'),
 							{

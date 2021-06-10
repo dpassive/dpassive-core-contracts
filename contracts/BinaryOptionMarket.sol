@@ -67,7 +67,7 @@ contract BinaryOptionMarket is Owned, MixinResolver, IBinaryOptionMarket {
 
     bytes32 internal constant CONTRACT_SYSTEMSTATUS = "SystemStatus";
     bytes32 internal constant CONTRACT_EXRATES = "ExchangeRates";
-    bytes32 internal constant CONTRACT_SYNTHSUSD = "SynthsUSD";
+    bytes32 internal constant CONTRACT_SYNTHDUSD = "SynthdUSD";
     bytes32 internal constant CONTRACT_FEEPOOL = "FeePool";
 
     /* ========== CONSTRUCTOR ========== */
@@ -121,7 +121,7 @@ contract BinaryOptionMarket is Owned, MixinResolver, IBinaryOptionMarket {
         addresses = new bytes32[](4);
         addresses[0] = CONTRACT_SYSTEMSTATUS;
         addresses[1] = CONTRACT_EXRATES;
-        addresses[2] = CONTRACT_SYNTHSUSD;
+        addresses[2] = CONTRACT_SYNTHDUSD;
         addresses[3] = CONTRACT_FEEPOOL;
     }
 
@@ -139,8 +139,8 @@ contract BinaryOptionMarket is Owned, MixinResolver, IBinaryOptionMarket {
         return IExchangeRates(requireAndGetAddress(CONTRACT_EXRATES));
     }
 
-    function _sUSD() internal view returns (IERC20) {
-        return IERC20(requireAndGetAddress(CONTRACT_SYNTHSUSD));
+    function _dUSD() internal view returns (IERC20) {
+        return IERC20(requireAndGetAddress(CONTRACT_SYNTHDUSD));
     }
 
     function _feePool() internal view returns (IFeePool) {
@@ -433,7 +433,7 @@ contract BinaryOptionMarket is Owned, MixinResolver, IBinaryOptionMarket {
         emit Bid(side, msg.sender, value);
 
         uint _deposited = _incrementDeposited(value);
-        _sUSD().transferFrom(msg.sender, address(this), value);
+        _dUSD().transferFrom(msg.sender, address(this), value);
 
         (uint longTotalBids, uint shortTotalBids) = _totalBids();
         _updatePrices(longTotalBids, shortTotalBids, _deposited);
@@ -462,7 +462,7 @@ contract BinaryOptionMarket is Owned, MixinResolver, IBinaryOptionMarket {
         emit Refund(side, msg.sender, refundMinusFee, value.sub(refundMinusFee));
 
         uint _deposited = _decrementDeposited(refundMinusFee);
-        _sUSD().transfer(msg.sender, refundMinusFee);
+        _dUSD().transfer(msg.sender, refundMinusFee);
 
         (uint longTotalBids, uint shortTotalBids) = _totalBids();
         _updatePrices(longTotalBids, shortTotalBids, _deposited);
@@ -484,14 +484,14 @@ contract BinaryOptionMarket is Owned, MixinResolver, IBinaryOptionMarket {
         // Now remit any collected fees.
         // Since the constructor enforces that creatorFee + poolFee < 1, the balance
         // in the contract will be sufficient to cover these transfers.
-        IERC20 sUSD = _sUSD();
+        IERC20 dUSD = _dUSD();
 
         uint _deposited = deposited;
         uint poolFees = _deposited.multiplyDecimalRound(fees.poolFee);
         uint creatorFees = _deposited.multiplyDecimalRound(fees.creatorFee);
         _decrementDeposited(creatorFees.add(poolFees));
-        sUSD.transfer(_feePool().FEE_ADDRESS(), poolFees);
-        sUSD.transfer(creator, creatorFees);
+        dUSD.transfer(_feePool().FEE_ADDRESS(), poolFees);
+        dUSD.transfer(creator, creatorFees);
 
         emit MarketResolved(_result(), price, updatedAt, deposited, poolFees, creatorFees);
     }
@@ -557,7 +557,7 @@ contract BinaryOptionMarket is Owned, MixinResolver, IBinaryOptionMarket {
         emit OptionsExercised(msg.sender, payout);
         if (payout != 0) {
             _decrementDeposited(payout);
-            _sUSD().transfer(msg.sender, payout);
+            _dUSD().transfer(msg.sender, payout);
         }
         return payout;
     }
@@ -572,10 +572,10 @@ contract BinaryOptionMarket is Owned, MixinResolver, IBinaryOptionMarket {
 
         // Transfer the balance rather than the deposit value in case there are any synths left over
         // from direct transfers.
-        IERC20 sUSD = _sUSD();
-        uint balance = sUSD.balanceOf(address(this));
+        IERC20 dUSD = _dUSD();
+        uint balance = dUSD.balanceOf(address(this));
         if (balance != 0) {
-            sUSD.transfer(beneficiary, balance);
+            dUSD.transfer(beneficiary, balance);
         }
 
         // Destroy the option tokens before destroying the market itself.

@@ -22,7 +22,7 @@ const {
 const { toBytes32 } = require('../..');
 
 contract('BaseDPassive', async accounts => {
-	const [sUSD, sAUD, sEUR, DPS, sETH] = ['sUSD', 'sAUD', 'sEUR', 'DPS', 'sETH'].map(toBytes32);
+	const [dUSD, dAUD, dEUR, DPS, dETH] = ['dUSD', 'dAUD', 'dEUR', 'DPS', 'dETH'].map(toBytes32);
 
 	const [, owner, account1, account2, account3] = accounts;
 
@@ -47,7 +47,7 @@ contract('BaseDPassive', async accounts => {
 			DPassiveEscrow: escrow,
 		} = await setupAllContracts({
 			accounts,
-			synths: ['sUSD', 'sETH', 'sEUR', 'sAUD'],
+			synths: ['dUSD', 'dETH', 'dEUR', 'dAUD'],
 			contracts: [
 				'BaseDPassive',
 				'DPassiveState',
@@ -147,7 +147,7 @@ contract('BaseDPassive', async accounts => {
 			await onlyGivenAddressCanInvoke({
 				fnc: baseDPassive.exchangeWithVirtual,
 				accounts,
-				args: [sUSD, amount, sAUD, toBytes32('AGGREGATOR')],
+				args: [dUSD, amount, dAUD, toBytes32('AGGREGATOR')],
 				reason: 'Cannot be run on this layer',
 			});
 		});
@@ -156,7 +156,7 @@ contract('BaseDPassive', async accounts => {
 			await onlyGivenAddressCanInvoke({
 				fnc: baseDPassive.exchangeWithTrackingForInitiator,
 				accounts,
-				args: [sUSD, amount, sAUD, owner, toBytes32('AGGREGATOR')],
+				args: [dUSD, amount, dAUD, owner, toBytes32('AGGREGATOR')],
 				reason: 'Cannot be run on this layer',
 			});
 		});
@@ -207,8 +207,8 @@ contract('BaseDPassive', async accounts => {
 	describe('only Exchanger can call emit event functions', () => {
 		const amount1 = 10;
 		const amount2 = 100;
-		const currencyKey1 = sAUD;
-		const currencyKey2 = sEUR;
+		const currencyKey1 = dAUD;
+		const currencyKey2 = dEUR;
 		const trackingCode = toBytes32('1inch');
 
 		it('emitExchangeTracking() cannot be invoked directly by any account', async () => {
@@ -326,8 +326,8 @@ contract('BaseDPassive', async accounts => {
 		});
 
 		const amount1 = '10';
-		const currencyKey1 = sAUD;
-		const currencyKey2 = sEUR;
+		const currencyKey1 = dAUD;
+		const currencyKey2 = dEUR;
 		const msgSender = owner;
 		const trackingCode = toBytes32('1inch');
 
@@ -393,24 +393,24 @@ contract('BaseDPassive', async accounts => {
 
 	describe('isWaitingPeriod()', () => {
 		it('returns false by default', async () => {
-			assert.isFalse(await baseDPassive.isWaitingPeriod(sETH));
+			assert.isFalse(await baseDPassive.isWaitingPeriod(dETH));
 		});
-		describe('when a user has exchanged into sETH', () => {
+		describe('when a user has exchanged into dETH', () => {
 			beforeEach(async () => {
 				await updateRatesWithDefaults({ exchangeRates, oracle, debtCache });
 
 				await baseDPassive.issueSynths(toUnit('100'), { from: owner });
-				await baseDPassive.exchange(sUSD, toUnit('10'), sETH, { from: owner });
+				await baseDPassive.exchange(dUSD, toUnit('10'), dETH, { from: owner });
 			});
 			it('then waiting period is true', async () => {
-				assert.isTrue(await baseDPassive.isWaitingPeriod(sETH));
+				assert.isTrue(await baseDPassive.isWaitingPeriod(dETH));
 			});
 			describe('when the waiting period expires', () => {
 				beforeEach(async () => {
 					await fastForward(await systemSettings.waitingPeriodSecs());
 				});
 				it('returns false by default', async () => {
-					assert.isFalse(await baseDPassive.isWaitingPeriod(sETH));
+					assert.isFalse(await baseDPassive.isWaitingPeriod(dETH));
 				});
 			});
 		});
@@ -428,7 +428,7 @@ contract('BaseDPassive', async accounts => {
 				timestamp = await currentTime();
 
 				await exchangeRates.updateRates(
-					[sAUD, sEUR, sETH],
+					[dAUD, dEUR, dETH],
 					['0.5', '1.25', '100'].map(toUnit),
 					timestamp,
 					{ from: oracle }
@@ -454,7 +454,7 @@ contract('BaseDPassive', async accounts => {
 
 						timestamp = await currentTime();
 
-						await exchangeRates.updateRates([DPS, sAUD], ['0.1', '0.78'].map(toUnit), timestamp, {
+						await exchangeRates.updateRates([DPS, dAUD], ['0.1', '0.78'].map(toUnit), timestamp, {
 							from: oracle,
 						});
 					});
@@ -469,13 +469,13 @@ contract('BaseDPassive', async accounts => {
 
 	describe('availableCurrencyKeys()', () => {
 		it('returns all currency keys by default', async () => {
-			assert.deepEqual(await baseDPassive.availableCurrencyKeys(), [sUSD, sETH, sEUR, sAUD]);
+			assert.deepEqual(await baseDPassive.availableCurrencyKeys(), [dUSD, dETH, dEUR, dAUD]);
 		});
 	});
 
 	describe('isWaitingPeriod()', () => {
 		it('returns false by default', async () => {
-			assert.isFalse(await baseDPassive.isWaitingPeriod(sETH));
+			assert.isFalse(await baseDPassive.isWaitingPeriod(dETH));
 		});
 	});
 
@@ -610,12 +610,12 @@ contract('BaseDPassive', async accounts => {
 			);
 		});
 
-		describe('when the user has issued some sUSD and exchanged for other synths', () => {
+		describe('when the user has issued some dUSD and exchanged for other synths', () => {
 			beforeEach(async () => {
 				await baseDPassive.issueSynths(toUnit('100'), { from: owner });
-				await baseDPassive.exchange(sUSD, toUnit('10'), sETH, { from: owner });
-				await baseDPassive.exchange(sUSD, toUnit('10'), sAUD, { from: owner });
-				await baseDPassive.exchange(sUSD, toUnit('10'), sEUR, { from: owner });
+				await baseDPassive.exchange(dUSD, toUnit('10'), dETH, { from: owner });
+				await baseDPassive.exchange(dUSD, toUnit('10'), dAUD, { from: owner });
+				await baseDPassive.exchange(dUSD, toUnit('10'), dEUR, { from: owner });
 			});
 			it('should transfer using the ERC20 transfer function @gasprofile', async () => {
 				await baseDPassive.transfer(account1, toUnit('10'), { from: owner });
@@ -698,7 +698,7 @@ contract('BaseDPassive', async accounts => {
 					const timestamp = await currentTime();
 
 					// now give some synth rates
-					await exchangeRates.updateRates([sAUD, sEUR], ['0.5', '1.25'].map(toUnit), timestamp, {
+					await exchangeRates.updateRates([dAUD, dEUR], ['0.5', '1.25'].map(toUnit), timestamp, {
 						from: oracle,
 					});
 					await debtCache.takeDebtSnapshot();
@@ -706,7 +706,7 @@ contract('BaseDPassive', async accounts => {
 					await ensureTransferReverts();
 
 					// the remainder of the synths have prices
-					await exchangeRates.updateRates([sETH], ['100'].map(toUnit), timestamp, {
+					await exchangeRates.updateRates([dETH], ['100'].map(toUnit), timestamp, {
 						from: oracle,
 					});
 					await debtCache.takeDebtSnapshot();
@@ -739,7 +739,7 @@ contract('BaseDPassive', async accounts => {
 					await ensureTransferReverts();
 
 					// now give some synth rates
-					await exchangeRates.updateRates([sAUD, sEUR], ['0.5', '1.25'].map(toUnit), timestamp, {
+					await exchangeRates.updateRates([dAUD, dEUR], ['0.5', '1.25'].map(toUnit), timestamp, {
 						from: oracle,
 					});
 					await debtCache.takeDebtSnapshot();
@@ -747,7 +747,7 @@ contract('BaseDPassive', async accounts => {
 					await ensureTransferReverts();
 
 					// now give the remainder of synths rates
-					await exchangeRates.updateRates([sETH], ['100'].map(toUnit), timestamp, {
+					await exchangeRates.updateRates([dETH], ['100'].map(toUnit), timestamp, {
 						from: oracle,
 					});
 					await debtCache.takeDebtSnapshot();
@@ -834,9 +834,9 @@ contract('BaseDPassive', async accounts => {
 		});
 
 		it("should lock newly received dpassive if the user's collaterisation is too high", async () => {
-			// Set sEUR for purposes of this test
+			// Set dEUR for purposes of this test
 			const timestamp1 = await currentTime();
-			await exchangeRates.updateRates([sEUR], [toUnit('0.75')], timestamp1, { from: oracle });
+			await exchangeRates.updateRates([dEUR], [toUnit('0.75')], timestamp1, { from: oracle });
 			await debtCache.takeDebtSnapshot();
 
 			const issuedDPassives = web3.utils.toBN('200000');
@@ -852,8 +852,8 @@ contract('BaseDPassive', async accounts => {
 			// Issue
 			await baseDPassive.issueSynths(maxIssuableSynths, { from: account1 });
 
-			// Exchange into sEUR
-			await baseDPassive.exchange(sUSD, maxIssuableSynths, sEUR, { from: account1 });
+			// Exchange into dEUR
+			await baseDPassive.exchange(dUSD, maxIssuableSynths, dEUR, { from: account1 });
 
 			// Ensure that we can transfer in and out of the account successfully
 			await baseDPassive.transfer(account1, toUnit('10000'), {
@@ -863,9 +863,9 @@ contract('BaseDPassive', async accounts => {
 				from: account1,
 			});
 
-			// Increase the value of sEUR relative to dpassive
+			// Increase the value of dEUR relative to dpassive
 			const timestamp2 = await currentTime();
-			await exchangeRates.updateRates([sEUR], [toUnit('2.10')], timestamp2, { from: oracle });
+			await exchangeRates.updateRates([dEUR], [toUnit('2.10')], timestamp2, { from: oracle });
 			await debtCache.takeDebtSnapshot();
 
 			// Ensure that the new dpassive account1 receives cannot be transferred out.
@@ -879,11 +879,11 @@ contract('BaseDPassive', async accounts => {
 			// prevent circuit breaker from firing by upping the threshold to factor 5
 			await systemSettings.setPriceDeviationThresholdFactor(toUnit('5'), { from: owner });
 
-			// Set sAUD for purposes of this test
+			// Set dAUD for purposes of this test
 			const timestamp1 = await currentTime();
 			const aud2usdrate = toUnit('2');
 
-			await exchangeRates.updateRates([sAUD], [aud2usdrate], timestamp1, { from: oracle });
+			await exchangeRates.updateRates([dAUD], [aud2usdrate], timestamp1, { from: oracle });
 			await debtCache.takeDebtSnapshot();
 
 			const issuedDPassives = web3.utils.toBN('200000');
@@ -901,25 +901,25 @@ contract('BaseDPassive', async accounts => {
 			const transferable1 = await baseDPassive.transferableDPassive(account1);
 			assert.bnEqual(transferable1, '0');
 
-			// Exchange into sAUD
-			await baseDPassive.exchange(sUSD, issuedSynths, sAUD, { from: account1 });
+			// Exchange into dAUD
+			await baseDPassive.exchange(dUSD, issuedSynths, dAUD, { from: account1 });
 
-			// Increase the value of sAUD relative to dpassive
+			// Increase the value of dAUD relative to dpassive
 			const timestamp2 = await currentTime();
 			const newAUDExchangeRate = toUnit('1');
-			await exchangeRates.updateRates([sAUD], [newAUDExchangeRate], timestamp2, { from: oracle });
+			await exchangeRates.updateRates([dAUD], [newAUDExchangeRate], timestamp2, { from: oracle });
 			await debtCache.takeDebtSnapshot();
 
 			const transferable2 = await baseDPassive.transferableDPassive(account1);
 			assert.equal(transferable2.gt(toUnit('1000')), true);
 		});
 
-		describe('when the user has issued some sUSD and exchanged for other synths', () => {
+		describe('when the user has issued some dUSD and exchanged for other synths', () => {
 			beforeEach(async () => {
 				await baseDPassive.issueSynths(toUnit('100'), { from: owner });
-				await baseDPassive.exchange(sUSD, toUnit('10'), sETH, { from: owner });
-				await baseDPassive.exchange(sUSD, toUnit('10'), sAUD, { from: owner });
-				await baseDPassive.exchange(sUSD, toUnit('10'), sEUR, { from: owner });
+				await baseDPassive.exchange(dUSD, toUnit('10'), dETH, { from: owner });
+				await baseDPassive.exchange(dUSD, toUnit('10'), dAUD, { from: owner });
+				await baseDPassive.exchange(dUSD, toUnit('10'), dEUR, { from: owner });
 			});
 			it('should transfer using the ERC20 transfer function @gasprofile', async () => {
 				await baseDPassive.transfer(account1, toUnit('10'), { from: owner });
